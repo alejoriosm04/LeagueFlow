@@ -16,6 +16,7 @@ versiona y cómo se reparte el trabajo. Si algo aquí choca con la
 | `.claude/skills/speckit-*/` | ✅ Sí | Comandos `/speckit-*`. Sin esto un compañero no puede correr el motor. |
 | `.claude/settings.local.json` | ❌ No | Permisos personales de cada quien. |
 | `.codex/`, `.cursor/`, … | ✅ Sí | Integraciones de otros agentes del equipo (ver 2.1). |
+| `AGENTS.md` / `CLAUDE.md` | ✅ Sí | Reglas que **todos** los agentes leen automáticamente. Editarlas es editar el comportamiento del equipo entero. |
 | `specs/NNN-*/` (spec, plan, tasks, research…) | ✅ Sí | **Es el entregable principal.** La nota depende de que la trazabilidad spec → código esté en el repo. |
 | `.env` | ❌ Nunca | Secretos. Se sube `.env.example` con las llaves vacías. |
 
@@ -129,7 +130,7 @@ gh pr create --fill
 
 **Ramas:** `NNN-slug-corto` (el `NNN` lo asigna Spec Kit al correr `/speckit-specify`).
 
-**Commits:** Conventional Commits, con el número de la HU en el scope.
+**Commits y títulos de PR:** Conventional Commits, con el número de la HU en el scope.
 
 ```
 feat(003): registro de equipos
@@ -138,10 +139,41 @@ docs(spec): constitution v1.0.0
 chore(ci): pipeline de tests en PR
 ```
 
-**PRs:** título con el número de HU, descripción con un link a `specs/NNN-*/spec.md`
-y checklist de criterios de aceptación. Mínimo 1 aprobación de otro integrante.
+> ⚠️ **El título del PR es lo que queda en `main`.** El repo está configurado con
+> *squash merge* únicamente: al mergear, todos los commits de la rama se colapsan
+> en uno solo cuyo mensaje es el **título del PR** (cuerpo = descripción del PR).
+> Los `wip`, `fix typo` y `asdf` de tu rama desaparecen — pero un PR titulado
+> "cambios" queda para siempre en el historial de `main`.
+>
+> Consecuencia práctica: dentro de tu rama commitea como quieras; **el título del
+> PR sí se escribe con cuidado** y en formato Conventional Commit.
+
+**PRs:** título en formato `tipo(NNN): descripción`, descripción con link a
+`specs/NNN-*/spec.md` y checklist de criterios de aceptación. La rama se borra
+sola al mergear.
 
 **`main` siempre desplegable.** Nada se mergea con el pipeline en rojo.
+
+### Reglas activas en el repositorio (ruleset "main protegida")
+
+`main` está protegida. Estas reglas están activas y **no** son sugerencias:
+
+| Regla | Efecto |
+|---|---|
+| `deletion` | No se puede borrar `main` |
+| `non_fast_forward` | **No se puede hacer `git push --force` a `main`** |
+| `pull_request` | Todo cambio entra por PR, con 1 aprobación |
+
+**Bypass:** los roles Write, Maintain y Admin pueden mergear sin esperar la
+aprobación. Esto existe **solo para la demo en vivo**, donde esperar una revisión
+puede costar el deploy. En la fase de línea base **se pide la revisión igual**:
+el bypass es una salida de emergencia, no el flujo normal.
+
+Si un push a `main` te sale rechazado, no busques cómo forzarlo — abre un PR.
+
+Además están activos: *secret scanning con push protection* (GitHub rechaza el
+push que contenga una API key o cadena de conexión) y *Dependabot* (alertas y
+PRs automáticos por dependencias vulnerables).
 
 ---
 

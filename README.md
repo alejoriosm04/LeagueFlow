@@ -19,7 +19,7 @@ usando [GitHub Spec Kit](https://github.com/github/spec-kit) y Claude Code.
 | Repositorio y convenciones | ✅ Listo |
 | Spec Kit inicializado (v0.16.4, integración `claude`) | ✅ Listo |
 | Constitution del proyecto | ⬜ Pendiente — `/speckit-constitution` en equipo |
-| Backlog de ~10 HU priorizadas | ⬜ Pendiente — [`docs/backlog.md`](docs/backlog.md) |
+| Backlog de ~10 HU priorizadas | ⬜ Pendiente — se gestiona en el **GitHub Project** del repo |
 | Stack técnico | ⬜ Se decide en el primer `/speckit-plan` |
 | Despliegue | ⬜ Pendiente |
 | Caso de negocio | ⬜ Pendiente — [`docs/caso-de-negocio.md`](docs/caso-de-negocio.md) |
@@ -55,10 +55,11 @@ Una HU = una rama = una carpeta en `specs/` = un PR.
 ## Estructura
 
 ```
+AGENTS.md            Reglas que leen los agentes de IA (Codex, Cursor, Claude Code…)
 .specify/            Motor de Spec Kit (plantillas, scripts, constitution) — se versiona
 .claude/skills/      Comandos /speckit-* para Claude Code — se versiona
 specs/               Una carpeta por Historia de Usuario — el entregable principal
-docs/                Enunciado, flujo de trabajo, backlog, caso de negocio
+docs/                Enunciado, flujo de trabajo, caso de negocio
 ```
 
 ## Equipo
