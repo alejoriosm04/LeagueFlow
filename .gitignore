@@ -1,0 +1,114 @@
+# ─────────────────────────────────────────────────────────────
+# Secretos y configuración local  (NUNCA subir credenciales)
+# ─────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials.json
+service-account*.json
+
+# ─────────────────────────────────────────────────────────────
+# Dependencias
+# ─────────────────────────────────────────────────────────────
+node_modules/
+.pnp/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/versions
+bower_components/
+vendor/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.Python
+pip-log.txt
+
+# ─────────────────────────────────────────────────────────────
+# Builds y artefactos
+# ─────────────────────────────────────────────────────────────
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.astro/
+.turbo/
+.vercel/
+.netlify/
+.output/
+*.tsbuildinfo
+target/
+
+# ─────────────────────────────────────────────────────────────
+# Tests, cobertura y logs
+# ─────────────────────────────────────────────────────────────
+coverage/
+.coverage
+.coverage.*
+htmlcov/
+.nyc_output/
+junit.xml
+test-results/
+playwright-report/
+blob-report/
+.pytest_cache/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─────────────────────────────────────────────────────────────
+# Base de datos local
+# ─────────────────────────────────────────────────────────────
+*.sqlite
+*.sqlite3
+*.db
+pgdata/
+data/postgres/
+
+# ─────────────────────────────────────────────────────────────
+# Caches de herramientas
+# ─────────────────────────────────────────────────────────────
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.ruff_cache/
+.mypy_cache/
+
+# ─────────────────────────────────────────────────────────────
+# Sistema operativo / editores
+# ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ─────────────────────────────────────────────────────────────
+# Estado local de agentes de IA
+# (.specify/ y .claude/skills/ SÍ se versionan: son el motor SDD)
+# ─────────────────────────────────────────────────────────────
+.claude/settings.local.json
+.claude/*.local.json
+CLAUDE.local.md
+.aider*

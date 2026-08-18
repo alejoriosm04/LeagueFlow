@@ -1,0 +1,23 @@
+# Normaliza finales de línea: evita diffs falsos entre Windows / WSL / macOS
+* text=auto eol=lf
+
+*.sh   text eol=lf
+*.bat  text eol=crlf
+*.ps1  text eol=crlf
+
+# Binarios
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.woff binary
+*.woff2 binary
+
+# Lockfiles: colapsados en los diffs de PR
+package-lock.json  linguist-generated=true -diff
+pnpm-lock.yaml     linguist-generated=true -diff
+yarn.lock          linguist-generated=true -diff
+poetry.lock        linguist-generated=true -diff
+uv.lock            linguist-generated=true -diff
