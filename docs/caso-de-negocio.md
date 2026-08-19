@@ -19,17 +19,17 @@ qué dato es automático, cuál es aproximado y cuál requiere a una persona.
 
 | HU | Tareas (hechas/total) | Tests | Ciclos corrección | Tiempo spec+plan+tasks | Tiempo implement | Costo IA | Días calendario | Commits |
 |---|---|---|---|---|---|---|---|---|
-| 001-fundacion-y-autenticacion | 0/41 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 8 |
-| 002-crear-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 003-registrar-equipos | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 004-registrar-jugadores | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 005-programar-partido | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 3 |
-| 006-registrar-resultado | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 007-consultar-calendario | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 008-consultar-clasificacion | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 009-registrar-goles | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 010-alineaciones-estadisticas | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
-| 011-dashboard-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 001-fundacion-y-autenticacion | 41/41 | 21 / 21 | 10 | <pendiente> | <pendiente> | <pendiente, del panel de uso> | 0.7 | 3 |
+| 002-crear-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 003-registrar-equipos | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 004-registrar-jugadores | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 005-programar-partido | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 006-registrar-resultado | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 007-consultar-calendario | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 008-consultar-clasificacion | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 009-registrar-goles | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 010-alineaciones-estadisticas | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 011-dashboard-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
 
 > `⬜` = falta `docs/metricas/<spec>.md`. **Días calendario** y **commits**
 > salen de `git log` y miden tiempo transcurrido, no esfuerzo: el esfuerzo

@@ -35,8 +35,8 @@ tabla() {
 
     # --- derivado de tasks.md ---
     if [ -f "$tasks_file" ]; then
-      total=$(grep -cE '^- \[[ x]\] T[0-9]{3}' "$tasks_file" || true)
-      hechas=$(grep -cE '^- \[x\] T[0-9]{3}' "$tasks_file" || true)
+      total=$(grep -cE '^- \[[ xX]\] T[0-9]{3}' "$tasks_file" || true)
+      hechas=$(grep -cE '^- \[[xX]\] T[0-9]{3}' "$tasks_file" || true)
       tareas="${hechas:-0}/${total:-0}"
     else
       tareas="—"
