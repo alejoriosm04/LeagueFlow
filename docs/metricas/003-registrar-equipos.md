@@ -7,10 +7,10 @@
 | Métrica | Valor |
 |---|---|
 | Tareas en `tasks.md` (total) | 15 |
-| Tareas completadas | 14 / 15 (T015 es verificación post-merge) |
+| Tareas completadas | 15 / 15 |
 | Tests escritos (backend) | 21 (11 integración + 10 contrato) |
 | Tests escritos (frontend) | 5 |
-| Tests en verde al cerrar | 26 / 26 (21 backend + 5 frontend) |
+| Tests en verde al cerrar | 26 / 26 |
 | Ciclos de corrección | 3 |
 | Archivos de código creados/modificados | 15 (9 backend + 6 frontend) |
 
@@ -57,6 +57,7 @@ Dos puntos valiosos para el caso de negocio:
    con autogenerate. Hay que revisar el diff y borrar esas líneas, como se hizo
    aquí. Vale anotarlo en `AGENTS.md` para que no le cueste a otro integrante.
 
-T015 (verificación en desplegado Vercel → Railway) queda **post-merge**, como
-en las HUs anteriores: los endpoints de equipos no existen en producción hasta
-que esta rama se mezcle y Railway aplique la migración en el arranque.
+T015 (verificación en desplegado Vercel → Railway): **verificada** tras el
+merge (#9). La migración `teams` se aplicó en el arranque de Railway (el
+Dockerfile corre `alembic upgrade head`) y el alta de equipos funciona con la
+sesión cross-domain Vercel → Railway, confirmado en producción.

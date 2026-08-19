@@ -19,9 +19,9 @@ qué dato es automático, cuál es aproximado y cuál requiere a una persona.
 
 | HU | Tareas (hechas/total) | Tests | Ciclos corrección | Tiempo spec+plan+tasks | Tiempo implement | Costo IA | Días calendario | Commits |
 |---|---|---|---|---|---|---|---|---|
-| 001-fundacion-y-autenticacion | 41/41 | 21 / 21 | 10 | <pendiente> | <pendiente> | <pendiente, del panel de uso> | 0.7 | 3 |
-| 002-crear-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 003-registrar-equipos | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 001-fundacion-y-autenticacion | 41/41 | 21 / 21 | 10 | <pendiente> | <pendiente> | <pendiente, del panel de uso> | 0.7 | 4 |
+| 002-crear-liga | 16/16 | 25 / 25 | 4 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 0.7 | 3 |
+| 003-registrar-equipos | 15/15 | 26 / 26 | 3 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 0.8 | 4 |
 | 004-registrar-jugadores | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
 | 005-programar-partido | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
 | 006-registrar-resultado | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |

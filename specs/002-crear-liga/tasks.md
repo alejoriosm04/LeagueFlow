@@ -67,7 +67,7 @@ description: "Task list for feature implementation"
 
 - [X] T014 [P] Ejecutar los 6 escenarios de `quickstart.md` de punta a punta contra el entorno local
 - [X] T015 [P] Registrar las métricas de la HU en `docs/metricas/002-crear-liga.md` a partir de `docs/metricas/_plantilla.md` (`AGENTS.md` §7) — sin inventar el costo de IA ni el tiempo real de trabajo
-- [ ] T016 Verificar en el entorno desplegado que crear una liga funciona con la sesión cross-domain (Vercel → Railway), no solo en local (`specs/001-*/tasks.md` T039)
+- [X] T016 Verificar en el entorno desplegado que crear una liga funciona con la sesión cross-domain (Vercel → Railway), no solo en local (`specs/001-*/tasks.md` T039)
 
 ---
 

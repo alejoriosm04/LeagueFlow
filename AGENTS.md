@@ -82,3 +82,22 @@ Qué hacer:
    `crypto.randomUUID`) y descarta la detección como falso positivo en el panel
    de GitGuardian. No persigas el patrón cambiando valores: no se limpia así.
 3. **Nunca** dejes una credencial real en el repo para que "pase el check".
+
+## Nota sobre migraciones Alembic e índices funcionales
+
+Los índices únicos de `leagues` (`ix_leagues_unique_name_season`) y `teams`
+(`ix_teams_unique_league_name`) son **funcionales**: usan `lower(trim(...))`.
+PostgreSQL normaliza `trim(x)` como `TRIM(BOTH FROM x)` en su catálogo, así que
+al correr `alembic revision --autogenerate` en las specs `004-*` en adelante,
+Alembic verá `lower(trim(name))` (lo que declara el modelo) como distinto de
+`lower(TRIM(BOTH FROM name))` (lo que hay en la BD) y generará un
+`DROP INDEX`/`CREATE INDEX` espurio sobre índices que no cambiaron.
+
+Qué hacer:
+
+1. Genera la migración con `alembic revision --autogenerate`.
+2. Revisa el diff y **borra** cualquier `op.drop_index`/`op.create_index` que
+   recree `ix_leagues_unique_name_season` o `ix_teams_unique_league_name` sin
+   que su definición haya cambiado de verdad.
+3. Deja en la migración solo tu tabla/índice nuevo. Nunca toques índices
+   existentes de specs anteriores (Principio IV: no romper lo que ya funciona).
