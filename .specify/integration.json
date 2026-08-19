@@ -4,7 +4,8 @@
   "installed_integrations": [
     "claude",
     "opencode",
-    "copilot"
+    "copilot",
+    "cursor-agent"
   ],
   "integration_settings": {
     "claude": {
@@ -14,6 +15,10 @@
     "opencode": {
       "script": "sh",
       "invoke_separator": "."
+    },
+    "cursor-agent": {
+      "script": "sh",
+      "invoke_separator": "-"
     },
     "copilot": {
       "script": "sh",
