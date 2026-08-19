@@ -174,3 +174,37 @@ mensaje genérico).
 identifica la regla incumplida, sin exponer detalles internos) y el Principio
 III (contrato explícito) — todas las specs 002-011 reutilizan este envelope en
 vez de inventar el suyo.
+
+## 10. Parámetros concretos de sesión, credenciales y CORS
+
+**Contexto**: decisiones tomadas el 2026-08-19 al iniciar `/speckit-implement`,
+para cerrar los cinco ítems de `checklists/security.md` y `checklists/api.md`
+que bloqueaban tareas concretas. Se documentan aquí, y no en el código, porque
+el Principio I prohíbe inventar reglas directamente en la implementación.
+
+| Parámetro | Valor | Justificación |
+|---|---|---|
+| Inactividad que expira la sesión | **8 horas**, deslizante (se extiende en cada request válido) | FR-006 exige expiración por inactividad sin fijar número. 8 h cubre una jornada de trabajo del organizador sin re-login, y deja la sesión muerta al día siguiente. Un valor corto (30 min) haría insufrible registrar una jornada completa de partidos |
+| Cookie `Path` / `Max-Age` | `Path=/`, `Max-Age` = 8 h | Alineado con la expiración de servidor. `Path=/` porque la API vive bajo `/api/v1` pero el frontend necesita que la cookie viaje en toda la app |
+| Longitud de contraseña | mínimo **10**, máximo **128** caracteres, sin reglas de composición | Recomendación vigente del NIST SP 800-63B: la longitud aporta más entropía que forzar símbolos, y las reglas de composición empujan a contraseñas predecibles. El máximo evita abuso de CPU en el hash bcrypt |
+| Credencial del organizador semilla | Variables de entorno `SEED_ADMIN_USERNAME` y `SEED_ADMIN_PASSWORD`; el script **falla** si faltan | Principio VI: ningún secreto en el repo, ni siquiera una contraseña por defecto. Fallar en vez de usar un default evita el escenario clásico de dejar `admin/admin` en producción |
+| Origen CORS en desarrollo | `http://localhost:5173` | Puerto por defecto de Vite. En despliegue se sustituye por el dominio real de Vercel vía `ALLOWED_ORIGINS` (T038), nunca `*` |
+
+**Nota sobre `bcrypt` y el máximo de 128**: bcrypt trunca a 72 bytes. El límite
+de 128 caracteres es de validación de entrada (evitar payloads enormes), no una
+promesa de que los 128 se usen criptográficamente.
+
+## 11. Versión de Python en desarrollo local
+
+**Decision**: mantener Python 3.12 como versión objetivo (`pyproject.toml`,
+CI y Railway), y usar `uv` para provisionar 3.12 localmente aunque el sistema
+traiga otra versión.
+
+**Rationale**: la máquina de desarrollo donde se implementó esta spec tiene
+Python 3.10.12 de sistema. Bajar el objetivo a 3.10 por comodidad local
+degradaría el entorno de producción sin razón; `uv` resuelve el desfase sin
+tocar el Python del sistema. `uv venv --python 3.12` descarga e instala la
+versión correcta de forma aislada.
+
+**Consecuencia para el equipo**: nadie necesita instalar Python 3.12 a mano;
+basta `uv venv --python 3.12` en `backend/` (documentado en `quickstart.md`).
