@@ -25,8 +25,8 @@ description: "Task list for feature implementation"
 
 ## Phase 1: Foundational (Blocking Prerequisites)
 
-- [ ] T001 Crear el modelo SQLAlchemy `Team` en `backend/src/teams/models.py`, usando `Base` y los mixins de `backend/src/core/models_base.py` (data-model.md; campos según `specs/001-*/data-model.md` §Team)
-- [ ] T002 Generar la migración Alembic de la tabla `teams` en `backend/alembic/versions/`: FK `league_id` con `ON DELETE RESTRICT` e índice único `(league_id, lower(trim(name)))` (data-model.md; depende de T001)
+- [X] T001 Crear el modelo SQLAlchemy `Team` en `backend/src/teams/models.py`, usando `Base` y los mixins de `backend/src/core/models_base.py` (data-model.md; campos según `specs/001-*/data-model.md` §Team)
+- [X] T002 Generar la migración Alembic de la tabla `teams` en `backend/alembic/versions/`: FK `league_id` con `ON DELETE RESTRICT` e índice único `(league_id, lower(trim(name)))` (data-model.md; depende de T001)
 
 **Checkpoint**: esquema listo.
 
@@ -42,19 +42,19 @@ description: "Task list for feature implementation"
 
 > Escribir primero y verificar que fallan antes de implementar.
 
-- [ ] T003 [P] [US1] Contract test de `POST/GET /leagues/{id}/teams` y `GET /teams/{id}` contra `contracts/teams.openapi.yaml`, incluidos los `error.code` de cada 4xx, en `backend/tests/contract/test_teams_contract.py`
-- [ ] T004 [P] [US1] Integration test de los 4 Acceptance Scenarios de `spec.md` más: unicidad insensible a mayúsculas, rechazo de `crest_url` no-https, y que un equipo `inactive` desaparece del listado por defecto pero sigue accesible por id (research.md §1, §3), en `backend/tests/integration/test_teams.py`
+- [X] T003 [P] [US1] Contract test de `POST/GET /leagues/{id}/teams` y `GET /teams/{id}` contra `contracts/teams.openapi.yaml`, incluidos los `error.code` de cada 4xx, en `backend/tests/contract/test_teams_contract.py`
+- [X] T004 [P] [US1] Integration test de los 4 Acceptance Scenarios de `spec.md` más: unicidad insensible a mayúsculas, rechazo de `crest_url` no-https, y que un equipo `inactive` desaparece del listado por defecto pero sigue accesible por id (research.md §1, §3), en `backend/tests/integration/test_teams.py`
 
 ### Implementation for User Story 1
 
-- [ ] T005 [P] [US1] Crear los schemas Pydantic `CreateTeamRequest`, `Team` y `PaginatedTeams` en `backend/src/teams/schemas.py`, con la validación de `crest_url` como URL https absoluta (`contracts/teams.openapi.yaml`; research.md §1)
-- [ ] T006 [US1] Implementar `TeamService` en `backend/src/teams/service.py`: normalización del nombre, unicidad por `(league_id, name)` insensible a mayúsculas con captura de la violación de integridad como fallback, y filtrado por `status` según `include_inactive` (FR-001, FR-002, FR-003, FR-005; research.md §3; depende de T001)
-- [ ] T007 [US1] Implementar el router en `backend/src/teams/router.py`: `POST` protegido con `require_role("organizador")` y `created_by` derivado de la sesión, `GET` de listado y de detalle públicos, con 404 cuando la liga no existe (FR-004; depende de T005, T006)
-- [ ] T008 [US1] Registrar el router de equipos en `backend/src/main.py` (depende de T007)
-- [ ] T009 [P] [US1] Crear el cliente HTTP de equipos en `frontend/src/features/teams/api.ts` sobre `services/apiClient.ts`
-- [ ] T010 [US1] Crear el listado de equipos de una liga en `frontend/src/features/teams/TeamsPage.tsx`, con escudo por defecto cuando `crest_url` es nulo o la imagen falla al cargar (research.md §1; depende de T009)
-- [ ] T011 [US1] Crear el formulario de alta en `frontend/src/features/teams/CreateTeamForm.tsx`, visible solo para organizador, mostrando el `error.message` del envelope en 409 y 400 (depende de T009)
-- [ ] T012 [P] [US1] Tests Vitest del listado y el formulario en `frontend/src/features/teams/__tests__/teams.test.tsx` (depende de T010, T011)
+- [X] T005 [P] [US1] Crear los schemas Pydantic `CreateTeamRequest`, `Team` y `PaginatedTeams` en `backend/src/teams/schemas.py`, con la validación de `crest_url` como URL https absoluta (`contracts/teams.openapi.yaml`; research.md §1)
+- [X] T006 [US1] Implementar `TeamService` en `backend/src/teams/service.py`: normalización del nombre, unicidad por `(league_id, name)` insensible a mayúsculas con captura de la violación de integridad como fallback, y filtrado por `status` según `include_inactive` (FR-001, FR-002, FR-003, FR-005; research.md §3; depende de T001)
+- [X] T007 [US1] Implementar el router en `backend/src/teams/router.py`: `POST` protegido con `require_role("organizador")` y `created_by` derivado de la sesión, `GET` de listado y de detalle públicos, con 404 cuando la liga no existe (FR-004; depende de T005, T006)
+- [X] T008 [US1] Registrar el router de equipos en `backend/src/main.py` (depende de T007)
+- [X] T009 [P] [US1] Crear el cliente HTTP de equipos en `frontend/src/features/teams/api.ts` sobre `services/apiClient.ts`
+- [X] T010 [US1] Crear el listado de equipos de una liga en `frontend/src/features/teams/TeamsPage.tsx`, con escudo por defecto cuando `crest_url` es nulo o la imagen falla al cargar (research.md §1; depende de T009)
+- [X] T011 [US1] Crear el formulario de alta en `frontend/src/features/teams/CreateTeamForm.tsx`, visible solo para organizador, mostrando el `error.message` del envelope en 409 y 400 (depende de T009)
+- [X] T012 [P] [US1] Tests Vitest del listado y el formulario en `frontend/src/features/teams/__tests__/teams.test.tsx` (depende de T010, T011)
 
 **Checkpoint**: User Story 1 funcional y testeable de forma independiente.
 
@@ -62,8 +62,8 @@ description: "Task list for feature implementation"
 
 ## Phase 3: Polish & Cross-Cutting Concerns
 
-- [ ] T013 [P] Ejecutar los 6 escenarios de `quickstart.md` de punta a punta contra el entorno local
-- [ ] T014 [P] Registrar las métricas de la HU en `docs/metricas/003-registrar-equipos.md` desde `docs/metricas/_plantilla.md` (`AGENTS.md` §7) — sin inventar costo de IA ni tiempo real de trabajo
+- [X] T013 [P] Ejecutar los 6 escenarios de `quickstart.md` de punta a punta contra el entorno local
+- [X] T014 [P] Registrar las métricas de la HU en `docs/metricas/003-registrar-equipos.md` desde `docs/metricas/_plantilla.md` (`AGENTS.md` §7) — sin inventar costo de IA ni tiempo real de trabajo
 - [ ] T015 Verificar en el entorno desplegado que el alta de equipos funciona con la sesión cross-domain (Vercel → Railway)
 
 ---
