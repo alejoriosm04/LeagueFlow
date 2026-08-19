@@ -1,0 +1,154 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Ligas
+  version: "1.0.0"
+  description: >
+    Endpoints de la spec 002-crear-liga. Las convenciones compartidas
+    (envelope de error, códigos HTTP, paginación, cookie de sesión) están en
+    ../../001-fundacion-y-autenticacion/contracts/conventions.md y no se
+    repiten aquí.
+servers:
+  - url: /api/v1
+
+paths:
+  /leagues:
+    post:
+      summary: Crear una liga
+      operationId: createLeague
+      description: Requiere sesión con rol organizador (FR-005).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLeagueRequest"
+      responses:
+        "201":
+          description: Liga creada. `created_by` lo deriva el servidor de la sesión.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+        "400":
+          description: "Payload inválido — p. ej. `name` vacío (FR-001). error.code: `validation_error`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: "Sesión con rol operador. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: "Ya existe una liga con ese nombre y temporada (FR-002). error.code: `league_already_exists`, field: `name`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    get:
+      summary: Listar ligas
+      operationId: listLeagues
+      description: Público, sin autenticación (FR-003).
+      security: []
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: Lista paginada — envelope de conventions.md §Paginación.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedLeagues"
+
+  /leagues/{leagueId}:
+    get:
+      summary: Detalle de una liga
+      operationId: getLeague
+      description: Público, sin autenticación (FR-003).
+      security: []
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+        "404":
+          description: "No existe. error.code: `league_not_found`"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: lf_session
+  schemas:
+    CreateLeagueRequest:
+      type: object
+      required: [name, season]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        season:
+          type: string
+          minLength: 1
+          maxLength: 60
+          description: Texto libre; sin formato impuesto (research.md §3).
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+    League:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        season: { type: string }
+        description: { type: string, nullable: true }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+    PaginatedLeagues:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/League"
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
+
+security:
+  - sessionCookie: []

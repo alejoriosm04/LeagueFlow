@@ -25,13 +25,13 @@ description: "Task list for feature implementation"
 
 **Purpose**: inicialización del repositorio backend/frontend y del pipeline de CI.
 
-- [ ] T001 Crear el esqueleto `backend/src/{auth,leagues,teams,players,matches,statistics,core}/` y `backend/tests/{contract,integration,unit}/` con `__init__.py`, según `plan.md` → Project Structure
-- [ ] T002 Inicializar `backend/pyproject.toml` con FastAPI + Pydantic v2 (research.md §1), SQLAlchemy[asyncio] 2.0 + Alembic (research.md §3), `passlib[bcrypt]` (research.md §4), `httpx` + `pytest` + `pytest-asyncio` (research.md §5)
-- [ ] T003 [P] Inicializar `frontend/` (Vite + React 18 + TypeScript), instalar `react-router-dom`, `vitest`, `@testing-library/react` (research.md §2)
-- [ ] T004 [P] Configurar lint/format backend (`ruff`) en `backend/pyproject.toml`
-- [ ] T005 [P] Configurar lint/format frontend (ESLint + Prettier) en `frontend/.eslintrc.cjs` y `frontend/.prettierrc`
-- [ ] T006 [P] Crear `backend/.env.example` y `frontend/.env.example` con `DATABASE_URL`, `ALLOWED_ORIGINS`, `SESSION_SECRET` vacíos (Principio VI de la constitución)
-- [ ] T007 [P] Crear `.github/workflows/ci.yml`: lint → tests unitarios → tests de integración → escaneo de dependencias → build, en cada PR (research.md §8)
+- [X] T001 Crear el esqueleto `backend/src/{auth,leagues,teams,players,matches,statistics,core}/` y `backend/tests/{contract,integration,unit}/` con `__init__.py`, según `plan.md` → Project Structure
+- [X] T002 Inicializar `backend/pyproject.toml` con FastAPI + Pydantic v2 (research.md §1), SQLAlchemy[asyncio] 2.0 + Alembic (research.md §3), `passlib[bcrypt]` (research.md §4), `httpx` + `pytest` + `pytest-asyncio` (research.md §5)
+- [X] T003 [P] Inicializar `frontend/` (Vite + React 18 + TypeScript), instalar `react-router-dom`, `vitest`, `@testing-library/react` (research.md §2)
+- [X] T004 [P] Configurar lint/format backend (`ruff`) en `backend/pyproject.toml`
+- [X] T005 [P] Configurar lint/format frontend (ESLint + Prettier) en `frontend/.eslintrc.cjs` y `frontend/.prettierrc`
+- [X] T006 [P] Crear `backend/.env.example` y `frontend/.env.example` con `DATABASE_URL`, `ALLOWED_ORIGINS`, `SESSION_SECRET` vacíos (Principio VI de la constitución)
+- [X] T007 [P] Crear `.github/workflows/ci.yml`: lint → tests unitarios → tests de integración → escaneo de dependencias → build, en cada PR (research.md §8)
 
 ---
 
@@ -41,14 +41,14 @@ description: "Task list for feature implementation"
 
 **⚠️ CRITICAL**: ninguna otra spec del proyecto empieza su propio `/speckit-plan` hasta que esta fase (y la User Story 1) estén mezcladas a `main` (`AGENTS.md` §5).
 
-- [ ] T008 Configurar conexión a PostgreSQL y `async_sessionmaker` en `backend/src/core/db.py` (data-model.md, research.md §3)
-- [ ] T009 Inicializar entorno de Alembic en `backend/alembic/` apuntando a `backend/src/core/db.py` (Principio V — migraciones versionadas) (depende de T008)
-- [ ] T010 [P] Crear `Base` declarativo de SQLAlchemy y mixins comunes (`id` UUID, `created_at`) en `backend/src/core/models_base.py` (convención de `data-model.md`)
-- [ ] T011 [P] Implementar el envelope de error y los exception handlers de FastAPI en `backend/src/core/errors.py` (`contracts/conventions.md` → Envelope de error, códigos HTTP)
-- [ ] T012 [P] Configurar `CORSMiddleware` leyendo `ALLOWED_ORIGINS` desde entorno en `backend/src/core/config.py` (Estándares de Seguridad de la constitución)
-- [ ] T013 Ensamblar la app FastAPI (monta routers, registra exception handlers y CORS) en `backend/src/main.py` (depende de T008, T010, T011, T012)
-- [ ] T014 [P] Crear el cliente HTTP del frontend (`fetch` base, `credentials: "include"`, parseo del envelope de error) en `frontend/src/services/apiClient.ts` (`contracts/conventions.md`)
-- [ ] T015 [P] Crear el shell de la app y el router de frontend en `frontend/src/App.tsx` y `frontend/src/routes.tsx`
+- [X] T008 Configurar conexión a PostgreSQL y `async_sessionmaker` en `backend/src/core/db.py` (data-model.md, research.md §3)
+- [X] T009 Inicializar entorno de Alembic en `backend/alembic/` apuntando a `backend/src/core/db.py` (Principio V — migraciones versionadas) (depende de T008)
+- [X] T010 [P] Crear `Base` declarativo de SQLAlchemy y mixins comunes (`id` UUID, `created_at`) en `backend/src/core/models_base.py` (convención de `data-model.md`)
+- [X] T011 [P] Implementar el envelope de error y los exception handlers de FastAPI en `backend/src/core/errors.py` (`contracts/conventions.md` → Envelope de error, códigos HTTP)
+- [X] T012 [P] Configurar `CORSMiddleware` leyendo `ALLOWED_ORIGINS` desde entorno en `backend/src/core/config.py` (Estándares de Seguridad de la constitución)
+- [X] T013 Ensamblar la app FastAPI (monta routers, registra exception handlers y CORS) en `backend/src/main.py` (depende de T008, T010, T011, T012)
+- [X] T014 [P] Crear el cliente HTTP del frontend (`fetch` base, `credentials: "include"`, parseo del envelope de error) en `frontend/src/services/apiClient.ts` (`contracts/conventions.md`)
+- [X] T015 [P] Crear el shell de la app y el router de frontend en `frontend/src/App.tsx` y `frontend/src/routes.tsx`
 
 **Checkpoint**: infraestructura lista — la User Story 1 y, más adelante, `specs/002-*` en adelante pueden empezar.
 
@@ -64,24 +64,24 @@ description: "Task list for feature implementation"
 
 > Escribir estas pruebas primero y verificar que fallan antes de implementar.
 
-- [ ] T016 [P] [US1] Contract test de `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, `POST /users`, `GET /users` contra `contracts/auth.openapi.yaml` en `backend/tests/contract/test_auth_contract.py`
-- [ ] T017 [P] [US1] Integration test de los 7 Acceptance Scenarios de `spec.md` (login válido/inválido, consulta sin sesión, escritura sin sesión, rol insuficiente, logout revoca, atribución de autoría vía `created_by` en el usuario creado) en `backend/tests/integration/test_auth.py`, incluida una aserción de tiempo sobre el login (`< 5s`, SC-003)
+- [X] T016 [P] [US1] Contract test de `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, `POST /users`, `GET /users` contra `contracts/auth.openapi.yaml` en `backend/tests/contract/test_auth_contract.py`
+- [X] T017 [P] [US1] Integration test de los 7 Acceptance Scenarios de `spec.md` (login válido/inválido, consulta sin sesión, escritura sin sesión, rol insuficiente, logout revoca, atribución de autoría vía `created_by` en el usuario creado) en `backend/tests/integration/test_auth.py`, incluida una aserción de tiempo sobre el login (`< 5s`, SC-003)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Crear los modelos SQLAlchemy `User` (incluye `created_by`, nullable solo para la semilla) y `Session` en `backend/src/auth/models.py` (data-model.md: User, Session; FR-001, FR-004, FR-005, FR-008)
-- [ ] T019 [US1] Generar y aplicar la migración Alembic de `users` y `sessions` en `backend/alembic/versions/` (depende de T018)
-- [ ] T020 [P] [US1] Crear los schemas Pydantic (`UserPublic`, `LoginRequest`, `CreateUserRequest`, `PaginatedUsers`) en `backend/src/auth/schemas.py` (`contracts/auth.openapi.yaml`)
-- [ ] T021 [US1] Implementar utilidades de hash de contraseña con `passlib[bcrypt]` en `backend/src/auth/security.py` (FR-005)
-- [ ] T022 [US1] Implementar `AuthService` (`create_user`, `authenticate`, `create_session`, `revoke_session`) en `backend/src/auth/service.py` (FR-004, FR-005, FR-006, FR-010; depende de T018, T021)
-- [ ] T023 [US1] Implementar las dependencias FastAPI `get_current_user` / `require_role` en `backend/src/auth/dependencies.py`, incluida la extensión de `Session.expires_at` en cada validación exitosa — expiración por inactividad, no TTL fijo (FR-003, FR-006, FR-009; depende de T022)
-- [ ] T024 [US1] Implementar el router de auth (`login`, `logout`, `me`, `POST/GET /users`) en `backend/src/auth/router.py`; `POST /users` MUST poblar `created_by` con el `id` del usuario de la sesión que llama; `GET /users` MUST paginar con `page`/`page_size` y responder el envelope `PaginatedUsers`, no un array plano (FR-007, FR-008; depende de T020, T022, T023)
-- [ ] T025 [US1] Registrar el router de auth en `backend/src/main.py` (depende de T024, T013)
-- [ ] T026 [P] [US1] Crear el script de semilla del organizador inicial en `backend/scripts/seed_admin.py` (spec.md → Assumption "Cuentas de usuario")
-- [ ] T027 [P] [US1] Crear `AuthContext`/hook de sesión (`login`, `logout`, `currentUser`) en `frontend/src/features/auth/AuthContext.tsx` (depende de T014)
-- [ ] T028 [US1] Crear la página/formulario de login en `frontend/src/features/auth/LoginPage.tsx` (depende de T027)
-- [ ] T029 [US1] Crear el wrapper `ProtectedRoute` que exige rol en `frontend/src/features/auth/ProtectedRoute.tsx` (FR-003, FR-009; depende de T027)
-- [ ] T030 [P] [US1] Tests Vitest de `AuthContext` y `LoginPage` en `frontend/src/features/auth/__tests__/auth.test.tsx` (depende de T027, T028)
+- [X] T018 [US1] Crear los modelos SQLAlchemy `User` (incluye `created_by`, nullable solo para la semilla) y `Session` en `backend/src/auth/models.py` (data-model.md: User, Session; FR-001, FR-004, FR-005, FR-008)
+- [X] T019 [US1] Generar y aplicar la migración Alembic de `users` y `sessions` en `backend/alembic/versions/` (depende de T018)
+- [X] T020 [P] [US1] Crear los schemas Pydantic (`UserPublic`, `LoginRequest`, `CreateUserRequest`, `PaginatedUsers`) en `backend/src/auth/schemas.py` (`contracts/auth.openapi.yaml`)
+- [X] T021 [US1] Implementar utilidades de hash de contraseña con `passlib[bcrypt]` en `backend/src/auth/security.py` (FR-005)
+- [X] T022 [US1] Implementar `AuthService` (`create_user`, `authenticate`, `create_session`, `revoke_session`) en `backend/src/auth/service.py` (FR-004, FR-005, FR-006, FR-010; depende de T018, T021)
+- [X] T023 [US1] Implementar las dependencias FastAPI `get_current_user` / `require_role` en `backend/src/auth/dependencies.py`, incluida la extensión de `Session.expires_at` en cada validación exitosa — expiración por inactividad, no TTL fijo (FR-003, FR-006, FR-009; depende de T022)
+- [X] T024 [US1] Implementar el router de auth (`login`, `logout`, `me`, `POST/GET /users`) en `backend/src/auth/router.py`; `POST /users` MUST poblar `created_by` con el `id` del usuario de la sesión que llama; `GET /users` MUST paginar con `page`/`page_size` y responder el envelope `PaginatedUsers`, no un array plano (FR-007, FR-008; depende de T020, T022, T023)
+- [X] T025 [US1] Registrar el router de auth en `backend/src/main.py` (depende de T024, T013)
+- [X] T026 [P] [US1] Crear el script de semilla del organizador inicial en `backend/scripts/seed_admin.py` (spec.md → Assumption "Cuentas de usuario")
+- [X] T027 [P] [US1] Crear `AuthContext`/hook de sesión (`login`, `logout`, `currentUser`) en `frontend/src/features/auth/AuthContext.tsx` (depende de T014)
+- [X] T028 [US1] Crear la página/formulario de login en `frontend/src/features/auth/LoginPage.tsx` (depende de T027)
+- [X] T029 [US1] Crear el wrapper `ProtectedRoute` que exige rol en `frontend/src/features/auth/ProtectedRoute.tsx` (FR-003, FR-009; depende de T027)
+- [X] T030 [P] [US1] Tests Vitest de `AuthContext` y `LoginPage` en `frontend/src/features/auth/__tests__/auth.test.tsx` (depende de T027, T028)
 
 **Checkpoint**: User Story 1 completamente funcional y testeable de forma independiente — MVP de esta spec.
 
@@ -91,10 +91,10 @@ description: "Task list for feature implementation"
 
 **Purpose**: cierre de la spec antes de abrir PR.
 
-- [ ] T031 [P] Ejecutar los escenarios de `quickstart.md` de punta a punta contra el entorno local
-- [ ] T032 [P] Documentar los pasos de setup en `backend/README.md` y `frontend/README.md`
-- [ ] T033 Endurecimiento de seguridad: confirmar que `backend/src/core/errors.py` nunca expone stack traces (FR-012) y que la cookie de `backend/src/auth/service.py` tiene `httpOnly`, `Secure`, `SameSite=None` (research.md §4 — `None`, no `Lax`, por el despliegue cross-domain)
-- [ ] T034 [P] Configurar el esqueleto de Playwright (`playwright.config.ts`) para el camino crítico único (crear liga → equipo → partido → clasificación) — sin escribir el test todavía: esos pasos viven en specs `002/003/005/008`, aún no implementadas (research.md §5)
+- [X] T031 [P] Ejecutar los escenarios de `quickstart.md` de punta a punta contra el entorno local
+- [X] T032 [P] Documentar los pasos de setup en `backend/README.md` y `frontend/README.md`
+- [X] T033 Endurecimiento de seguridad: confirmar que `backend/src/core/errors.py` nunca expone stack traces (FR-012) y que la cookie de `backend/src/auth/service.py` tiene `httpOnly`, `Secure`, `SameSite=None` (research.md §4 — `None`, no `Lax`, por el despliegue cross-domain)
+- [X] T034 [P] Configurar el esqueleto de Playwright (`playwright.config.ts`) para el camino crítico único (crear liga → equipo → partido → clasificación) — sin escribir el test todavía: esos pasos viven en specs `002/003/005/008`, aún no implementadas (research.md §5)
 
 ---
 
@@ -105,13 +105,13 @@ explícito del enunciado (`docs/actividad.md` → "Despliegue (DevOps) y Hosting
 Publicación en un entorno totalmente integrado y gratuito"), y habilita el
 deploy automático que heredan las specs `002-011` sin volver a configurarlo.
 
-- [ ] T035 Crear el proyecto en Railway y provisionar el add-on de PostgreSQL; registrar la `DATABASE_URL` generada como variable de entorno del servicio backend, nunca en el repo (research.md §7, Principio VI)
-- [ ] T036 Configurar el despliegue del backend en Railway: comando de arranque `uvicorn src.main:app --host 0.0.0.0 --port $PORT` y ejecución de `alembic upgrade head` en el arranque/release, de modo que cada deploy aplique las migraciones pendientes (Principio V)
-- [ ] T037 [P] Crear el proyecto en Vercel apuntando a `frontend/`, con `VITE_API_URL` = URL pública del backend en Railway como variable de entorno de build
-- [ ] T038 Configurar `ALLOWED_ORIGINS` en Railway con el dominio real de Vercel y habilitar `allow_credentials=True` en el `CORSMiddleware` de `backend/src/core/config.py` — sin esto la cookie de sesión cross-domain no viaja (depende de T012, T037; research.md §4)
-- [ ] T039 Verificar en el entorno desplegado que la cookie `lf_session` se emite con `Secure` y `SameSite=None` sobre HTTPS y que el login funciona end-to-end entre el dominio de Vercel y el de Railway — es el escenario que `SameSite=Lax` habría roto y que no se puede validar en local con mismo origen (depende de T036, T037, T038)
-- [ ] T040 [P] Ejecutar el script de semilla del organizador contra la base de datos de producción, con una credencial inicial entregada fuera del repo (depende de T026, T035)
-- [ ] T041 Documentar en `README.md` las URLs públicas del frontend y del backend desplegados
+- [X] T035 Crear el proyecto en Railway y provisionar el add-on de PostgreSQL; registrar la `DATABASE_URL` generada como variable de entorno del servicio backend, nunca en el repo (research.md §7, Principio VI)
+- [X] T036 Configurar el despliegue del backend en Railway: comando de arranque `uvicorn src.main:app --host 0.0.0.0 --port $PORT` y ejecución de `alembic upgrade head` en el arranque/release, de modo que cada deploy aplique las migraciones pendientes (Principio V)
+- [X] T037 [P] Crear el proyecto en Vercel apuntando a `frontend/`, con `VITE_API_URL` = URL pública del backend en Railway como variable de entorno de build
+- [X] T038 Configurar `ALLOWED_ORIGINS` en Railway con el dominio real de Vercel y habilitar `allow_credentials=True` en el `CORSMiddleware` de `backend/src/core/config.py` — sin esto la cookie de sesión cross-domain no viaja (depende de T012, T037; research.md §4)
+- [X] T039 Verificar en el entorno desplegado que la cookie `lf_session` se emite con `Secure` y `SameSite=None` sobre HTTPS y que el login funciona end-to-end entre el dominio de Vercel y el de Railway — es el escenario que `SameSite=Lax` habría roto y que no se puede validar en local con mismo origen (depende de T036, T037, T038)
+- [X] T040 [P] Ejecutar el script de semilla del organizador contra la base de datos de producción, con una credencial inicial entregada fuera del repo (depende de T026, T035)
+- [X] T041 Documentar en `README.md` las URLs públicas del frontend y del backend desplegados
 
 **Checkpoint**: aplicación publicada y accesible; specs `002-011` heredan este pipeline sin reconfigurarlo.
 

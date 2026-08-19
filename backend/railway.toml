@@ -1,0 +1,13 @@
+# Configuración de despliegue del backend en Railway.
+# Las variables de entorno (DATABASE_URL, ALLOWED_ORIGINS, COOKIE_SECURE,
+# SEED_ADMIN_*) se definen en el panel de Railway, NUNCA aquí (Principio VI).
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
