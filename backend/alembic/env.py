@@ -18,6 +18,7 @@ from src.core.models_base import Base
 
 # Importar los modelos registra sus tablas en Base.metadata para autogenerate.
 from src.auth import models as _auth_models  # noqa: F401
+from src.leagues import models as _league_models  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().database_url)

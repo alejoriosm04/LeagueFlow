@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.auth.router import router as auth_router
 from src.core.config import get_settings
 from src.core.errors import registrar_manejadores
+from src.leagues.router import router as leagues_router
 
 settings = get_settings()
 
@@ -30,6 +31,7 @@ app.add_middleware(
 registrar_manejadores(app)
 
 app.include_router(auth_router, prefix="/api/v1")
+app.include_router(leagues_router, prefix="/api/v1")
 
 
 @app.get("/api/health", tags=["infra"])
