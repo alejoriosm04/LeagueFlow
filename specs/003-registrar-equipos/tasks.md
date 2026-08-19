@@ -64,7 +64,7 @@ description: "Task list for feature implementation"
 
 - [X] T013 [P] Ejecutar los 6 escenarios de `quickstart.md` de punta a punta contra el entorno local
 - [X] T014 [P] Registrar las métricas de la HU en `docs/metricas/003-registrar-equipos.md` desde `docs/metricas/_plantilla.md` (`AGENTS.md` §7) — sin inventar costo de IA ni tiempo real de trabajo
-- [ ] T015 Verificar en el entorno desplegado que el alta de equipos funciona con la sesión cross-domain (Vercel → Railway)
+- [X] T015 Verificar en el entorno desplegado que el alta de equipos funciona con la sesión cross-domain (Vercel → Railway)
 
 ---
 
