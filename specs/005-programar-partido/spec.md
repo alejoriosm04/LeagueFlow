@@ -73,7 +73,7 @@ futura y verificar que aparece en el calendario con estado "programado".
 
 - **Match (Partido)**: enfrentamiento entre dos equipos de la misma liga.
   Atributos definidos en esta spec: equipo local, equipo visitante, fecha/hora
-  programada, estado. Los atributos de marcador, video y las relaciones con
+  programada, estado. Los atributos de marcador y las relaciones con
   alineación/eventos se amplían en specs posteriores (006, 009, 010).
 
 ## Success Criteria *(mandatory)*

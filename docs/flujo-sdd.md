@@ -95,6 +95,12 @@ Detalles a tener en cuenta:
 
 Una HU = una rama = una carpeta en `specs/` = un PR.
 
+> ⚠️ **Las 11 specs de la línea base YA ESTÁN ESCRITAS** (`specs/001-*` a
+> `specs/011-*`). Para esas HU **no corras `/speckit-specify`**: sobrescribirías
+> una spec ya clarificada y validada. Tu ciclo empieza en `/speckit-plan`.
+> El paso 1 de la tabla de abajo aplica solo a HU **nuevas** (por ejemplo, las
+> 2 que asigne el profesor en la demo en vivo). Ver `AGENTS.md` §5 y §6.
+
 ```bash
 git switch main && git pull            # 1. parte siempre de main actualizado
 git switch -c 003-registro-equipos     # 2. rama con el MISMO número que la spec
