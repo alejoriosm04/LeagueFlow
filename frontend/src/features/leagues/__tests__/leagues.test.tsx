@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthProvider } from '../../auth/AuthContext';
 import { CreateLeagueForm } from '../CreateLeagueForm';
 import { LeaguesPage } from '../LeaguesPage';
 
@@ -36,6 +37,7 @@ describe('LeaguesPage', () => {
     vi.stubGlobal(
       'fetch',
       mockFetch({
+        '/auth/me': { status: 200, body: { user: null } },
         '/leagues?page=1&page_size=20': {
           status: 200,
           body: { items: [], page: 1, page_size: 20, total: 0 },
@@ -45,17 +47,52 @@ describe('LeaguesPage', () => {
 
     render(
       <MemoryRouter>
-        <LeaguesPage />
+        <AuthProvider>
+          <LeaguesPage />
+        </AuthProvider>
       </MemoryRouter>,
     );
 
     expect(await screen.findByText(/no hay ligas registradas/i)).toBeInTheDocument();
+    // Sin sesión de organizador no se muestra la acción de crear.
+    expect(screen.queryByRole('link', { name: /crear liga/i })).not.toBeInTheDocument();
+  });
+
+  it('muestra el enlace para crear liga solo al organizador', async () => {
+    vi.stubGlobal(
+      'fetch',
+      mockFetch({
+        '/auth/me': {
+          status: 200,
+          body: { user: { id: 'u1', username: 'org', role: 'organizador', status: 'active' } },
+        },
+        '/leagues?page=1&page_size=20': {
+          status: 200,
+          body: { items: [], page: 1, page_size: 20, total: 0 },
+        },
+      }),
+    );
+
+    render(
+      <MemoryRouter>
+        <AuthProvider>
+          <LeaguesPage />
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText(/no hay ligas registradas/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /crear liga/i })).toHaveAttribute(
+      'href',
+      '/leagues/new',
+    );
   });
 
   it('lista las ligas con enlace a su ficha', async () => {
     vi.stubGlobal(
       'fetch',
       mockFetch({
+        '/auth/me': { status: 200, body: { user: null } },
         '/leagues?page=1&page_size=20': {
           status: 200,
           body: { items: [LIGA], page: 1, page_size: 20, total: 1 },
@@ -65,7 +102,9 @@ describe('LeaguesPage', () => {
 
     render(
       <MemoryRouter>
-        <LeaguesPage />
+        <AuthProvider>
+          <LeaguesPage />
+        </AuthProvider>
       </MemoryRouter>,
     );
 
