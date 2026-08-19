@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 import { leaguesApi } from './api';
 import type { League } from './api';
 
 export function LeaguesPage() {
+  const { usuario } = useAuth();
   const [ligas, setLigas] = useState<League[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,11 +21,14 @@ export function LeaguesPage() {
   if (cargando) return <p>Cargando ligas…</p>;
   if (error) return <p role="alert">{error}</p>;
 
+  const esOrganizador = usuario?.role === 'organizador';
+
   if (ligas.length === 0) {
     return (
       <section>
         <h1>Ligas</h1>
         <p>Aún no hay ligas registradas.</p>
+        {esOrganizador && <Link to="/leagues/new">Crear liga</Link>}
       </section>
     );
   }
@@ -31,6 +36,7 @@ export function LeaguesPage() {
   return (
     <section>
       <h1>Ligas</h1>
+      {esOrganizador && <Link to="/leagues/new">Crear liga</Link>}
       <ul>
         {ligas.map((liga) => (
           <li key={liga.id}>
