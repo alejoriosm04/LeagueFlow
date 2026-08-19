@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Autenticación
+  version: "1.0.0"
+  description: >
+    Endpoints de esta spec (001-fundacion-y-autenticacion). Convenciones
+    compartidas (envelope de error, códigos HTTP, cookie de sesión) en
+    ./conventions.md — no se repiten aquí.
+servers:
+  - url: /api/v1
+
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesión
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: >
+            Sesión creada. La cookie lf_session se setea vía Set-Cookie
+            (httpOnly, Secure, SameSite=Lax) — no viaja en el body.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserPublic"
+        "401":
+          description: >
+            Credenciales inválidas. Mensaje genérico — no revela si el
+            username existe (FR-010).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /auth/logout:
+    post:
+      summary: Cerrar sesión (revoca la sesión activa)
+      operationId: logout
+      responses:
+        "200":
+          description: Sesión revocada (FR-006).
+        "401":
+          description: No había sesión activa.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /auth/me:
+    get:
+      summary: Usuario de la sesión actual (o null si no hay sesión)
+      operationId: getCurrentUser
+      security: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    nullable: true
+                    $ref: "#/components/schemas/UserPublic"
+
+  /users:
+    post:
+      summary: Crear un usuario (solo organizador; sin autorregistro público)
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                role:
+                  type: string
+                  enum: [organizador, operador]
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPublic"
+        "403":
+          description: Quien llama no tiene rol organizador (FR-007, FR-009).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: username ya existe.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+    get:
+      summary: Listar usuarios (solo organizador)
+      operationId: listUsers
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserPublic"
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: lf_session
+  schemas:
+    UserPublic:
+      type: object
+      description: Nunca incluye password_hash.
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        role:
+          type: string
+          enum: [organizador, operador]
+        status:
+          type: string
+          enum: [active, inactive]
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            field:
+              type: string
+              nullable: true
+
+security:
+  - sessionCookie: []
