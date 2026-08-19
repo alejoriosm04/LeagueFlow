@@ -1,11 +1,12 @@
 {
-  "version": "0.16.4",
+  "version": "0.16.5.dev0",
   "integration_state_schema": 1,
   "installed_integrations": [
     "claude",
     "opencode",
     "cursor-agent",
-    "codex"
+    "codex",
+    "copilot"
   ],
   "integration_settings": {
     "claude": {
@@ -21,6 +22,10 @@
       "invoke_separator": "-"
     },
     "codex": {
+      "script": "sh",
+      "invoke_separator": "-"
+    },
+    "copilot": {
       "script": "sh",
       "invoke_separator": "-"
     }
