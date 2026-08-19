@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { leaguesApi } from './api';
 import type { League } from './api';
 
@@ -29,6 +29,9 @@ export function LeagueDetailPage() {
         <strong>Temporada:</strong> {liga.season}
       </p>
       {liga.description && <p>{liga.description}</p>}
+      <p>
+        <Link to={`/leagues/${liga.id}/teams`}>Ver equipos</Link>
+      </p>
     </section>
   );
 }
