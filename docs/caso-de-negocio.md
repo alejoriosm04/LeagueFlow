@@ -4,16 +4,39 @@ Componente complementario del entregable. Se llena **con datos reales medidos
 durante el proyecto**, no estimados al final: por eso conviene ir registrando
 tiempos desde la primera HU.
 
-## 1. Qué medir (registrar sobre la marcha)
+## 1. Métricas por HU (se llenan solas sobre la marcha)
 
-Por cada HU de la línea base:
+Cada HU deja su archivo en `docs/metricas/NNN-slug.md` al cerrarse — el agente
+lo escribe como parte del ciclo de la HU (`AGENTS.md` §7), y la persona añade
+dos números que el agente no puede conocer (tiempo real de trabajo y costo de
+IA). La tabla de abajo la genera `./scripts/metricas.sh --escribir` a partir de
+esos archivos más `git log`.
 
-| HU | Tiempo spec+plan+tasks | Tiempo implement | Reprocesos | Tokens / costo IA |
-|---|---|---|---|---|
-| 1 | | | | |
+**No editar la tabla a mano**: se regenera. Ver `docs/metricas/README.md` para
+qué dato es automático, cuál es aproximado y cuál requiere a una persona.
 
-Fuentes de dato: timestamps de commits (`git log`), duración de las sesiones de
-Claude Code, y el consumo reportado por la herramienta de IA.
+<!-- METRICAS:INICIO (generado por scripts/metricas.sh — no editar a mano) -->
+
+| HU | Tareas (hechas/total) | Tests | Ciclos corrección | Tiempo spec+plan+tasks | Tiempo implement | Costo IA | Días calendario | Commits |
+|---|---|---|---|---|---|---|---|---|
+| 001-fundacion-y-autenticacion | 0/41 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 8 |
+| 002-crear-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 003-registrar-equipos | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 004-registrar-jugadores | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 005-programar-partido | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 3 |
+| 006-registrar-resultado | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 007-consultar-calendario | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 008-consultar-clasificacion | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 009-registrar-goles | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 010-alineaciones-estadisticas | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+| 011-dashboard-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.0 | 2 |
+
+> `⬜` = falta `docs/metricas/<spec>.md`. **Días calendario** y **commits**
+> salen de `git log` y miden tiempo transcurrido, no esfuerzo: el esfuerzo
+> real son las columnas de tiempo, que aporta cada persona al cerrar su HU.
+> Regenerar con `./scripts/metricas.sh --escribir`.
+
+<!-- METRICAS:FIN -->
 
 ## 2. Costos de infraestructura (capa gratuita)
 

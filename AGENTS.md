@@ -31,6 +31,18 @@ Documento completo del flujo: `docs/flujo-sdd.md`. Principios del proyecto:
    backlog completo ya clarificado, de donde se extrajo cada spec individual.
    No se planifica ni se implementa desde ahí — la fuente de verdad para
    `/speckit-plan` e `/speckit-implement` es siempre `specs/NNN-*/spec.md`.
+7. **Al cerrar una HU, registra sus métricas.** Antes de dar por terminada una
+   HU (tests en verde, antes de abrir el PR), copia
+   `docs/metricas/_plantilla.md` a `docs/metricas/NNN-slug.md` y llena la
+   sección "Llenado por el agente" con datos reales de esa HU: tareas
+   completadas, tests escritos y en verde, ciclos de corrección, y **qué se
+   reprocesó y por qué**. El archivo se commitea en el mismo PR de la HU.
+   Alimenta `docs/caso-de-negocio.md`, que es un entregable evaluado.
+   - **Nunca inventes el costo/tokens de IA ni el tiempo real de trabajo.** Esos
+     dos campos los llena la persona; el modelo no tiene acceso a su propio
+     consumo ni al reloj de quien trabaja. Déjalos como están en la plantilla.
+   - Un `0` en "ciclos de corrección" de una HU no trivial es sospechoso:
+     cuenta honestamente, el valor del dato está en que sea real.
 
 ## Formato de commits y PRs
 
