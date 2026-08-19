@@ -3,7 +3,8 @@
   "integration_state_schema": 1,
   "installed_integrations": [
     "claude",
-    "opencode"
+    "opencode",
+    "cursor-agent"
   ],
   "integration_settings": {
     "claude": {
@@ -13,6 +14,10 @@
     "opencode": {
       "script": "sh",
       "invoke_separator": "."
+    },
+    "cursor-agent": {
+      "script": "sh",
+      "invoke_separator": "-"
     }
   },
   "integration": "claude",
