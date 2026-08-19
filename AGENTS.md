@@ -17,6 +17,20 @@ Documento completo del flujo: `docs/flujo-sdd.md`. Principios del proyecto:
    entorno; las llaves nuevas se documentan vacías en `.env.example`. GitHub
    tiene push protection activo y rechazará el push.
 4. **El spec se commitea junto con el código que genera**, en el mismo PR.
+5. **Decisiones técnicas compartidas: no se re-deciden por HU.** El stack, el
+   modelo de dominio (`League/Team/Player/Match/MatchEvent/User`) y el esquema
+   de autenticación y roles están fijados en
+   `specs/001-fundacion-y-autenticacion/plan.md` y `data-model.md`. Ninguna
+   spec posterior (`specs/002-*` en adelante) vuelve a correr `/speckit-plan`
+   para decidir stack o remodelar esas entidades: su `plan.md` referencia el
+   de `001` y solo documenta lo que **añade** sobre ese modelo (entidades o
+   campos nuevos propios de esa HU). `specs/001-fundacion-y-autenticacion`
+   DEBE mezclarse a `main` antes de que cualquier otra spec empiece su propio
+   `/speckit-plan`.
+6. **`docs/backlog/backlog.md` es solo referencia histórica.** Contiene el
+   backlog completo ya clarificado, de donde se extrajo cada spec individual.
+   No se planifica ni se implementa desde ahí — la fuente de verdad para
+   `/speckit-plan` e `/speckit-implement` es siempre `specs/NNN-*/spec.md`.
 
 ## Formato de commits y PRs
 

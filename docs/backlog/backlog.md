@@ -1,12 +1,34 @@
-# Feature Specification: LeagueFlow — Gestión y analítica de ligas amateur
+# Backlog detallado — LeagueFlow
 
-**Feature Branch**: `001-gestion-ligas`
+**Estado**: Documento de referencia (no es una spec de Spec Kit)
 
-**Created**: 2026-08-18
+**Creado**: 2026-08-18 · **Superseded**: 2026-08-18
 
-**Status**: Draft
+**Origen**: `Input` original — "Construir LeagueFlow, una plataforma web para que un organizador de liga universitaria/amateur gestione equipos, jugadores, partidos y consulte clasificación y estadísticas. Roles: Organizador/Administrador (principal), Operador (registra resultados/eventos) y Espectador (consulta información pública). Modelo de dominio League -> Teams -> Players y League -> Matches -> MatchEvents. Standings y estadísticas de jugadores siempre derivadas de los resultados. 15 Historias de Usuario priorizadas (Must/Should/Could)."
 
-**Input**: User description: "Construir LeagueFlow, una plataforma web para que un organizador de liga universitaria/amateur gestione equipos, jugadores, partidos y consulte clasificación y estadísticas. Roles: Organizador/Administrador (principal), Operador (registra resultados/eventos) y Espectador (consulta información pública). Modelo de dominio League -> Teams -> Players y League -> Matches -> MatchEvents. Standings y estadísticas de jugadores siempre derivadas de los resultados. 15 Historias de Usuario priorizadas (Must/Should/Could)."
+> Este documento fue la spec inicial `specs/001-gestion-ligas/spec.md`, ya
+> clarificada (ver sección Clarifications abajo). El equipo decidió que cada
+> Historia de Usuario tiene su propia spec de Spec Kit en `specs/NNN-*/`, así
+> que este archivo se movió aquí como **backlog de referencia**: de dónde
+> salió cada requisito y por qué, para consultar al escribir cada spec
+> individual. **No se planifica ni se implementa desde aquí.**
+>
+> Mapa hacia las specs reales:
+>
+> | Este documento | Spec activa |
+> |---|---|
+> | User Story 16 (HU-AUTH) | `specs/001-fundacion-y-autenticacion/` |
+> | User Story 1 (HU01) | `specs/002-crear-liga/` |
+> | User Story 2 (HU02) | `specs/003-registrar-equipos/` |
+> | User Story 3 (HU03) | `specs/004-registrar-jugadores/` |
+> | User Story 4 (HU04) | `specs/005-programar-partido/` |
+> | User Story 5 (HU05) | `specs/006-registrar-resultado/` |
+> | User Story 6 (HU06) | `specs/007-consultar-calendario/` |
+> | User Story 7 (HU07) | `specs/008-consultar-clasificacion/` |
+> | User Story 8 (HU08) | `specs/009-registrar-goles/` |
+> | User Story 9 (HU09) | `specs/010-alineaciones-estadisticas/` |
+> | User Story 10 (HU10) | `specs/011-dashboard-liga/` |
+> | User Story 11-15 (HU11-15) | Backlog futuro / pool de demo en vivo — sin spec todavía |
 
 ## Clarifications
 
