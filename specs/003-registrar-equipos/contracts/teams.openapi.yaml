@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Equipos
+  version: "1.0.0"
+  description: >
+    Endpoints de la spec 003-registrar-equipos. Las convenciones compartidas
+    (envelope de error, códigos HTTP, paginación, cookie de sesión) están en
+    ../../001-fundacion-y-autenticacion/contracts/conventions.md.
+servers:
+  - url: /api/v1
+
+paths:
+  /leagues/{leagueId}/teams:
+    post:
+      summary: Registrar un equipo en una liga
+      operationId: createTeam
+      description: Requiere sesión con rol organizador (FR-004).
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTeamRequest"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
+        "400":
+          description: "Payload inválido — `name` vacío, o `crest_url` no es https absoluta. error.code: `validation_error`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol operador. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: "La liga no existe. error.code: `league_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: "Ya existe un equipo con ese nombre en esta liga (FR-002). error.code: `team_name_duplicate`, field: `name`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    get:
+      summary: Listar los equipos de una liga
+      operationId: listTeams
+      description: Público (FR-003). Por defecto solo equipos activos.
+      security: []
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: include_inactive
+          in: query
+          description: Incluye equipos dados de baja; para vistas de historial (research.md §3).
+          schema: { type: boolean, default: false }
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedTeams" }
+        "404":
+          description: "La liga no existe. error.code: `league_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /teams/{teamId}:
+    get:
+      summary: Detalle de un equipo
+      operationId: getTeam
+      description: >
+        Público (FR-003). Devuelve el equipo aunque esté inactivo, para que las
+        vistas de historial no queden rotas (research.md §3).
+      security: []
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Team" }
+        "404":
+          description: "error.code: `team_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: lf_session
+  schemas:
+    CreateTeamRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        crest_url:
+          type: string
+          format: uri
+          maxLength: 500
+          nullable: true
+          description: URL https absoluta; no se descarga ni se valida el contenido (research.md §1).
+        colors:
+          type: string
+          maxLength: 60
+          nullable: true
+          description: Texto libre, sin formato impuesto (research.md §2).
+    Team:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        league_id: { type: string, format: uuid }
+        name: { type: string }
+        crest_url: { type: string, nullable: true }
+        colors: { type: string, nullable: true }
+        status: { type: string, enum: [active, inactive] }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+    PaginatedTeams:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Team" }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
+
+security:
+  - sessionCookie: []
