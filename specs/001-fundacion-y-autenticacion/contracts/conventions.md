@@ -12,8 +12,11 @@ siguiendo este contrato (`AGENTS.md` §5, Principio III de la constitución).
 
 ## Autenticación
 
-- Sesión vía cookie `httpOnly`, `Secure`, `SameSite=Lax`, nombre `lf_session`.
-  Ver `specs/001-fundacion-y-autenticacion/data-model.md` (entidad `Session`).
+- Sesión vía cookie `httpOnly`, `Secure`, `SameSite=None`, nombre `lf_session`.
+  `SameSite=None` es obligatorio (no `Lax`) porque frontend y backend viven en
+  dominios distintos (Vercel/Railway) — con `Lax` la cookie no viaja en
+  peticiones `fetch` cross-site. Ver `research.md` §4 y
+  `specs/001-fundacion-y-autenticacion/data-model.md` (entidad `Session`).
 - Las rutas de consulta (GET de calendario, clasificación, estadísticas,
   perfiles, búsqueda, dashboard) NUNCA requieren esta cookie.
 - Toda ruta de escritura (POST/PUT/PATCH/DELETE) la requiere; sin ella

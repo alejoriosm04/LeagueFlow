@@ -67,8 +67,27 @@ de 4 días de la actividad.
 ## 4. Autenticación y sesiones
 
 **Decision**: Sesión de servidor con token opaco en cookie `httpOnly` +
-`Secure` + `SameSite=Lax`, respaldada por una tabla `sessions` con expiración
+`Secure` + `SameSite=None`, respaldada por una tabla `sessions` con expiración
 por inactividad. Contraseñas con `passlib[bcrypt]`.
+
+**Corrección 2026-08-18 (checklist api.md CHK008/CHK014)**: la decisión
+original fijaba `SameSite=Lax`, incompatible con la decisión de hosting de
+§7 (frontend en Vercel, backend en Railway — dominios distintos). Con
+`Lax`, los navegadores no envían la cookie en peticiones `fetch`/XHR
+cross-site, solo en navegaciones top-level: el login habría funcionado en
+desarrollo (mismo origen) y fallado en producción. `SameSite=None` exige
+`Secure` (ya presente) y es obligatorio para que la cookie viaje entre
+`*.vercel.app` y `*.railway.app`.
+
+**Trade-off que introduce `SameSite=None`**: la cookie ahora viaja también
+en peticiones cross-site iniciadas por otros orígenes (superficie de CSRF
+mayor que con `Lax`). Mitigación ya presente sin trabajo adicional: todas
+las rutas de escritura exigen `Content-Type: application/json`
+(`contracts/conventions.md`), y un formulario HTML simple no puede fijar
+ese header — un ataque CSRF clásico basado en formularios no puede
+disparar estas peticiones. Un token CSRF de doble envío queda fuera de
+esta corrección puntual; si se quiere profundizar, es un ítem nuevo de
+`checklists/security.md`, no un bloqueante para implementar.
 
 **Rationale**: FR-006 (`specs/001-fundacion-y-autenticacion/spec.md`) exige que
 cerrar sesión revoque el acceso de inmediato. Con JWT sin estado, revocar antes

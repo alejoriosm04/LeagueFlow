@@ -42,9 +42,10 @@ spec); vistas de consulta del resto del proyecto completas en menos de 2
 segundos para una liga de 20 equipos / 190 partidos (referencia agregada de
 `specs/007-*`, `specs/008-*`, `specs/011-*`, que heredan este backend)
 
-**Constraints**: cookie de sesión `httpOnly` + `Secure` + `SameSite=Lax`; CORS
-restringido por variable de entorno, nunca `*`; contraseñas nunca en texto
-claro ni recuperables (FR-005); ningún stack trace al cliente (FR-012)
+**Constraints**: cookie de sesión `httpOnly` + `Secure` + `SameSite=None`
+(obligatorio por el despliegue cross-domain Vercel/Railway — ver `research.md`
+§4); CORS restringido por variable de entorno, nunca `*`; contraseñas nunca en
+texto claro ni recuperables (FR-005); ningún stack trace al cliente (FR-012)
 
 **Scale/Scope**: hasta 10 ligas simultáneas, 20 equipos por liga, 30 jugadores
 por equipo (volumen de referencia usado en los Success Criteria de las specs

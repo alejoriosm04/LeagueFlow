@@ -71,11 +71,11 @@ description: "Task list for feature implementation"
 
 - [ ] T018 [US1] Crear los modelos SQLAlchemy `User` (incluye `created_by`, nullable solo para la semilla) y `Session` en `backend/src/auth/models.py` (data-model.md: User, Session; FR-001, FR-004, FR-005, FR-008)
 - [ ] T019 [US1] Generar y aplicar la migración Alembic de `users` y `sessions` en `backend/alembic/versions/` (depende de T018)
-- [ ] T020 [P] [US1] Crear los schemas Pydantic (`UserPublic`, `LoginRequest`, `CreateUserRequest`) en `backend/src/auth/schemas.py` (`contracts/auth.openapi.yaml`)
+- [ ] T020 [P] [US1] Crear los schemas Pydantic (`UserPublic`, `LoginRequest`, `CreateUserRequest`, `PaginatedUsers`) en `backend/src/auth/schemas.py` (`contracts/auth.openapi.yaml`)
 - [ ] T021 [US1] Implementar utilidades de hash de contraseña con `passlib[bcrypt]` en `backend/src/auth/security.py` (FR-005)
 - [ ] T022 [US1] Implementar `AuthService` (`create_user`, `authenticate`, `create_session`, `revoke_session`) en `backend/src/auth/service.py` (FR-004, FR-005, FR-006, FR-010; depende de T018, T021)
 - [ ] T023 [US1] Implementar las dependencias FastAPI `get_current_user` / `require_role` en `backend/src/auth/dependencies.py`, incluida la extensión de `Session.expires_at` en cada validación exitosa — expiración por inactividad, no TTL fijo (FR-003, FR-006, FR-009; depende de T022)
-- [ ] T024 [US1] Implementar el router de auth (`login`, `logout`, `me`, `POST/GET /users`) en `backend/src/auth/router.py`; `POST /users` MUST poblar `created_by` con el `id` del usuario de la sesión que llama (FR-007, FR-008; depende de T020, T022, T023)
+- [ ] T024 [US1] Implementar el router de auth (`login`, `logout`, `me`, `POST/GET /users`) en `backend/src/auth/router.py`; `POST /users` MUST poblar `created_by` con el `id` del usuario de la sesión que llama; `GET /users` MUST paginar con `page`/`page_size` y responder el envelope `PaginatedUsers`, no un array plano (FR-007, FR-008; depende de T020, T022, T023)
 - [ ] T025 [US1] Registrar el router de auth en `backend/src/main.py` (depende de T024, T013)
 - [ ] T026 [P] [US1] Crear el script de semilla del organizador inicial en `backend/scripts/seed_admin.py` (spec.md → Assumption "Cuentas de usuario")
 - [ ] T027 [P] [US1] Crear `AuthContext`/hook de sesión (`login`, `logout`, `currentUser`) en `frontend/src/features/auth/AuthContext.tsx` (depende de T014)
@@ -93,7 +93,7 @@ description: "Task list for feature implementation"
 
 - [ ] T031 [P] Ejecutar los escenarios de `quickstart.md` de punta a punta contra el entorno local
 - [ ] T032 [P] Documentar los pasos de setup en `backend/README.md` y `frontend/README.md`
-- [ ] T033 Endurecimiento de seguridad: confirmar que `backend/src/core/errors.py` nunca expone stack traces (FR-012) y que la cookie de `backend/src/auth/service.py` tiene `httpOnly`, `Secure`, `SameSite=Lax` (research.md §4)
+- [ ] T033 Endurecimiento de seguridad: confirmar que `backend/src/core/errors.py` nunca expone stack traces (FR-012) y que la cookie de `backend/src/auth/service.py` tiene `httpOnly`, `Secure`, `SameSite=None` (research.md §4 — `None`, no `Lax`, por el despliegue cross-domain)
 - [ ] T034 [P] Configurar el esqueleto de Playwright (`playwright.config.ts`) para el camino crítico único (crear liga → equipo → partido → clasificación) — sin escribir el test todavía: esos pasos viven en specs `002/003/005/008`, aún no implementadas (research.md §5)
 
 ---

@@ -32,7 +32,8 @@ paths:
         "200":
           description: >
             Sesión creada. La cookie lf_session se setea vía Set-Cookie
-            (httpOnly, Secure, SameSite=Lax) — no viaja en el body.
+            (httpOnly, Secure, SameSite=None — ver conventions.md §Autenticación)
+            — no viaja en el body.
           content:
             application/json:
               schema:
@@ -120,14 +121,29 @@ paths:
     get:
       summary: Listar usuarios (solo organizador)
       operationId: listUsers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
       responses:
         "200":
+          description: >
+            Lista paginada — sigue el envelope de conventions.md §Paginación,
+            no un array plano.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UserPublic"
+                $ref: "#/components/schemas/PaginatedUsers"
         "403":
           content:
             application/json:
@@ -156,6 +172,20 @@ components:
         status:
           type: string
           enum: [active, inactive]
+    PaginatedUsers:
+      description: Envelope de paginación estándar — ver conventions.md §Paginación.
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserPublic"
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
     ErrorEnvelope:
       type: object
       properties:

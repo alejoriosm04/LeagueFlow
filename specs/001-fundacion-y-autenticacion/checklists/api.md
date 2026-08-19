@@ -21,9 +21,9 @@
 
 ## Requirement Consistency
 
-- [ ] CHK006 ¿La respuesta de `GET /users` sigue el envelope de paginación `{items, page, page_size, total}` definido en `conventions.md`, o es un array simple inconsistente con esa convención? [Conflict, contracts/auth.openapi.yaml vs conventions.md §Paginación]
+- [x] CHK006 ¿La respuesta de `GET /users` sigue el envelope de paginación `{items, page, page_size, total}` definido en `conventions.md`, o es un array simple inconsistente con esa convención? [Conflict, contracts/auth.openapi.yaml vs conventions.md §Paginación] — **Resuelto 2026-08-18**: `GET /users` ahora expone `page`/`page_size` como query params y responde `PaginatedUsers` (`contracts/auth.openapi.yaml`); `tasks.md` T020/T024 actualizadas.
 - [ ] CHK007 ¿Los atributos exactos de la cookie de sesión (`Max-Age`, `Path`) están en algún lugar verificable del contrato, o solo en prosa (`httpOnly`/`Secure`/`SameSite`)? [Gap, Consistency, contracts/conventions.md §Autenticación]
-- [ ] CHK008 **`SameSite=Lax` (research.md §4, contracts/conventions.md §Autenticación) vs. el despliegue cross-domain decidido en research.md §7 (frontend en Vercel, backend en Railway)** — con dominios distintos, los navegadores no envían cookies `SameSite=Lax` en peticiones `fetch` cross-site (solo en navegaciones top-level). ¿Está resuelta esta contradicción antes de implementar, o se descubre en producción? [Conflict, research.md §4 vs §7]
+- [x] CHK008 **`SameSite=Lax` (research.md §4, contracts/conventions.md §Autenticación) vs. el despliegue cross-domain decidido en research.md §7 (frontend en Vercel, backend en Railway)** — con dominios distintos, los navegadores no envían cookies `SameSite=Lax` en peticiones `fetch` cross-site (solo en navegaciones top-level). ¿Está resuelta esta contradicción antes de implementar, o se descubre en producción? [Conflict, research.md §4 vs §7] — **Resuelto 2026-08-18**: cambiado a `SameSite=None` (exige `Secure`, ya presente) en `research.md`, `plan.md`, `contracts/conventions.md`, `contracts/auth.openapi.yaml`, `tasks.md` T033. Trade-off de CSRF documentado y mitigado en `research.md` §4.
 
 ## Acceptance Criteria Quality
 
@@ -44,7 +44,7 @@
 
 ## Dependencies & Assumptions
 
-- [ ] CHK014 `conventions.md` asume cookies cross-origin funcionando con `SameSite=Lax` — ¿esa asunción está validada contra la topología de hosting elegida (dominios distintos en Vercel/Railway)? [Assumption, research.md §7 vs contracts/conventions.md §Autenticación] — mismo hallazgo que CHK008, visto desde el ángulo de las Assumptions
+- [x] CHK014 `conventions.md` asume cookies cross-origin funcionando con `SameSite=Lax` — ¿esa asunción está validada contra la topología de hosting elegida (dominios distintos en Vercel/Railway)? [Assumption, research.md §7 vs contracts/conventions.md §Autenticación] — mismo hallazgo que CHK008, visto desde el ángulo de las Assumptions. **Resuelto junto con CHK008** (2026-08-18).
 
 ## Ambiguities & Conflicts
 
@@ -56,4 +56,5 @@
 - Leave items unchecked when they still require clarification, correction, or reviewer evaluation
 - `/speckit-implement` reads checklist checkbox state as a gate and must not modify markers
 - `checklists/requirements.md` has a separate built-in lifecycle maintained by `/speckit-specify` and `/speckit-clarify`
-- **CHK008/CHK014 son el hallazgo más importante de este checklist**: tal como está escrito hoy, `SameSite=Lax` rompe el login entre Vercel y Railway en producción. Resolver antes de implementar T022/T024 (no es un defecto de redacción menor, es un defecto funcional del diseño de sesión).
+- **CHK008/CHK014 y CHK006 se resolvieron el 2026-08-18**, antes de iniciar `/speckit-implement`, a petición explícita del autor — ver notas inline en cada ítem para el detalle de qué archivos cambiaron.
+- CHK007 sigue abierto y queda relacionado: ahora que la cookie es `SameSite=None`, documentar `Max-Age`/`Path` explícitamente cobra más importancia (una cookie de sesión de vida más "expuesta" cross-site debería tener su ventana de vida clara en el contrato).
