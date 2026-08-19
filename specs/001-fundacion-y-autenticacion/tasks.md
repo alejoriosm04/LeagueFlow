@@ -105,13 +105,13 @@ explícito del enunciado (`docs/actividad.md` → "Despliegue (DevOps) y Hosting
 Publicación en un entorno totalmente integrado y gratuito"), y habilita el
 deploy automático que heredan las specs `002-011` sin volver a configurarlo.
 
-- [ ] T035 Crear el proyecto en Railway y provisionar el add-on de PostgreSQL; registrar la `DATABASE_URL` generada como variable de entorno del servicio backend, nunca en el repo (research.md §7, Principio VI)
+- [X] T035 Crear el proyecto en Railway y provisionar el add-on de PostgreSQL; registrar la `DATABASE_URL` generada como variable de entorno del servicio backend, nunca en el repo (research.md §7, Principio VI)
 - [X] T036 Configurar el despliegue del backend en Railway: comando de arranque `uvicorn src.main:app --host 0.0.0.0 --port $PORT` y ejecución de `alembic upgrade head` en el arranque/release, de modo que cada deploy aplique las migraciones pendientes (Principio V)
 - [X] T037 [P] Crear el proyecto en Vercel apuntando a `frontend/`, con `VITE_API_URL` = URL pública del backend en Railway como variable de entorno de build
-- [ ] T038 Configurar `ALLOWED_ORIGINS` en Railway con el dominio real de Vercel y habilitar `allow_credentials=True` en el `CORSMiddleware` de `backend/src/core/config.py` — sin esto la cookie de sesión cross-domain no viaja (depende de T012, T037; research.md §4)
-- [ ] T039 Verificar en el entorno desplegado que la cookie `lf_session` se emite con `Secure` y `SameSite=None` sobre HTTPS y que el login funciona end-to-end entre el dominio de Vercel y el de Railway — es el escenario que `SameSite=Lax` habría roto y que no se puede validar en local con mismo origen (depende de T036, T037, T038)
-- [ ] T040 [P] Ejecutar el script de semilla del organizador contra la base de datos de producción, con una credencial inicial entregada fuera del repo (depende de T026, T035)
-- [ ] T041 Documentar en `README.md` las URLs públicas del frontend y del backend desplegados
+- [X] T038 Configurar `ALLOWED_ORIGINS` en Railway con el dominio real de Vercel y habilitar `allow_credentials=True` en el `CORSMiddleware` de `backend/src/core/config.py` — sin esto la cookie de sesión cross-domain no viaja (depende de T012, T037; research.md §4)
+- [X] T039 Verificar en el entorno desplegado que la cookie `lf_session` se emite con `Secure` y `SameSite=None` sobre HTTPS y que el login funciona end-to-end entre el dominio de Vercel y el de Railway — es el escenario que `SameSite=Lax` habría roto y que no se puede validar en local con mismo origen (depende de T036, T037, T038)
+- [X] T040 [P] Ejecutar el script de semilla del organizador contra la base de datos de producción, con una credencial inicial entregada fuera del repo (depende de T026, T035)
+- [X] T041 Documentar en `README.md` las URLs públicas del frontend y del backend desplegados
 
 **Checkpoint**: aplicación publicada y accesible; specs `002-011` heredan este pipeline sin reconfigurarlo.
 

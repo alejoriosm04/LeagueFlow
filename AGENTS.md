@@ -64,3 +64,21 @@ el título del PR se convierte en el mensaje del commit que queda en `main`
 - Nunca títulos genéricos tipo "cambios", "update" o "WIP".
 
 Dentro de la rama los commits intermedios pueden ser informales (se colapsan).
+
+## Nota sobre GitGuardian en los PR
+
+El repositorio tiene GitGuardian activo y **marcará como secreto cualquier par
+`{"username": ..., "password": ...}` en tus tests de autenticación**, aunque los
+valores se generen en tiempo de ejecución: el detector reacciona al patrón de
+claves, no al valor. No es bloqueante — el `BLOCKED` del PR viene de la regla
+que exige una aprobación, no de este check.
+
+Qué hacer:
+
+1. **Comprueba primero si es real.** En `specs/001` lo fue: había contraseñas de
+   PostgreSQL en `ci.yml` y en la documentación. Se eliminaron de raíz usando
+   `POSTGRES_HOST_AUTH_METHOD=trust`, sin contraseña que escribir.
+2. **Si son fixtures de test**, genera los valores (`secrets.token_urlsafe`,
+   `crypto.randomUUID`) y descarta la detección como falso positivo en el panel
+   de GitGuardian. No persigas el patrón cambiando valores: no se limpia así.
+3. **Nunca** dejes una credencial real en el repo para que "pase el check".
