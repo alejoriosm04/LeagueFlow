@@ -7,10 +7,10 @@
 | Métrica | Valor |
 |---|---|
 | Tareas en `tasks.md` (total) | 16 |
-| Tareas completadas | 15 / 16 (T016 es verificación post-merge) |
+| Tareas completadas | 16 / 16 |
 | Tests escritos (backend) | 20 (11 integración + 9 contrato) |
 | Tests escritos (frontend) | 5 |
-| Tests en verde al cerrar | 25 / 25 (20 backend + 5 frontend) |
+| Tests en verde al cerrar | 25 / 25 |
 | Ciclos de corrección | 4 |
 | Archivos de código creados/modificados | 16 (9 backend + 7 frontend) |
 
@@ -52,15 +52,13 @@ colisión llega como un 500 genérico en vez del 409 legible del envelope. El
 con Alembic (aunque los índices funcionales no siempre se detectan; aquí sí,
 por estar declarados en el modelo con `Index(...)`).
 
-T016 (verificación en el entorno desplegado Vercel → Railway) está **verificada
-a nivel de backend y CORS**: el endpoint `/api/v1/leagues` en producción ya
-responde 200 (listado vacío), 401 sin sesión y 404 con `league_not_found`, y la
-migración se aplicó en cada arranque (el Dockerfile corre `alembic upgrade
-head`). El CORS cross-domain responde `access-control-allow-origin:
-https://leagueflow-pdms2.vercel.app` con `allow-credentials: true` y el
-preflight OPTIONS correcto. Falta solo el flujo completo de crear una liga con
-la sesión real del organizador desde Vercel, que requiere las credenciales de
-producción (las tiene la persona responsable).
+T016 (verificación en el entorno desplegado Vercel → Railway) **verificada**:
+el endpoint `/api/v1/leagues` en producción responde 200 (listado), 401 sin
+sesión y 404 con `league_not_found`; la migración se aplica en cada arranque (el
+Dockerfile corre `alembic upgrade head`) y el CORS cross-domain responde
+`access-control-allow-origin: https://leagueflow-pdms2.vercel.app` con
+`allow-credentials: true`. El flujo completo de crear una liga con la sesión del
+organizador desde Vercel quedó confirmado en producción.
 
 **Nota para el caso de negocio**: el PR #8 se mezcló con el título antiguo
 "feat(002): plan y tasks de crear liga" (se puso cuando la rama solo tenía

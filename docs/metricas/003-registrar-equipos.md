@@ -10,7 +10,7 @@
 | Tareas completadas | 15 / 15 |
 | Tests escritos (backend) | 21 (11 integración + 10 contrato) |
 | Tests escritos (frontend) | 5 |
-| Tests en verde al cerrar | 26 / 26 (21 backend + 5 frontend) |
+| Tests en verde al cerrar | 26 / 26 |
 | Ciclos de corrección | 3 |
 | Archivos de código creados/modificados | 15 (9 backend + 6 frontend) |
 
