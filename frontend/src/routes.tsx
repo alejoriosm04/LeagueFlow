@@ -5,6 +5,8 @@ import { useAuth } from './features/auth/AuthContext';
 import { CreateLeagueForm } from './features/leagues/CreateLeagueForm';
 import { LeagueDetailPage } from './features/leagues/LeagueDetailPage';
 import { LeaguesPage } from './features/leagues/LeaguesPage';
+import { CreateTeamForm } from './features/teams/CreateTeamForm';
+import { TeamsPage } from './features/teams/TeamsPage';
 
 function Inicio() {
   const { usuario } = useAuth();
@@ -34,6 +36,15 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/leagues" element={<LeaguesPage />} />
       <Route path="/leagues/:id" element={<LeagueDetailPage />} />
+      <Route path="/leagues/:id/teams" element={<TeamsPage />} />
+      <Route
+        path="/leagues/:id/teams/new"
+        element={
+          <ProtectedRoute rol="organizador">
+            <CreateTeamForm />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/leagues/new"
         element={
