@@ -20,6 +20,9 @@ export function App() {
           LEAGUEFLOW
         </Link>
         <nav>
+          <Link to="/leagues" style={{ marginRight: '1rem' }}>
+            Ligas
+          </Link>
           {cargando ? null : usuario ? (
             <span>
               {usuario.username} ({usuario.role}){' '}
