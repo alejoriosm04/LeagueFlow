@@ -18,11 +18,12 @@ usando [GitHub Spec Kit](https://github.com/github/spec-kit) y Claude Code.
 |---|---|
 | Repositorio y convenciones | ✅ Listo |
 | Spec Kit inicializado (v0.16.4, integración `claude`) | ✅ Listo |
-| Constitution del proyecto | ⬜ Pendiente — `/speckit-constitution` en equipo |
-| Backlog de ~10 HU priorizadas | ⬜ Pendiente — se gestiona en el **GitHub Project** del repo |
-| Stack técnico | ⬜ Se decide en el primer `/speckit-plan` |
-| Despliegue | ⬜ Pendiente |
-| Caso de negocio | ⬜ Pendiente — [`docs/caso-de-negocio.md`](docs/caso-de-negocio.md) |
+| Constitution del proyecto | ✅ v1.0.0 — [`.specify/memory/constitution.md`](.specify/memory/constitution.md) |
+| Backlog de 10 HU priorizadas | ✅ Repartido en `specs/002-*` a `specs/011-*` (origen: [`docs/backlog/backlog.md`](docs/backlog/backlog.md)) |
+| Stack técnico | ✅ Fijado en [`specs/001-fundacion-y-autenticacion/plan.md`](specs/001-fundacion-y-autenticacion/plan.md) — FastAPI + PostgreSQL + React/TS |
+| Spec 001 (fundación + auth) | 🟨 Spec/plan/tasks listos — falta `/speckit-implement` |
+| Despliegue | ⬜ Pendiente — Vercel + Railway decididos, sin configurar |
+| Caso de negocio | ⬜ Pendiente — [`docs/caso-de-negocio.md`](docs/caso-de-negocio.md); **medir tiempos desde la primera HU** |
 
 ---
 

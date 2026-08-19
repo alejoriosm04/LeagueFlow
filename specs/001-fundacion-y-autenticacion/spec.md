@@ -84,7 +84,7 @@ verificar que las vistas públicas siguen accesibles.
 ### Functional Requirements
 
 - **FR-001**: El sistema MUST distinguir tres roles: organizador (gestiona
-  ligas, equipos, jugadores, partidos, video y aprueba correcciones), operador
+  ligas, equipos, jugadores y partidos, y aprueba correcciones), operador
   (registra resultados, eventos y alineaciones, y solicita correcciones) y
   espectador (solo consulta, sin cuenta).
 - **FR-002**: Toda la información de consulta (calendario, resultados,

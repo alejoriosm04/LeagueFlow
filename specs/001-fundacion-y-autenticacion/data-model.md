@@ -66,7 +66,7 @@ Entidad de infraestructura (no aparece como Key Entity de negocio en
 | revoked_at | timestamp nullable | se setea al cerrar sesión; una sesión revocada no autentica |
 
 **Validaciones**: toda ruta de escritura exige una sesión con `revoked_at IS
-NULL AND expires_at > now()` (FR-003, FR-068 heredado). El rol del `User`
+NULL AND expires_at > now()` (FR-003). El rol del `User`
 asociado determina si la operación está permitida (FR-009). `get_current_user`
 MUST extender `expires_at` en cada validación exitosa — es lo que hace la
 expiración "por inactividad" y no un TTL fijo (FR-006).
@@ -140,7 +140,7 @@ Enfrentamiento entre dos equipos de la misma liga. Definida en
 | away_team_id | UUID (FK → Team) | obligatorio, `!= home_team_id` (FR-002 de `specs/005-*`) |
 | scheduled_at | timestamp | obligatorio |
 | status | enum: `scheduled`, `in_progress`, `finished`, `cancelled` | por defecto `scheduled` |
-| home_score | integer nullable | `>= 0`; solo se escribe vía el flujo de resultado (FR-016/FR-018 de `specs/006-*`) |
+| home_score | integer nullable | `>= 0`; solo se escribe vía el flujo de resultado (FR-001/FR-003 de `specs/006-*`) |
 | away_score | integer nullable | ídem |
 | created_by | UUID (FK → User) | organizador que lo programó (FR-008) |
 | created_at, updated_at | timestamp | |
