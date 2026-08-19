@@ -42,6 +42,7 @@ Persona autenticada que opera el sistema. Definida en esta spec.
 | password_hash | string | nunca se expone; ver `passlib[bcrypt]` en `research.md` §4 (FR-005) |
 | role | enum: `organizador`, `operador` | obligatorio, exactamente uno (FR-001, FR-004) |
 | status | enum: `active`, `inactive` | por defecto `active` |
+| created_by | UUID nullable (FK → User) | organizador que creó la cuenta (FR-007, FR-008); `null` únicamente en el usuario semilla, creado por script de despliegue y no por otro usuario |
 | created_at | timestamp | |
 
 **Validaciones**: `username` único (case-insensitive). Un usuario `inactive`
@@ -66,7 +67,13 @@ Entidad de infraestructura (no aparece como Key Entity de negocio en
 
 **Validaciones**: toda ruta de escritura exige una sesión con `revoked_at IS
 NULL AND expires_at > now()` (FR-003, FR-068 heredado). El rol del `User`
-asociado determina si la operación está permitida (FR-009).
+asociado determina si la operación está permitida (FR-009). `get_current_user`
+MUST extender `expires_at` en cada validación exitosa — es lo que hace la
+expiración "por inactividad" y no un TTL fijo (FR-006).
+
+**Sin `created_by`, a propósito**: una sesión pertenece al usuario que se
+autenticó, no la crea otro usuario en su nombre — no aplica el patrón de
+atribución de autoría de las demás entidades (ver nota en §User sobre FR-008).
 
 ---
 
@@ -97,6 +104,7 @@ Participante de una liga. Definida en `specs/003-registrar-equipos`.
 | crest_url | string nullable | enlace externo, no se aloja el archivo |
 | colors | string nullable | libre (ej. "azul/blanco") |
 | status | enum: `active`, `inactive` | por defecto `active` (FR-005 de `specs/003-*`: borrado lógico) |
+| created_by | UUID (FK → User) | organizador que lo registró (FR-008) |
 | created_at | timestamp | |
 
 **Validaciones**: `(league_id, name)` único (FR-002 de `specs/003-*`).
@@ -113,6 +121,7 @@ Integrante de la plantilla de un equipo. Definida en `specs/004-registrar-jugado
 | number | integer nullable | dorsal, opcional |
 | position | string nullable | opcional |
 | status | enum: `active`, `inactive` | por defecto `active` (FR-005 de `specs/004-*`) |
+| created_by | UUID (FK → User) | organizador que lo registró (FR-008) |
 | created_at | timestamp | |
 
 **Validaciones**: `(team_id, number)` único cuando `number` no es nulo
@@ -133,6 +142,7 @@ Enfrentamiento entre dos equipos de la misma liga. Definida en
 | status | enum: `scheduled`, `in_progress`, `finished`, `cancelled` | por defecto `scheduled` |
 | home_score | integer nullable | `>= 0`; solo se escribe vía el flujo de resultado (FR-016/FR-018 de `specs/006-*`) |
 | away_score | integer nullable | ídem |
+| created_by | UUID (FK → User) | organizador que lo programó (FR-008) |
 | created_at, updated_at | timestamp | |
 
 **Validaciones**: `home_team_id` y `away_team_id` MUST pertenecer a `league_id`
@@ -168,6 +178,7 @@ Conjunto de jugadores que participaron en un partido, por equipo. Definida en
 | match_id | UUID (FK → Match) | obligatorio |
 | team_id | UUID (FK → Team) | obligatorio, uno de los dos equipos del partido |
 | player_id | UUID (FK → Player) | obligatorio, `player.team_id == team_id` (FR-002 de `specs/010-*`) |
+| created_by | UUID (FK → User) | operador/organizador que registró la alineación (FR-008) |
 
 **Validaciones**: `(match_id, player_id)` único. Opcional a nivel de partido
 (FR-004 de `specs/010-*`): un `Match` puede no tener ninguna fila aquí.

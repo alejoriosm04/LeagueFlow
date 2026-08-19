@@ -26,7 +26,7 @@ description: "Task list for feature implementation"
 **Purpose**: inicialización del repositorio backend/frontend y del pipeline de CI.
 
 - [ ] T001 Crear el esqueleto `backend/src/{auth,leagues,teams,players,matches,statistics,core}/` y `backend/tests/{contract,integration,unit}/` con `__init__.py`, según `plan.md` → Project Structure
-- [ ] T002 Inicializar `backend/pyproject.toml` con FastAPI, Uvicorn, Pydantic v2, SQLAlchemy[asyncio] 2.0, Alembic, `passlib[bcrypt]`, `httpx`, `pytest`, `pytest-asyncio` (research.md §1-4)
+- [ ] T002 Inicializar `backend/pyproject.toml` con FastAPI + Pydantic v2 (research.md §1), SQLAlchemy[asyncio] 2.0 + Alembic (research.md §3), `passlib[bcrypt]` (research.md §4), `httpx` + `pytest` + `pytest-asyncio` (research.md §5)
 - [ ] T003 [P] Inicializar `frontend/` (Vite + React 18 + TypeScript), instalar `react-router-dom`, `vitest`, `@testing-library/react` (research.md §2)
 - [ ] T004 [P] Configurar lint/format backend (`ruff`) en `backend/pyproject.toml`
 - [ ] T005 [P] Configurar lint/format frontend (ESLint + Prettier) en `frontend/.eslintrc.cjs` y `frontend/.prettierrc`
@@ -65,17 +65,17 @@ description: "Task list for feature implementation"
 > Escribir estas pruebas primero y verificar que fallan antes de implementar.
 
 - [ ] T016 [P] [US1] Contract test de `POST /auth/login`, `POST /auth/logout`, `GET /auth/me`, `POST /users`, `GET /users` contra `contracts/auth.openapi.yaml` en `backend/tests/contract/test_auth_contract.py`
-- [ ] T017 [P] [US1] Integration test de los 7 Acceptance Scenarios de `spec.md` (login válido/inválido, consulta sin sesión, escritura sin sesión, rol insuficiente, logout revoca, atribución de autoría) en `backend/tests/integration/test_auth.py`
+- [ ] T017 [P] [US1] Integration test de los 7 Acceptance Scenarios de `spec.md` (login válido/inválido, consulta sin sesión, escritura sin sesión, rol insuficiente, logout revoca, atribución de autoría vía `created_by` en el usuario creado) en `backend/tests/integration/test_auth.py`, incluida una aserción de tiempo sobre el login (`< 5s`, SC-003)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Crear los modelos SQLAlchemy `User` y `Session` en `backend/src/auth/models.py` (data-model.md: User, Session; FR-001, FR-004, FR-005)
+- [ ] T018 [US1] Crear los modelos SQLAlchemy `User` (incluye `created_by`, nullable solo para la semilla) y `Session` en `backend/src/auth/models.py` (data-model.md: User, Session; FR-001, FR-004, FR-005, FR-008)
 - [ ] T019 [US1] Generar y aplicar la migración Alembic de `users` y `sessions` en `backend/alembic/versions/` (depende de T018)
 - [ ] T020 [P] [US1] Crear los schemas Pydantic (`UserPublic`, `LoginRequest`, `CreateUserRequest`) en `backend/src/auth/schemas.py` (`contracts/auth.openapi.yaml`)
 - [ ] T021 [US1] Implementar utilidades de hash de contraseña con `passlib[bcrypt]` en `backend/src/auth/security.py` (FR-005)
 - [ ] T022 [US1] Implementar `AuthService` (`create_user`, `authenticate`, `create_session`, `revoke_session`) en `backend/src/auth/service.py` (FR-004, FR-005, FR-006, FR-010; depende de T018, T021)
-- [ ] T023 [US1] Implementar las dependencias FastAPI `get_current_user` / `require_role` en `backend/src/auth/dependencies.py` (FR-003, FR-009; depende de T022)
-- [ ] T024 [US1] Implementar el router de auth (`login`, `logout`, `me`, `POST/GET /users`) en `backend/src/auth/router.py` (FR-007, FR-008; depende de T020, T022, T023)
+- [ ] T023 [US1] Implementar las dependencias FastAPI `get_current_user` / `require_role` en `backend/src/auth/dependencies.py`, incluida la extensión de `Session.expires_at` en cada validación exitosa — expiración por inactividad, no TTL fijo (FR-003, FR-006, FR-009; depende de T022)
+- [ ] T024 [US1] Implementar el router de auth (`login`, `logout`, `me`, `POST/GET /users`) en `backend/src/auth/router.py`; `POST /users` MUST poblar `created_by` con el `id` del usuario de la sesión que llama (FR-007, FR-008; depende de T020, T022, T023)
 - [ ] T025 [US1] Registrar el router de auth en `backend/src/main.py` (depende de T024, T013)
 - [ ] T026 [P] [US1] Crear el script de semilla del organizador inicial en `backend/scripts/seed_admin.py` (spec.md → Assumption "Cuentas de usuario")
 - [ ] T027 [P] [US1] Crear `AuthContext`/hook de sesión (`login`, `logout`, `currentUser`) en `frontend/src/features/auth/AuthContext.tsx` (depende de T014)
@@ -171,3 +171,14 @@ que termina la Fase 2 backend compartida (T008-T013).
 - Verificar que T016-T017 fallan antes de implementar T018 en adelante
 - Commitear por tarea o por grupo lógico, no todo de una vez
 - Al terminar la Fase 2, correr `quickstart.md` §Escenarios como humo antes de seguir con la Fase 3
+- **SC-001/SC-002 son afirmaciones de todo el proyecto** ("sobre el catálogo
+  completo de operaciones de todas las specs"). T017 solo verifica la porción
+  que esta spec posee (`POST /users`) — se cierran incrementalmente conforme
+  `specs/002-011` añaden sus propias pruebas de escritura con sesión/rol. No
+  tratar "001 completa" como "SC-001/SC-002 cumplidos" todavía.
+- `data-model.md` aplica `created_by` de forma consistente en toda entidad
+  mutable (`User`, `League`, `Team`, `Player`, `Match`, `MatchLineup`,
+  `MatchEvent`; `ResultCorrectionRequest` vía `requested_by`/`decided_by`) —
+  decisión tomada en `/speckit-analyze` (hallazgo I1) para que FR-008 se
+  cumpla igual en todas partes en vez de solo donde se implementó primero.
+  `Session` es la única excepción documentada (no aplica el patrón).

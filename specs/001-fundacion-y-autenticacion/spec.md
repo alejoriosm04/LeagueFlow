@@ -118,12 +118,18 @@ verificar que las vistas públicas siguen accesibles.
 - **User (Usuario)**: persona autenticada que opera el sistema. Atributos:
   identificador, credencial, rol (organizador u operador), estado. Entidad
   propia de esta spec.
-- **League, Team, Player, Match, MatchEvent**: documentadas aquí por ser el
-  modelo de dominio compartido que toda spec posterior usa; su ciclo de vida
-  (creación, reglas) se especifica en `specs/002-*` en adelante, no aquí. Ver
-  `docs/backlog/backlog.md` sección Key Entities para su descripción completa
-  de atributos y relaciones — se reproduce en `data-model.md` al planificar
-  esta spec.
+- **Session**: entidad de infraestructura que sostiene FR-003/FR-006/FR-008;
+  no es una entidad de negocio con Key Entity propia en el backlog original,
+  pero se documenta en `data-model.md` porque toda ruta de escritura la usa.
+- **League, Team, Player, Match, MatchLineup, MatchEvent,
+  ResultCorrectionRequest**: documentadas aquí por ser el modelo de dominio
+  compartido que toda spec posterior usa; su ciclo de vida (creación, reglas)
+  se especifica en `specs/002-*` en adelante, no aquí.
+- **Standings, PlayerStatistics**: vistas derivadas (nunca tablas editables)
+  que consultan `specs/008-*` y `specs/010-*` respectivamente.
+- Descripción completa de atributos, relaciones y transiciones de estado de
+  las diez entidades: `data-model.md` (Phase 1 de esta spec). Origen de
+  negocio de cada una: `docs/backlog/backlog.md` sección Key Entities.
 
 ## Success Criteria *(mandatory)*
 
