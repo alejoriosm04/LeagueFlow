@@ -4,7 +4,8 @@
   "installed_integrations": [
     "claude",
     "opencode",
-    "cursor-agent"
+    "cursor-agent",
+    "codex"
   ],
   "integration_settings": {
     "claude": {
@@ -16,6 +17,10 @@
       "invoke_separator": "."
     },
     "cursor-agent": {
+      "script": "sh",
+      "invoke_separator": "-"
+    },
+    "codex": {
       "script": "sh",
       "invoke_separator": "-"
     }
