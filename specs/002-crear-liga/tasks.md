@@ -27,8 +27,8 @@ description: "Task list for feature implementation"
 
 **Purpose**: la tabla que todo lo demás de esta HU necesita.
 
-- [ ] T001 Crear el modelo SQLAlchemy `League` en `backend/src/leagues/models.py`, usando el `Base` y los mixins de `backend/src/core/models_base.py` (data-model.md; campos según `specs/001-*/data-model.md` §League)
-- [ ] T002 Generar la migración Alembic de la tabla `leagues` en `backend/alembic/versions/`, incluido el índice único sobre `(lower(trim(name)), lower(trim(season)))` (data-model.md; research.md §1-2; depende de T001)
+- [X] T001 Crear el modelo SQLAlchemy `League` en `backend/src/leagues/models.py`, usando el `Base` y los mixins de `backend/src/core/models_base.py` (data-model.md; campos según `specs/001-*/data-model.md` §League)
+- [X] T002 Generar la migración Alembic de la tabla `leagues` en `backend/alembic/versions/`, incluido el índice único sobre `(lower(trim(name)), lower(trim(season)))` (data-model.md; research.md §1-2; depende de T001)
 
 **Checkpoint**: esquema listo — la User Story puede empezar.
 
@@ -44,20 +44,20 @@ description: "Task list for feature implementation"
 
 > Escribir primero y verificar que fallan antes de implementar.
 
-- [ ] T003 [P] [US1] Contract test de `POST /leagues`, `GET /leagues` y `GET /leagues/{id}` contra `contracts/leagues.openapi.yaml`, incluidos los `error.code` de cada 4xx, en `backend/tests/contract/test_leagues_contract.py`
-- [ ] T004 [P] [US1] Integration test de los 4 Acceptance Scenarios de `spec.md` más la unicidad insensible a mayúsculas (research.md §2) y la autoría automática de `created_by`, en `backend/tests/integration/test_leagues.py`
+- [X] T003 [P] [US1] Contract test de `POST /leagues`, `GET /leagues` y `GET /leagues/{id}` contra `contracts/leagues.openapi.yaml`, incluidos los `error.code` de cada 4xx, en `backend/tests/contract/test_leagues_contract.py`
+- [X] T004 [P] [US1] Integration test de los 4 Acceptance Scenarios de `spec.md` más la unicidad insensible a mayúsculas (research.md §2) y la autoría automática de `created_by`, en `backend/tests/integration/test_leagues.py`
 
 ### Implementation for User Story 1
 
-- [ ] T005 [P] [US1] Crear los schemas Pydantic `CreateLeagueRequest`, `League` y `PaginatedLeagues` en `backend/src/leagues/schemas.py` (`contracts/leagues.openapi.yaml`)
-- [ ] T006 [US1] Implementar `LeagueService` en `backend/src/leagues/service.py`: normalización de `name`/`season` (trim + colapsar espacios), verificación de unicidad insensible a mayúsculas, y captura de la violación de integridad como fallback de carrera traducida al mismo 409 (FR-001, FR-002; research.md §1-2; depende de T001)
-- [ ] T007 [US1] Implementar el router en `backend/src/leagues/router.py`: `POST /leagues` protegido con `require_role("organizador")` y `created_by` derivado de la sesión, `GET /leagues` paginado y público, `GET /leagues/{id}` público con 404 (FR-003, FR-004, FR-005; depende de T005, T006)
-- [ ] T008 [US1] Registrar el router de ligas en `backend/src/main.py` (depende de T007)
-- [ ] T009 [P] [US1] Crear el cliente HTTP de ligas en `frontend/src/features/leagues/api.ts` sobre `services/apiClient.ts` (`contracts/leagues.openapi.yaml`)
-- [ ] T010 [US1] Crear la página de listado público en `frontend/src/features/leagues/LeaguesPage.tsx`, con estado vacío legible cuando no hay ligas (depende de T009)
-- [ ] T011 [US1] Crear la ficha de detalle en `frontend/src/features/leagues/LeagueDetailPage.tsx` (depende de T009)
-- [ ] T012 [US1] Crear el formulario de creación en `frontend/src/features/leagues/CreateLeagueForm.tsx`, visible solo para organizador vía `ProtectedRoute`, mostrando el `error.message` del envelope al recibir 409 o 400 (depende de T009)
-- [ ] T013 [P] [US1] Tests Vitest del formulario y el listado en `frontend/src/features/leagues/__tests__/leagues.test.tsx` (depende de T010, T012)
+- [X] T005 [P] [US1] Crear los schemas Pydantic `CreateLeagueRequest`, `League` y `PaginatedLeagues` en `backend/src/leagues/schemas.py` (`contracts/leagues.openapi.yaml`)
+- [X] T006 [US1] Implementar `LeagueService` en `backend/src/leagues/service.py`: normalización de `name`/`season` (trim + colapsar espacios), verificación de unicidad insensible a mayúsculas, y captura de la violación de integridad como fallback de carrera traducida al mismo 409 (FR-001, FR-002; research.md §1-2; depende de T001)
+- [X] T007 [US1] Implementar el router en `backend/src/leagues/router.py`: `POST /leagues` protegido con `require_role("organizador")` y `created_by` derivado de la sesión, `GET /leagues` paginado y público, `GET /leagues/{id}` público con 404 (FR-003, FR-004, FR-005; depende de T005, T006)
+- [X] T008 [US1] Registrar el router de ligas en `backend/src/main.py` (depende de T007)
+- [X] T009 [P] [US1] Crear el cliente HTTP de ligas en `frontend/src/features/leagues/api.ts` sobre `services/apiClient.ts` (`contracts/leagues.openapi.yaml`)
+- [X] T010 [US1] Crear la página de listado público en `frontend/src/features/leagues/LeaguesPage.tsx`, con estado vacío legible cuando no hay ligas (depende de T009)
+- [X] T011 [US1] Crear la ficha de detalle en `frontend/src/features/leagues/LeagueDetailPage.tsx` (depende de T009)
+- [X] T012 [US1] Crear el formulario de creación en `frontend/src/features/leagues/CreateLeagueForm.tsx`, visible solo para organizador vía `ProtectedRoute`, mostrando el `error.message` del envelope al recibir 409 o 400 (depende de T009)
+- [X] T013 [P] [US1] Tests Vitest del formulario y el listado en `frontend/src/features/leagues/__tests__/leagues.test.tsx` (depende de T010, T012)
 
 **Checkpoint**: User Story 1 funcional y testeable de forma independiente — MVP de esta spec.
 
@@ -65,8 +65,8 @@ description: "Task list for feature implementation"
 
 ## Phase 3: Polish & Cross-Cutting Concerns
 
-- [ ] T014 [P] Ejecutar los 6 escenarios de `quickstart.md` de punta a punta contra el entorno local
-- [ ] T015 [P] Registrar las métricas de la HU en `docs/metricas/002-crear-liga.md` a partir de `docs/metricas/_plantilla.md` (`AGENTS.md` §7) — sin inventar el costo de IA ni el tiempo real de trabajo
+- [X] T014 [P] Ejecutar los 6 escenarios de `quickstart.md` de punta a punta contra el entorno local
+- [X] T015 [P] Registrar las métricas de la HU en `docs/metricas/002-crear-liga.md` a partir de `docs/metricas/_plantilla.md` (`AGENTS.md` §7) — sin inventar el costo de IA ni el tiempo real de trabajo
 - [ ] T016 Verificar en el entorno desplegado que crear una liga funciona con la sesión cross-domain (Vercel → Railway), no solo en local (`specs/001-*/tasks.md` T039)
 
 ---
