@@ -21,9 +21,28 @@ usando [GitHub Spec Kit](https://github.com/github/spec-kit) y Claude Code.
 | Constitution del proyecto | ✅ v1.0.0 — [`.specify/memory/constitution.md`](.specify/memory/constitution.md) |
 | Backlog de 10 HU priorizadas | ✅ Repartido en `specs/002-*` a `specs/011-*` (origen: [`docs/backlog/backlog.md`](docs/backlog/backlog.md)) |
 | Stack técnico | ✅ Fijado en [`specs/001-fundacion-y-autenticacion/plan.md`](specs/001-fundacion-y-autenticacion/plan.md) — FastAPI + PostgreSQL + React/TS |
-| Spec 001 (fundación + auth) | 🟨 Spec/plan/tasks listos — falta `/speckit-implement` |
-| Despliegue | ⬜ Pendiente — Vercel + Railway decididos, sin configurar |
+| Spec 001 (fundación + auth) | ✅ Implementada y desplegada (41/41 tareas) |
+| Despliegue | ✅ En línea — ver URLs abajo |
 | Caso de negocio | ⬜ Pendiente — [`docs/caso-de-negocio.md`](docs/caso-de-negocio.md); **medir tiempos desde la primera HU** |
+
+---
+
+## Aplicación desplegada
+
+| | URL |
+|---|---|
+| **Frontend** | https://leagueflow-pdms2.vercel.app |
+| **API** | https://leagueflow-production.up.railway.app |
+| Salud de la API | https://leagueflow-production.up.railway.app/api/health |
+| Documentación de la API | https://leagueflow-production.up.railway.app/api/docs |
+
+Frontend en Vercel, backend y PostgreSQL en Railway, ambos en capa gratuita.
+Cada merge a `main` despliega automáticamente; las migraciones de Alembic se
+aplican en el arranque de cada deploy.
+
+Las consultas son públicas. Para registrar información hace falta iniciar
+sesión: las credenciales del organizador viven en las variables de entorno de
+Railway, nunca en el repositorio.
 
 ---
 
