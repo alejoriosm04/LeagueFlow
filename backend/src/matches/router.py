@@ -11,9 +11,12 @@ from src.core.db import get_db
 from src.core.errors import ErrorDeNegocio
 from src.matches.schemas import (
     CreateCorrectionInput,
+    CreateEventInput,
     CreateMatchRequest,
     DecisionInput,
     Match,
+    MatchEvent,
+    MatchEvents,
     MatchStatus,
     PaginatedCorrections,
     PaginatedMatches,
@@ -137,3 +140,31 @@ async def decidir_correccion(
         actor.id,
     )
     return ResultCorrection.model_validate(solicitud)
+
+
+@router.post("/matches/{partido_id}/events", status_code=status.HTTP_201_CREATED)
+async def registrar_gol(
+    partido_id: uuid.UUID,
+    datos: CreateEventInput,
+    actor: Usuario = Depends(requiere_rol("operador", "organizador")),
+    db: AsyncSession = Depends(get_db),
+) -> MatchEvent:
+    """FR-001 y FR-006: solo operador u organizador; el autor sale de la sesión.
+
+    Nunca falla por descuadre con el marcador: FR-005 advierte, no bloquea, y
+    la advertencia se consulta en el GET.
+    """
+    evento = await MatchService(db).registrar_gol(
+        partido_id, datos.player_id, datos.minute, datos.type, actor.id
+    )
+    return MatchEvent.model_validate(evento)
+
+
+@router.get("/matches/{partido_id}/events")
+async def listar_eventos(partido_id: uuid.UUID, db: AsyncSession = Depends(get_db)) -> MatchEvents:
+    """Consulta pública, sin sesión (research.md §6)."""
+    eventos, consistencia = await MatchService(db).listar_eventos(partido_id)
+    return MatchEvents(
+        items=[MatchEvent.model_validate(e) for e in eventos],
+        consistency=consistencia,
+    )

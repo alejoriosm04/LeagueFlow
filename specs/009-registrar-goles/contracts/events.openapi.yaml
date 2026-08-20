@@ -1,0 +1,160 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Eventos de partido (goles)
+  version: "1.0.0"
+  description: >
+    Registro y consulta de eventos de partido. En esta versión el único tipo
+    implementado es GOAL (FR-004). El marcador oficial del partido sigue siendo
+    la fuente de verdad de la clasificación: estos eventos no lo modifican.
+servers:
+  - url: /api/v1
+paths:
+  /matches/{matchId}/events:
+    post:
+      summary: Registrar un evento de gol
+      operationId: createMatchEvent
+      description: >
+        Requiere sesión con rol operador u organizador (FR-006). El equipo se
+        deriva del jugador; no se envía. Nunca falla por descuadre con el
+        marcador: la advertencia se consulta en el GET (FR-005).
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateEventInput" }
+      responses:
+        "201":
+          description: Evento registrado.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchEvent" }
+        "400":
+          description: Cuerpo inválido (minuto negativo, tipo no soportado). error.code validation_error.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "401":
+          description: Sin sesión. error.code not_authenticated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: Rol insuficiente (espectador). error.code insufficient_role.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: >
+            Partido o jugador inexistente. error.code match_not_found o
+            player_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: >
+            player_not_in_match — el jugador no pertenece a ninguno de los dos
+            equipos (FR-002).
+            player_not_in_lineup — el partido tiene alineación y el jugador no
+            figura en ella (FR-003).
+            match_not_playable — el partido está scheduled o cancelled.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    get:
+      summary: Consultar los eventos de un partido
+      operationId: listMatchEvents
+      security: []
+      description: >
+        Consulta pública. Devuelve los eventos en orden de minuto ascendente y
+        un bloque de consistencia con el marcador oficial (FR-005).
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Eventos del partido; puede estar vacío.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchEvents" }
+        "404":
+          description: Partido inexistente. error.code match_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+components:
+  schemas:
+    CreateEventInput:
+      type: object
+      required: [player_id, minute]
+      properties:
+        player_id:
+          type: string
+          format: uuid
+          description: El equipo se deriva de este jugador; no se envía team_id.
+        minute: { type: integer, minimum: 0 }
+        type:
+          type: string
+          enum: [GOAL]
+          default: GOAL
+          description: Único tipo implementado en esta versión (FR-004).
+    MatchEvent:
+      type: object
+      required: [id, match_id, type, player_id, team_id, minute, created_by, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        match_id: { type: string, format: uuid }
+        type: { type: string, enum: [GOAL] }
+        player_id: { type: string, format: uuid }
+        team_id: { type: string, format: uuid }
+        minute: { type: integer, minimum: 0 }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+    MatchEvents:
+      type: object
+      required: [items, consistency]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/MatchEvent" }
+        consistency: { $ref: "#/components/schemas/EventConsistency" }
+    EventConsistency:
+      type: object
+      required:
+        [home_goals_recorded, away_goals_recorded, home_score, away_score, matches_official]
+      description: >
+        Advertencia de FR-005. Informativa: nunca bloquea el registro y nunca
+        altera el marcador oficial, que sigue alimentando la clasificación.
+      properties:
+        home_goals_recorded: { type: integer, minimum: 0 }
+        away_goals_recorded: { type: integer, minimum: 0 }
+        home_score:
+          type: integer
+          nullable: true
+          minimum: 0
+          description: Marcador oficial; null si el partido aún no ha finalizado.
+        away_score: { type: integer, nullable: true, minimum: 0 }
+        matches_official:
+          type: boolean
+          nullable: true
+          description: >
+            true si los goles registrados cuadran con el marcador oficial;
+            false si no; null cuando todavía no hay marcador contra el que
+            contrastar.
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }

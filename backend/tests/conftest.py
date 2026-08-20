@@ -292,6 +292,91 @@ async def calendario_190(organizador_creado):
         return {"league_id": str(liga.id), "total": len(partidos)}
 
 
+@pytest_asyncio.fixture
+async def partido_con_plantillas(organizador_creado):
+    """Escenario de eventos de gol (spec 009).
+
+    Un partido finalizado 3-1 entre dos equipos con jugadores, un tercer equipo
+    de la misma liga cuyo jugador es ajeno al partido (FR-002), un jugador dado
+    de baja lógica en el equipo local (Assumption "Jugadores dados de baja") y
+    los partidos `scheduled` y `cancelled` que no admiten goles.
+    """
+    from src.core.db import SessionLocal
+    from src.leagues.models import League
+    from src.matches.models import Match
+    from src.players.models import Player
+    from src.teams.models import Team
+
+    autor = organizador_creado.id
+    async with SessionLocal() as s:
+        liga = League(name="Liga goles fixture", season="2026", created_by=autor)
+        s.add(liga)
+        await s.flush()
+
+        local, visitante, ajeno = (
+            Team(league_id=liga.id, name=nombre, created_by=autor)
+            for nombre in ("Local Goles", "Visitante Goles", "Ajeno Goles")
+        )
+        s.add_all([local, visitante, ajeno])
+        await s.flush()
+
+        jugador_local = Player(team_id=local.id, name="Delantero Local", number=9, created_by=autor)
+        jugador_visitante = Player(
+            team_id=visitante.id, name="Delantero Visitante", number=9, created_by=autor
+        )
+        jugador_ajeno = Player(team_id=ajeno.id, name="Jugador Ajeno", number=9, created_by=autor)
+        jugador_inactivo = Player(
+            team_id=local.id,
+            name="Retirado Local",
+            number=15,
+            status="inactive",
+            created_by=autor,
+        )
+        s.add_all([jugador_local, jugador_visitante, jugador_ajeno, jugador_inactivo])
+        await s.flush()
+
+        base = datetime(2026, 9, 1, 18, tzinfo=UTC)
+        finalizado = Match(
+            league_id=liga.id,
+            home_team_id=local.id,
+            away_team_id=visitante.id,
+            scheduled_at=base - timedelta(days=1),
+            status="finished",
+            home_score=3,
+            away_score=1,
+            created_by=autor,
+        )
+        programado = Match(
+            league_id=liga.id,
+            home_team_id=local.id,
+            away_team_id=ajeno.id,
+            scheduled_at=base + timedelta(days=1),
+            status="scheduled",
+            created_by=autor,
+        )
+        cancelado = Match(
+            league_id=liga.id,
+            home_team_id=visitante.id,
+            away_team_id=ajeno.id,
+            scheduled_at=base + timedelta(days=2),
+            status="cancelled",
+            created_by=autor,
+        )
+        s.add_all([finalizado, programado, cancelado])
+        await s.commit()
+
+        return {
+            "league_id": str(liga.id),
+            "match_id": str(finalizado.id),
+            "scheduled_match_id": str(programado.id),
+            "cancelled_match_id": str(cancelado.id),
+            "home_team_id": str(local.id),
+            "away_team_id": str(visitante.id),
+            "home_player_id": str(jugador_local.id),
+            "away_player_id": str(jugador_visitante.id),
+            "foreign_player_id": str(jugador_ajeno.id),
+            "inactive_player_id": str(jugador_inactivo.id),
+        }
 async def _crear_liga_con_equipos(sesion, autor_id, nombre_liga, equipos):
     """Crea una liga con sus equipos. `equipos` es [(nombre, status), ...]."""
     from src.leagues.models import League

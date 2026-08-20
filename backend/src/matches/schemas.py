@@ -93,3 +93,44 @@ class PaginatedCorrections(BaseModel):
     page: int
     page_size: int
     total: int
+
+
+# --- Eventos de partido (spec 009) ----------------------------------------
+
+EventType = Literal["GOAL"]
+
+
+class CreateEventInput(BaseModel):
+    """FR-001. `team_id` no se envía: se deriva del jugador (research.md §4)."""
+
+    player_id: uuid.UUID
+    minute: int = Field(ge=0)
+    type: EventType = "GOAL"
+
+
+class MatchEvent(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    match_id: uuid.UUID
+    type: EventType
+    player_id: uuid.UUID
+    team_id: uuid.UUID
+    minute: int
+    created_by: uuid.UUID
+    created_at: datetime
+
+
+class EventConsistency(BaseModel):
+    """Advertencia de FR-005: informa, nunca bloquea ni altera el marcador."""
+
+    home_goals_recorded: int = Field(ge=0)
+    away_goals_recorded: int = Field(ge=0)
+    home_score: int | None
+    away_score: int | None
+    matches_official: bool | None
+
+
+class MatchEvents(BaseModel):
+    items: list[MatchEvent]
+    consistency: EventConsistency

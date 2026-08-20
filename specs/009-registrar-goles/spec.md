@@ -101,3 +101,31 @@ del partido.
   eventos alimentan solo las estadísticas individuales
   (`specs/010-alineaciones-estadisticas`).
 - **Idioma**: la interfaz está en español.
+- **Partidos que admiten goles**: solo los que están `in_progress` o
+  `finished`. Un partido `scheduled` todavía no se ha jugado y uno `cancelled`
+  está excluido de toda derivación (FR-007 de `specs/008-consultar-clasificacion`).
+  Además, FR-005 exige contrastar con el marcador oficial, y ese marcador solo
+  existe cuando el partido finaliza.
+- **El equipo del gol se deriva del jugador**: la petición envía `player_id` y
+  `minute`; el sistema resuelve el equipo desde la plantilla del jugador. Pedir
+  el equipo al cliente solo añadiría una forma de introducir una incoherencia
+  que después habría que rechazar.
+- **Activación de FR-003**: mientras no exista el registro de alineaciones
+  (`specs/010-alineaciones-estadisticas`), ningún partido tiene alineación, así
+  que la regla nunca rechaza. La regla se implementa y se prueba en esta HU; su
+  fuente de datos y su prueba extremo a extremo llegan con 010.
+- **Jugadores dados de baja**: se acepta atribuir un gol a un jugador con
+  estado `inactive`. La baja de `specs/004-registrar-jugadores` es lógica y
+  conserva el historial; rechazarlo impediría registrar los goles de un partido
+  ya jugado solo porque el jugador salió después de la plantilla. La
+  pertenencia que exige FR-002 se evalúa sobre el equipo del jugador, no sobre
+  su estado.
+- **Alineación corregida después de registrar un gol**: esta HU no reacciona a
+  ese cambio. Mantener la coherencia entre una alineación modificada y los
+  eventos ya registrados es responsabilidad de FR-003 de
+  `specs/010-alineaciones-estadisticas`, que es quien introduce la posibilidad
+  de modificar una alineación.
+- **Corregir o borrar un gol queda fuera de alcance**: ningún FR ni escenario lo
+  pide. Cuando se especifique, deberá seguir el patrón de corrección auditada
+  que `specs/006-registrar-resultado` fijó para el marcador, no un borrado
+  directo.
