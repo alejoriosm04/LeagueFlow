@@ -31,6 +31,43 @@ export interface CreateMatchInput {
   scheduled_at: string;
 }
 
+export interface ScoreInput {
+  home_score: number;
+  away_score: number;
+}
+
+export interface CreateCorrectionInput extends ScoreInput {
+  reason: string;
+}
+
+export interface DecisionInput {
+  decision: 'approved' | 'rejected';
+  decision_reason?: string;
+}
+
+export interface ResultCorrection {
+  id: string;
+  match_id: string;
+  proposed_home_score: number;
+  proposed_away_score: number;
+  previous_home_score: number;
+  previous_away_score: number;
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requested_by: string;
+  decided_by: string | null;
+  decision_reason: string | null;
+  created_at: string;
+  decided_at: string | null;
+}
+
+export interface PaginatedCorrections {
+  items: ResultCorrection[];
+  page: number;
+  page_size: number;
+  total: number;
+}
+
 export const matchesApi = {
   listar: (leagueId: string, page = 1, pageSize = 20) =>
     apiClient.get<PaginatedMatches>(
@@ -39,4 +76,14 @@ export const matchesApi = {
   crear: (leagueId: string, datos: CreateMatchInput) =>
     apiClient.post<Match>(`/leagues/${leagueId}/matches`, datos),
   obtener: (matchId: string) => apiClient.get<Match>(`/matches/${matchId}`),
+  registrarResultado: (matchId: string, datos: ScoreInput) =>
+    apiClient.put<Match>(`/matches/${matchId}/result`, datos),
+  solicitarCorreccion: (matchId: string, datos: CreateCorrectionInput) =>
+    apiClient.post<ResultCorrection>(`/matches/${matchId}/result-corrections`, datos),
+  listarCorrecciones: (matchId: string, page = 1, pageSize = 20) =>
+    apiClient.get<PaginatedCorrections>(
+      `/matches/${matchId}/result-corrections?page=${page}&page_size=${pageSize}`,
+    ),
+  decidirCorreccion: (correctionId: string, datos: DecisionInput) =>
+    apiClient.post<ResultCorrection>(`/result-corrections/${correctionId}/decision`, datos),
 };

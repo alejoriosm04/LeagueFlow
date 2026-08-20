@@ -53,9 +53,9 @@ organizador.
    se intenta crear una segunda solicitud sobre el mismo partido, **Then** el
    sistema la rechaza porque solo puede haber una solicitud pendiente por
    partido.
-8. **Given** una solicitud creada por un operador, **When** ese mismo usuario
-   intenta aprobarla, **Then** el sistema rechaza la operación: aprobar es
-   competencia del organizador.
+8. **Given** una solicitud creada por un usuario, **When** ese mismo usuario
+   intenta aprobarla o rechazarla, **Then** el sistema rechaza la operación:
+   toda decisión corresponde a un organizador distinto del solicitante.
 9. **Given** un partido con correcciones aplicadas, **When** se consulta su
    historial, **Then** se ven el marcador anterior, el nuevo, el motivo, quién
    solicitó, quién decidió y las fechas.
@@ -87,6 +87,9 @@ organizador.
   marcador de un partido en estado finalizado.
 - **FR-004**: Registrar un resultado MUST requerir sesión con rol operador u
   organizador.
+- **FR-013**: El resultado inicial MUST registrarse únicamente cuando el
+  partido esté en estado programado. El sistema MUST rechazar con conflicto
+  cualquier intento sobre un partido en progreso, finalizado o cancelado.
 
 #### Corrección de resultados
 
@@ -107,7 +110,8 @@ organizador.
 - **FR-011**: El sistema MUST permitir como máximo una solicitud de corrección
   pendiente por partido.
 - **FR-012**: El sistema MUST impedir que el usuario que creó una solicitud de
-  corrección sea quien la apruebe.
+  corrección sea quien la apruebe o la rechace; toda decisión MUST realizarla
+  un organizador distinto del solicitante.
 
 ### Key Entities
 

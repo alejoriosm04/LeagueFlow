@@ -1,0 +1,201 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Resultados y correcciones
+  version: "1.0.0"
+  description: >
+    Contrato de 006. Extiende matches.openapi.yaml de 005 y reutiliza las
+    convenciones y el envelope de error definidos en 001.
+servers:
+  - url: /api/v1
+paths:
+  /matches/{matchId}/result:
+    put:
+      summary: Registrar el resultado inicial
+      operationId: recordMatchResult
+      parameters:
+        - $ref: "#/components/parameters/MatchId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ScoreInput" }
+      responses:
+        "200":
+          description: Partido finalizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Match" }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/NotAuthenticated" }
+        "403": { $ref: "#/components/responses/InsufficientRole" }
+        "404":
+          description: "error.code: match_not_found"
+          content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+        "409":
+          description: "Partido no programado o ya finalizado. error.code: result_already_recorded o match_not_scheduled"
+          content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+  /matches/{matchId}/result-corrections:
+    post:
+      summary: Crear una solicitud de corrección
+      operationId: createResultCorrection
+      parameters:
+        - $ref: "#/components/parameters/MatchId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateCorrectionInput" }
+      responses:
+        "201":
+          description: Solicitud pendiente; el partido no cambia
+          content: { application/json: { schema: { $ref: "#/components/schemas/ResultCorrection" } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/NotAuthenticated" }
+        "403": { $ref: "#/components/responses/InsufficientRole" }
+        "404":
+          description: "error.code: match_not_found"
+          content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+        "409":
+          description: "error.code: match_not_finished o correction_pending_exists"
+          content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+    get:
+      summary: Consultar el historial público de correcciones
+      operationId: listResultCorrections
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/MatchId"
+        - { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+        - { name: page_size, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+      responses:
+        "200":
+          description: Historial reciente primero
+          content: { application/json: { schema: { $ref: "#/components/schemas/PaginatedCorrections" } } }
+        "404":
+          description: "error.code: match_not_found"
+          content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+  /result-corrections/{correctionId}/decision:
+    post:
+      summary: Aprobar o rechazar una solicitud pendiente
+      operationId: decideResultCorrection
+      parameters:
+        - name: correctionId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/DecisionInput" }
+      responses:
+        "200":
+          description: Solicitud resuelta; una aprobación actualiza Match atómicamente
+          content: { application/json: { schema: { $ref: "#/components/schemas/ResultCorrection" } } }
+        "400": { $ref: "#/components/responses/ValidationError" }
+        "401": { $ref: "#/components/responses/NotAuthenticated" }
+        "403": { $ref: "#/components/responses/InsufficientRole" }
+        "404":
+          description: "error.code: correction_not_found"
+          content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+        "409":
+          description: "error.code: correction_self_decision o correction_already_decided"
+          content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+components:
+  securitySchemes:
+    sessionCookie: { type: apiKey, in: cookie, name: lf_session }
+  parameters:
+    MatchId:
+      name: matchId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    ScoreInput:
+      type: object
+      required: [home_score, away_score]
+      additionalProperties: false
+      properties:
+        home_score: { type: integer, minimum: 0 }
+        away_score: { type: integer, minimum: 0 }
+    CreateCorrectionInput:
+      type: object
+      required: [home_score, away_score, reason]
+      additionalProperties: false
+      properties:
+        home_score: { type: integer, minimum: 0 }
+        away_score: { type: integer, minimum: 0 }
+        reason: { type: string, minLength: 1, description: No vacío después de trim }
+    DecisionInput:
+      type: object
+      required: [decision]
+      additionalProperties: false
+      properties:
+        decision: { type: string, enum: [approved, rejected] }
+        decision_reason:
+          type: string
+          nullable: true
+          description: Obligatorio y no vacío para rejected; omitido para approved
+    Match:
+      description: Schema Match definido por 005, repetido aquí para validar esta extensión
+      type: object
+      required: [id, league_id, home_team_id, away_team_id, scheduled_at, status, home_score, away_score, created_by, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        league_id: { type: string, format: uuid }
+        home_team_id: { type: string, format: uuid }
+        away_team_id: { type: string, format: uuid }
+        scheduled_at: { type: string, format: date-time }
+        status: { type: string, enum: [scheduled, in_progress, finished, cancelled] }
+        home_score: { type: integer, nullable: true, minimum: 0 }
+        away_score: { type: integer, nullable: true, minimum: 0 }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    ResultCorrection:
+      type: object
+      required: [id, match_id, proposed_home_score, proposed_away_score, previous_home_score, previous_away_score, reason, status, requested_by, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        match_id: { type: string, format: uuid }
+        proposed_home_score: { type: integer, minimum: 0 }
+        proposed_away_score: { type: integer, minimum: 0 }
+        previous_home_score: { type: integer, minimum: 0 }
+        previous_away_score: { type: integer, minimum: 0 }
+        reason: { type: string }
+        status: { type: string, enum: [pending, approved, rejected] }
+        requested_by: { type: string, format: uuid }
+        decided_by: { type: string, format: uuid, nullable: true }
+        decision_reason: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        decided_at: { type: string, format: date-time, nullable: true }
+    PaginatedCorrections:
+      type: object
+      required: [items, page, page_size, total]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/ResultCorrection" } }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
+  responses:
+    ValidationError:
+      description: "Payload inválido. error.code: validation_error"
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+    NotAuthenticated:
+      description: "Sin sesión. error.code: not_authenticated"
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+    InsufficientRole:
+      description: "Rol insuficiente. error.code: insufficient_role"
+      content: { application/json: { schema: { $ref: "#/components/schemas/ErrorEnvelope" } } }
+security:
+  - sessionCookie: []

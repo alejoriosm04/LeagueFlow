@@ -1,7 +1,7 @@
 """Reglas de negocio de partidos (FR-001, FR-002, FR-003, FR-005)."""
 
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from fastapi import status
 from sqlalchemy import func, select
@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.errors import ErrorDeNegocio
 from src.leagues.service import LeagueService
-from src.matches.models import Match
+from src.matches.models import Match, ResultCorrectionRequest
 from src.teams.service import TeamService
 
 
@@ -100,3 +100,149 @@ class MatchService:
 
     async def obtener_partido(self, match_id: uuid.UUID) -> Match | None:
         return await self.db.get(Match, match_id)
+
+    async def registrar_resultado(
+        self, match_id: uuid.UUID, home_score: int, away_score: int
+    ) -> Match:
+        res = await self.db.execute(select(Match).where(Match.id == match_id).with_for_update())
+        partido = res.scalar_one_or_none()
+        if partido is None:
+            raise ErrorDeNegocio(
+                code="match_not_found",
+                message="El partido no existe.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        if partido.status == "finished":
+            raise ErrorDeNegocio(
+                code="result_already_recorded",
+                message="El resultado ya fue registrado; crea una solicitud de corrección.",
+                status_code=status.HTTP_409_CONFLICT,
+            )
+        if partido.status != "scheduled":
+            raise ErrorDeNegocio(
+                code="match_not_scheduled",
+                message="Solo un partido programado admite el resultado inicial.",
+                status_code=status.HTTP_409_CONFLICT,
+            )
+        partido.home_score = home_score
+        partido.away_score = away_score
+        partido.status = "finished"
+        await self.db.commit()
+        await self.db.refresh(partido)
+        return partido
+
+    async def crear_correccion(
+        self,
+        match_id: uuid.UUID,
+        proposed_home_score: int,
+        proposed_away_score: int,
+        reason: str,
+        requested_by: uuid.UUID,
+    ) -> ResultCorrectionRequest:
+        res = await self.db.execute(select(Match).where(Match.id == match_id).with_for_update())
+        partido = res.scalar_one_or_none()
+        if partido is None:
+            raise ErrorDeNegocio(
+                code="match_not_found",
+                message="El partido no existe.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        if partido.status != "finished" or partido.home_score is None or partido.away_score is None:
+            raise ErrorDeNegocio(
+                code="match_not_finished",
+                message="Solo un partido finalizado admite correcciones.",
+                status_code=status.HTTP_409_CONFLICT,
+            )
+        solicitud = ResultCorrectionRequest(
+            match_id=partido.id,
+            proposed_home_score=proposed_home_score,
+            proposed_away_score=proposed_away_score,
+            previous_home_score=partido.home_score,
+            previous_away_score=partido.away_score,
+            reason=reason.strip(),
+            status="pending",
+            requested_by=requested_by,
+        )
+        self.db.add(solicitud)
+        try:
+            await self.db.commit()
+        except IntegrityError:
+            await self.db.rollback()
+            raise ErrorDeNegocio(
+                code="correction_pending_exists",
+                message="Ya existe una solicitud de corrección pendiente para este partido.",
+                status_code=status.HTTP_409_CONFLICT,
+            ) from None
+        await self.db.refresh(solicitud)
+        return solicitud
+
+    async def listar_correcciones(
+        self, match_id: uuid.UUID, page: int, page_size: int
+    ) -> tuple[list[ResultCorrectionRequest], int]:
+        if await self.db.get(Match, match_id) is None:
+            raise ErrorDeNegocio(
+                code="match_not_found",
+                message="El partido no existe.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        filtros = [ResultCorrectionRequest.match_id == match_id]
+        total = (
+            await self.db.scalar(
+                select(func.count()).select_from(ResultCorrectionRequest).where(*filtros)
+            )
+            or 0
+        )
+        res = await self.db.execute(
+            select(ResultCorrectionRequest)
+            .where(*filtros)
+            .order_by(ResultCorrectionRequest.created_at.desc(), ResultCorrectionRequest.id.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        return list(res.scalars()), total
+
+    async def decidir_correccion(
+        self,
+        correction_id: uuid.UUID,
+        decision: str,
+        decision_reason: str | None,
+        decided_by: uuid.UUID,
+    ) -> ResultCorrectionRequest:
+        res = await self.db.execute(
+            select(ResultCorrectionRequest)
+            .where(ResultCorrectionRequest.id == correction_id)
+            .with_for_update()
+        )
+        solicitud = res.scalar_one_or_none()
+        if solicitud is None:
+            raise ErrorDeNegocio(
+                code="correction_not_found",
+                message="La solicitud de corrección no existe.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        if solicitud.status != "pending":
+            raise ErrorDeNegocio(
+                code="correction_already_decided",
+                message="La solicitud ya fue decidida.",
+                status_code=status.HTTP_409_CONFLICT,
+            )
+        if solicitud.requested_by == decided_by:
+            raise ErrorDeNegocio(
+                code="correction_self_decision",
+                message="El solicitante no puede decidir su propia corrección.",
+                status_code=status.HTTP_409_CONFLICT,
+            )
+        solicitud.status = decision
+        solicitud.decided_by = decided_by
+        solicitud.decided_at = datetime.now(UTC)
+        solicitud.decision_reason = decision_reason.strip() if decision_reason else None
+        if decision == "approved":
+            match_res = await self.db.execute(
+                select(Match).where(Match.id == solicitud.match_id).with_for_update()
+            )
+            partido = match_res.scalar_one()
+            partido.home_score = solicitud.proposed_home_score
+            partido.away_score = solicitud.proposed_away_score
+        await self.db.commit()
+        await self.db.refresh(solicitud)
+        return solicitud

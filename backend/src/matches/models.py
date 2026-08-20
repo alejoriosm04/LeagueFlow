@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, String
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.core.models_base import Base, TimestampCreated, TimestampUpdated, UUIDPrimaryKey
@@ -39,7 +39,78 @@ class Match(Base, UUIDPrimaryKey, TimestampCreated, TimestampUpdated):
             "home_team_id <> away_team_id",
             name="ck_matches_home_ne_away",
         ),
+        CheckConstraint(
+            "home_score IS NULL OR home_score >= 0", name="ck_matches_home_score_nonnegative"
+        ),
+        CheckConstraint(
+            "away_score IS NULL OR away_score >= 0", name="ck_matches_away_score_nonnegative"
+        ),
+        CheckConstraint(
+            "(status = 'finished' AND home_score IS NOT NULL AND away_score IS NOT NULL) OR "
+            "(status <> 'finished' AND home_score IS NULL AND away_score IS NULL)",
+            name="ck_matches_status_scores_coherent",
+        ),
     )
 
 
-__all__ = ["Match"]
+class ResultCorrectionRequest(Base, UUIDPrimaryKey, TimestampCreated):
+    """Propuesta auditada de corrección para un partido finalizado."""
+
+    __tablename__ = "result_correction_requests"
+
+    match_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("matches.id", ondelete="RESTRICT"), nullable=False
+    )
+    proposed_home_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    proposed_away_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    previous_home_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    previous_away_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    requested_by: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+    decided_by: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="RESTRICT"), nullable=True
+    )
+    decision_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    __table_args__ = (
+        CheckConstraint(
+            "proposed_home_score >= 0", name="ck_corrections_proposed_home_nonnegative"
+        ),
+        CheckConstraint(
+            "proposed_away_score >= 0", name="ck_corrections_proposed_away_nonnegative"
+        ),
+        CheckConstraint(
+            "previous_home_score >= 0", name="ck_corrections_previous_home_nonnegative"
+        ),
+        CheckConstraint(
+            "previous_away_score >= 0", name="ck_corrections_previous_away_nonnegative"
+        ),
+        CheckConstraint("length(trim(reason)) > 0", name="ck_corrections_reason_nonempty"),
+        CheckConstraint(
+            "(status = 'pending' AND decided_by IS NULL AND decided_at IS NULL "
+            "AND decision_reason IS NULL) OR "
+            "(status = 'approved' AND decided_by IS NOT NULL AND decided_at IS NOT NULL "
+            "AND decision_reason IS NULL) OR "
+            "(status = 'rejected' AND decided_by IS NOT NULL AND decided_at IS NOT NULL "
+            "AND decision_reason IS NOT NULL AND length(trim(decision_reason)) > 0)",
+            name="ck_corrections_resolution_coherent",
+        ),
+        CheckConstraint(
+            "decided_by IS NULL OR decided_by <> requested_by",
+            name="ck_corrections_separate_decider",
+        ),
+        Index("ix_corrections_match_created", "match_id", "created_at"),
+        Index(
+            "ix_corrections_one_pending_per_match",
+            "match_id",
+            unique=True,
+            postgresql_where=text("status = 'pending'"),
+        ),
+    )
+
+
+__all__ = ["Match", "ResultCorrectionRequest"]

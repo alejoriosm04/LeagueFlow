@@ -9,7 +9,16 @@ from src.auth.dependencies import requiere_rol
 from src.auth.models import Usuario
 from src.core.db import get_db
 from src.core.errors import ErrorDeNegocio
-from src.matches.schemas import CreateMatchRequest, Match, PaginatedMatches
+from src.matches.schemas import (
+    CreateCorrectionInput,
+    CreateMatchRequest,
+    DecisionInput,
+    Match,
+    PaginatedCorrections,
+    PaginatedMatches,
+    ResultCorrection,
+    ScoreInput,
+)
 from src.matches.service import MatchService
 
 router = APIRouter(tags=["matches"])
@@ -64,3 +73,65 @@ async def obtener_partido(partido_id: uuid.UUID, db: AsyncSession = Depends(get_
             status_code=status.HTTP_404_NOT_FOUND,
         )
     return Match.model_validate(partido)
+
+
+@router.put("/matches/{partido_id}/result")
+async def registrar_resultado(
+    partido_id: uuid.UUID,
+    datos: ScoreInput,
+    _: Usuario = Depends(requiere_rol("operador", "organizador")),
+    db: AsyncSession = Depends(get_db),
+) -> Match:
+    partido = await MatchService(db).registrar_resultado(
+        partido_id, datos.home_score, datos.away_score
+    )
+    return Match.model_validate(partido)
+
+
+@router.post("/matches/{partido_id}/result-corrections", status_code=status.HTTP_201_CREATED)
+async def crear_correccion(
+    partido_id: uuid.UUID,
+    datos: CreateCorrectionInput,
+    actor: Usuario = Depends(requiere_rol("operador", "organizador")),
+    db: AsyncSession = Depends(get_db),
+) -> ResultCorrection:
+    solicitud = await MatchService(db).crear_correccion(
+        partido_id,
+        datos.home_score,
+        datos.away_score,
+        datos.reason,
+        actor.id,
+    )
+    return ResultCorrection.model_validate(solicitud)
+
+
+@router.get("/matches/{partido_id}/result-corrections")
+async def listar_correcciones(
+    partido_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+) -> PaginatedCorrections:
+    solicitudes, total = await MatchService(db).listar_correcciones(partido_id, page, page_size)
+    return PaginatedCorrections(
+        items=[ResultCorrection.model_validate(s) for s in solicitudes],
+        page=page,
+        page_size=page_size,
+        total=total,
+    )
+
+
+@router.post("/result-corrections/{correction_id}/decision")
+async def decidir_correccion(
+    correction_id: uuid.UUID,
+    datos: DecisionInput,
+    actor: Usuario = Depends(requiere_rol("organizador")),
+    db: AsyncSession = Depends(get_db),
+) -> ResultCorrection:
+    solicitud = await MatchService(db).decidir_correccion(
+        correction_id,
+        datos.decision,
+        datos.decision_reason,
+        actor.id,
+    )
+    return ResultCorrection.model_validate(solicitud)
