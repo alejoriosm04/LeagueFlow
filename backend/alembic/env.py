@@ -13,12 +13,12 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from src.core.config import get_settings
-from src.core.models_base import Base
-
 # Importar los modelos registra sus tablas en Base.metadata para autogenerate.
 from src.auth import models as _auth_models  # noqa: F401
+from src.core.config import get_settings
+from src.core.models_base import Base
 from src.leagues import models as _league_models  # noqa: F401
+from src.players import models as _player_models  # noqa: F401
 from src.teams import models as _team_models  # noqa: F401
 
 config = context.config
