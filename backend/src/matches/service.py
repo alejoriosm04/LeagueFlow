@@ -10,8 +10,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.errors import ErrorDeNegocio
 from src.leagues.service import LeagueService
-from src.matches.models import Match, ResultCorrectionRequest
-from src.matches.schemas import MatchStatus
+from src.matches.goal_rules import (
+    GolRegistrado,
+    calcular_consistencia,
+    validar_registro_de_gol,
+)
+from src.matches.models import Match, MatchEvent, ResultCorrectionRequest
+from src.matches.schemas import EventConsistency, EventType, MatchStatus
+from src.players.service import PlayerService
 from src.teams.service import TeamService
 
 
@@ -112,6 +118,90 @@ class MatchService:
 
     async def obtener_partido(self, match_id: uuid.UUID) -> Match | None:
         return await self.db.get(Match, match_id)
+
+    # --- Eventos de partido (spec 009) -------------------------------------
+
+    async def _exigir_partido(self, match_id: uuid.UUID) -> Match:
+        partido = await self.db.get(Match, match_id)
+        if partido is None:
+            raise ErrorDeNegocio(
+                code="match_not_found",
+                message="El partido no existe.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        return partido
+
+    async def jugadores_alineados(self, match_id: uuid.UUID) -> set[uuid.UUID] | None:
+        """Puerto de lectura de la alineación (FR-003 de la spec 009).
+
+        Devuelve `None` —"este partido no tiene alineación registrada"— hasta
+        que `specs/010-alineaciones-estadisticas` cree `MatchLineup` y lo
+        sustituya por la consulta real. La regla que consume este valor ya está
+        implementada y probada en `goal_rules.validar_registro_de_gol`.
+        """
+        await self._exigir_partido(match_id)
+        return None
+
+    async def registrar_gol(
+        self,
+        match_id: uuid.UUID,
+        player_id: uuid.UUID,
+        minute: int,
+        tipo: EventType,
+        creado_por: uuid.UUID,
+    ) -> MatchEvent:
+        """FR-001. El equipo se deriva del jugador (research.md §4)."""
+        partido = await self._exigir_partido(match_id)
+
+        jugador = await PlayerService(self.db).obtener_jugador(player_id)
+        if jugador is None:
+            raise ErrorDeNegocio(
+                code="player_not_found",
+                message="El jugador no existe.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+
+        validar_registro_de_gol(
+            match_status=partido.status,
+            home_team_id=partido.home_team_id,
+            away_team_id=partido.away_team_id,
+            player_id=jugador.id,
+            player_team_id=jugador.team_id,
+            alineados=await self.jugadores_alineados(match_id),
+        )
+
+        evento = MatchEvent(
+            match_id=partido.id,
+            type=tipo,
+            player_id=jugador.id,
+            team_id=jugador.team_id,
+            minute=minute,
+            created_by=creado_por,
+        )
+        self.db.add(evento)
+        await self.db.commit()
+        await self.db.refresh(evento)
+        return evento
+
+    async def listar_eventos(
+        self, match_id: uuid.UUID
+    ) -> tuple[list[MatchEvent], EventConsistency]:
+        """Listado público más la advertencia de FR-005."""
+        partido = await self._exigir_partido(match_id)
+        res = await self.db.execute(
+            select(MatchEvent)
+            .where(MatchEvent.match_id == match_id)
+            .order_by(MatchEvent.minute.asc(), MatchEvent.created_at.asc())
+        )
+        eventos = list(res.scalars())
+        consistencia = calcular_consistencia(
+            eventos=[GolRegistrado(team_id=e.team_id) for e in eventos if e.type == "GOAL"],
+            home_team_id=partido.home_team_id,
+            away_team_id=partido.away_team_id,
+            home_score=partido.home_score,
+            away_score=partido.away_score,
+        )
+        return eventos, consistencia
 
     async def registrar_resultado(
         self, match_id: uuid.UUID, home_score: int, away_score: int

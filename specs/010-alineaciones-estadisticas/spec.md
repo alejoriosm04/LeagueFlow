@@ -66,6 +66,26 @@ ordena bien.
 - ¿Qué ocurre si un gol está atribuido a un jugador y luego una corrección de
   alineación lo excluye del partido?
 
+## Compromiso heredado de la spec 009
+
+`specs/009-registrar-goles` implementó su FR-003 (un gol solo puede atribuirse
+a un jugador de la alineación, si el partido tiene una) detrás del puerto
+`MatchService.jugadores_alineados`, que hoy devuelve siempre `None` porque
+`MatchLineup` es entidad de **esta** spec. La regla está probada con un doble
+en `backend/tests/unit/test_goal_rules.py`, pero **no tiene cobertura de
+integración**.
+
+El plan de esta HU DEBE, por tanto:
+
+1. Implementar `jugadores_alineados` con la consulta real a `MatchLineup`.
+2. Añadir la prueba de integración del Acceptance Scenario 3 de la spec 009:
+   partido con alineación registrada + gol atribuido a un jugador que no figura
+   en ella → rechazo.
+
+Sin esos dos puntos, FR-003 de la 009 queda sin cobertura extremo a extremo de
+forma permanente. La desviación está registrada en
+`specs/009-registrar-goles/plan.md` §Complexity Tracking.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements

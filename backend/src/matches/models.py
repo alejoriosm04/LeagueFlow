@@ -113,4 +113,42 @@ class ResultCorrectionRequest(Base, UUIDPrimaryKey, TimestampCreated):
     )
 
 
-__all__ = ["Match", "ResultCorrectionRequest"]
+class MatchEvent(Base, UUIDPrimaryKey, TimestampCreated):
+    """Hecho ocurrido durante un partido — specs/009-registrar-goles.
+
+    Declarada en specs/001-fundacion-y-autenticacion/data-model.md §MatchEvent;
+    esta HU la implementa. `type` es String + CHECK y no un ENUM de PostgreSQL
+    a propósito: FR-004 exige que añadir un tipo no obligue a rediseñar, y
+    sustituir un CHECK es una migración trivial mientras que `ALTER TYPE`
+    bloquea (data-model.md de 009).
+    """
+
+    __tablename__ = "match_events"
+
+    match_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("matches.id", ondelete="RESTRICT"), nullable=False
+    )
+    type: Mapped[str] = mapped_column(String(20), nullable=False, default="GOAL")
+    player_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("players.id", ondelete="RESTRICT"), nullable=False
+    )
+    # research.md §4: se deriva de Player.team_id, nunca lo envía el cliente.
+    team_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("teams.id", ondelete="RESTRICT"), nullable=False
+    )
+    minute: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    created_by: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+
+    __table_args__ = (
+        CheckConstraint("minute >= 0", name="ck_match_events_minute_nonnegative"),
+        CheckConstraint("type IN ('GOAL')", name="ck_match_events_type_supported"),
+        # Dos goles del mismo jugador en el mismo minuto son legítimos: no hay
+        # unicidad. El índice sirve al listado por partido y a la derivación de 010.
+        Index("ix_match_events_match_minute", "match_id", "minute"),
+    )
+
+
+__all__ = ["Match", "MatchEvent", "ResultCorrectionRequest"]

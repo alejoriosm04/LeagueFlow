@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { eventsApi } from '../events/api';
+import type { MatchEvents } from '../events/api';
+import { GoalForm } from '../events/GoalForm';
+import { playersApi } from '../players/api';
+import type { Player } from '../players/api';
 import { CorrectionDecisionForm } from './CorrectionDecisionForm';
 import { CorrectionRequestForm } from './CorrectionRequestForm';
 import { matchesApi } from './api';
@@ -16,14 +21,27 @@ export function MatchDetailPage() {
   const { usuario } = useAuth();
   const [partido, setPartido] = useState<Match | null>(null);
   const [correcciones, setCorrecciones] = useState<ResultCorrection[]>([]);
+  const [goles, setGoles] = useState<MatchEvents | null>(null);
+  const [jugadores, setJugadores] = useState<Player[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const cargar = useCallback(async () => {
     if (!matchId) return;
     try {
-      const [match, history] = await Promise.all([matchesApi.obtener(matchId), matchesApi.listarCorrecciones(matchId)]);
+      const [match, history, eventos] = await Promise.all([
+        matchesApi.obtener(matchId),
+        matchesApi.listarCorrecciones(matchId),
+        eventsApi.listar(matchId),
+      ]);
       setPartido(match);
       setCorrecciones(history.items);
+      setGoles(eventos);
+      // Los nombres se resuelven por la API pública del dominio Player.
+      const plantillas = await Promise.all([
+        playersApi.listar(match.home_team_id),
+        playersApi.listar(match.away_team_id),
+      ]);
+      setJugadores(plantillas.flatMap((plantilla) => plantilla.items));
       setError(null);
     } catch {
       setError('No se pudo cargar la ficha del partido.');
@@ -36,6 +54,8 @@ export function MatchDetailPage() {
   if (error) return <p role="alert">{error}</p>;
   if (!partido || !matchId) return null;
   const autenticado = usuario?.role === 'operador' || usuario?.role === 'organizador';
+  const nombreJugador = (id: string) =>
+    jugadores.find((jugador) => jugador.id === id)?.name ?? id.slice(0, 8);
   return (
     <section>
       <h1>Ficha del partido</h1>
@@ -43,6 +63,31 @@ export function MatchDetailPage() {
       <p><strong>Marcador vigente:</strong> {partido.home_score ?? '—'} – {partido.away_score ?? '—'}</p>
       {autenticado && partido.status === 'scheduled' && <ResultForm matchId={matchId} onSuccess={() => void cargar()} />}
       {autenticado && partido.status === 'finished' && <CorrectionRequestForm matchId={matchId} onSuccess={() => void cargar()} />}
+      <section aria-label="Goles">
+        <h2>Goles</h2>
+        {goles && goles.consistency.matches_official === false && (
+          <p role="status">
+            Los goles registrados ({goles.consistency.home_goals_recorded}–
+            {goles.consistency.away_goals_recorded}) no coinciden con el marcador oficial (
+            {goles.consistency.home_score}–{goles.consistency.away_score}). El marcador oficial
+            sigue siendo la fuente de la clasificación.
+          </p>
+        )}
+        {goles && goles.items.length === 0 ? (
+          <p>No hay goles registrados.</p>
+        ) : (
+          <ul>
+            {goles?.items.map((gol) => (
+              <li key={gol.id}>
+                {nombreJugador(gol.player_id)} — {gol.minute}'
+              </li>
+            ))}
+          </ul>
+        )}
+        {autenticado && (partido.status === 'finished' || partido.status === 'in_progress') && (
+          <GoalForm matchId={matchId} jugadores={jugadores} onSuccess={() => void cargar()} />
+        )}
+      </section>
       <h2>Historial de correcciones</h2>
       {correcciones.length === 0 ? <p>No hay correcciones.</p> : (
         <ol>{correcciones.map((correccion) => (
