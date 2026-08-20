@@ -10,6 +10,7 @@ import { MatchesPage } from './features/matches/MatchesPage';
 import { MatchDetailPage } from './features/matches/MatchDetailPage';
 import { CreatePlayerForm } from './features/players/CreatePlayerForm';
 import { PlayersPage } from './features/players/PlayersPage';
+import { StandingsPage } from './features/standings/StandingsPage';
 import { CreateTeamForm } from './features/teams/CreateTeamForm';
 import { TeamsPage } from './features/teams/TeamsPage';
 
@@ -50,6 +51,7 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/leagues/:id/standings" element={<StandingsPage />} />
       <Route path="/leagues/:id/matches" element={<MatchesPage />} />
       <Route path="/matches/:matchId" element={<MatchDetailPage />} />
       <Route

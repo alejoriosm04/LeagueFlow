@@ -290,3 +290,202 @@ async def calendario_190(organizador_creado):
         s.add_all(partidos)
         await s.commit()
         return {"league_id": str(liga.id), "total": len(partidos)}
+
+
+async def _crear_liga_con_equipos(sesion, autor_id, nombre_liga, equipos):
+    """Crea una liga con sus equipos. `equipos` es [(nombre, status), ...]."""
+    from src.leagues.models import League
+    from src.teams.models import Team
+
+    liga = League(name=nombre_liga, season="2026", created_by=autor_id)
+    sesion.add(liga)
+    await sesion.flush()
+    creados = {}
+    for nombre, estado in equipos:
+        equipo = Team(league_id=liga.id, name=nombre, status=estado, created_by=autor_id)
+        sesion.add(equipo)
+        creados[nombre] = equipo
+    await sesion.flush()
+    return liga, creados
+
+
+def _partido(liga_id, local, visitante, autor_id, cuando, estado, marcador=None):
+    from src.matches.models import Match
+
+    return Match(
+        league_id=liga_id,
+        home_team_id=local.id,
+        away_team_id=visitante.id,
+        scheduled_at=cuando,
+        status=estado,
+        home_score=None if marcador is None else marcador[0],
+        away_score=None if marcador is None else marcador[1],
+        created_by=autor_id,
+    )
+
+
+@pytest_asyncio.fixture
+async def clasificacion_liga(organizador_creado):
+    """Liga con marcadores controlados para la clasificación (spec 008).
+
+    Tabla esperada, calculada a mano desde los cuatro partidos finalizados:
+
+        1. Alfa            PJ2 G2 E0 P0 GF5 GC1 GD+4 Pts6
+        2. Delta           PJ2 G1 E1 P0 GF3 GC1 GD+2 Pts4
+        3. Charlie         PJ2 G0 E1 P1 GF2 GC4 GD-2 Pts1
+        4. Sin Partidos    PJ0 G0 E0 P0 GF0 GC0 GD 0 Pts0
+        5. Bravo           PJ1 G0 E0 P1 GF0 GC2 GD-2 Pts0
+        6. Retirado        PJ1 G0 E0 P1 GF0 GC2 GD-2 Pts0
+
+    "Sin Partidos" queda por delante de Bravo con los mismos 0 puntos porque su
+    GD es 0 y la de ellos -2 (FR-005). Bravo precede a Retirado por desempate
+    alfabético (FR-006). "Fantasma" está inactivo y sin historial: no aparece.
+    """
+    from src.core.db import SessionLocal
+
+    async with SessionLocal() as s:
+        liga, equipos = await _crear_liga_con_equipos(
+            s,
+            organizador_creado.id,
+            "Liga clasificacion fixture",
+            [
+                ("Alfa", "active"),
+                ("Bravo", "active"),
+                ("Charlie", "active"),
+                ("Delta", "active"),
+                ("Sin Partidos", "active"),
+                ("Retirado", "inactive"),
+                ("Fantasma", "inactive"),
+            ],
+        )
+        base = datetime(2026, 9, 1, 18, tzinfo=UTC)
+        partidos = [
+            # Finalizados: única fuente de la tabla (FR-001).
+            _partido(
+                liga.id,
+                equipos["Alfa"],
+                equipos["Bravo"],
+                organizador_creado.id,
+                base - timedelta(days=4),
+                "finished",
+                (2, 0),
+            ),
+            _partido(
+                liga.id,
+                equipos["Charlie"],
+                equipos["Delta"],
+                organizador_creado.id,
+                base - timedelta(days=3),
+                "finished",
+                (1, 1),
+            ),
+            _partido(
+                liga.id,
+                equipos["Alfa"],
+                equipos["Charlie"],
+                organizador_creado.id,
+                base - timedelta(days=2),
+                "finished",
+                (3, 1),
+            ),
+            _partido(
+                liga.id,
+                equipos["Retirado"],
+                equipos["Delta"],
+                organizador_creado.id,
+                base - timedelta(days=1),
+                "finished",
+                (0, 2),
+            ),
+            # No finalizados: no contribuyen (FR-001, FR-007).
+            _partido(
+                liga.id,
+                equipos["Bravo"],
+                equipos["Delta"],
+                organizador_creado.id,
+                base,
+                "scheduled",
+            ),
+            _partido(
+                liga.id,
+                equipos["Alfa"],
+                equipos["Delta"],
+                organizador_creado.id,
+                base + timedelta(days=1),
+                "in_progress",
+            ),
+            _partido(
+                liga.id,
+                equipos["Bravo"],
+                equipos["Charlie"],
+                organizador_creado.id,
+                base + timedelta(days=2),
+                "cancelled",
+            ),
+        ]
+        s.add_all(partidos)
+        await s.commit()
+        return {
+            "league_id": str(liga.id),
+            "teams": {nombre: str(e.id) for nombre, e in equipos.items()},
+            "orden_esperado": ["Alfa", "Delta", "Charlie", "Sin Partidos", "Bravo", "Retirado"],
+            "programado_id": str(partidos[4].id),
+            "cancelado_id": str(partidos[6].id),
+            "finalizado_id": str(partidos[0].id),
+        }
+
+
+@pytest_asyncio.fixture
+async def clasificacion_empates(organizador_creado):
+    """Tres ligas, una por nivel de desempate de FR-005/FR-006.
+
+    - `gd`: mismos puntos, distinta diferencia de goles.
+    - `gf`: mismos puntos y GD, distintos goles a favor.
+    - `total`: mismos puntos, GD y GF -> desempate alfabético. Yankee se
+      inserta antes que Xray para que el orden no pueda salir de la inserción.
+    """
+    from src.core.db import SessionLocal
+
+    escenarios = {
+        "gd": (
+            "Liga empate gd",
+            ["Gd Mayor", "Gd Menor", "Perdedor Goleado", "Perdedor Ajustado"],
+            [("Gd Mayor", "Perdedor Goleado", (3, 0)), ("Gd Menor", "Perdedor Ajustado", (1, 0))],
+            ["Gd Mayor", "Gd Menor", "Perdedor Ajustado", "Perdedor Goleado"],
+        ),
+        "gf": (
+            "Liga empate gf",
+            ["Gf Mayor", "Gf Menor", "Rival Uno", "Rival Dos"],
+            [("Gf Mayor", "Rival Uno", (2, 1)), ("Gf Menor", "Rival Dos", (1, 0))],
+            ["Gf Mayor", "Gf Menor", "Rival Uno", "Rival Dos"],
+        ),
+        "total": (
+            "Liga empate total",
+            ["Yankee", "Xray", "Victima Y", "Victima X"],
+            [("Yankee", "Victima Y", (1, 0)), ("Xray", "Victima X", (1, 0))],
+            ["Xray", "Yankee", "Victima X", "Victima Y"],
+        ),
+    }
+
+    resultado = {}
+    async with SessionLocal() as s:
+        for clave, (nombre_liga, nombres, enfrentamientos, esperado) in escenarios.items():
+            liga, equipos = await _crear_liga_con_equipos(
+                s, organizador_creado.id, nombre_liga, [(n, "active") for n in nombres]
+            )
+            base = datetime(2026, 9, 1, 18, tzinfo=UTC)
+            for indice, (local, visitante, marcador) in enumerate(enfrentamientos):
+                s.add(
+                    _partido(
+                        liga.id,
+                        equipos[local],
+                        equipos[visitante],
+                        organizador_creado.id,
+                        base + timedelta(hours=indice),
+                        "finished",
+                        marcador,
+                    )
+                )
+            resultado[clave] = {"league_id": str(liga.id), "orden_esperado": esperado}
+        await s.commit()
+    return resultado

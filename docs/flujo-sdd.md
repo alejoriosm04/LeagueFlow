@@ -43,6 +43,9 @@ genera conflictos. Con el clone es suficiente.
 Verificación rápida de que quedaste listo: abre Claude Code en la carpeta y
 escribe `/speckit-` — deben aparecer los 10 comandos.
 
+Con esto puedes escribir specs, planes y tareas. **Para llegar a
+`/speckit-implement` te falta la base de datos local**: ver §2.2.
+
 ---
 
 ## 2.1. Si usas otro agente (Codex, Cursor, Gemini…)
@@ -91,6 +94,59 @@ Detalles a tener en cuenta:
 
 ---
 
+## 2.2. Entorno local para poder implementar (Docker + PostgreSQL)
+
+`/speckit-implement` no solo escribe código: **corre las pruebas**, y la suite
+de este proyecto habla con un PostgreSQL de verdad (no hay SQLite ni mocks de
+base de datos). Sin la base levantada, cada test falla con
+`ConnectionRefusedError` y el agente no puede cerrar ninguna tarea — que es lo
+que exige el Principio IV antes de abrir un PR.
+
+Levanta la base **una vez**, antes de tu primera HU:
+
+```bash
+docker run -d --name leagueflow-db \
+  -e POSTGRES_USER=leagueflow -e POSTGRES_DB=leagueflow \
+  -e POSTGRES_HOST_AUTH_METHOD=trust \
+  -p 5432:5432 postgres:16
+```
+
+Sin contraseña a propósito: el contenedor solo escucha en tu máquina y así no
+queda ninguna credencial literal en el repo (Principio VI). Es la misma
+configuración que usa el pipeline en `.github/workflows/ci.yml`.
+
+La base de pruebas es **distinta** de la de desarrollo, porque la suite borra y
+recrea el esquema en cada test:
+
+```bash
+docker exec leagueflow-db psql -U leagueflow -d postgres -c "CREATE DATABASE leagueflow_test;"
+```
+
+El detalle completo (venv, `.env`, `alembic upgrade head`, organizador semilla,
+servidor) está en [`backend/README.md`](../backend/README.md) y
+[`frontend/README.md`](../frontend/README.md). Antes de empezar tu HU, comprueba
+que la línea base pasa:
+
+```bash
+cd backend && uv run pytest -q      # debe terminar en verde
+```
+
+Notas prácticas:
+
+- **En macOS con Colima**, arranca la VM antes que el contenedor:
+  `colima start`. Si `docker ps` responde *cannot connect to the Docker daemon*,
+  es esto.
+- **El contenedor sobrevive a los reinicios del equipo** solo si lo vuelves a
+  arrancar: `docker start leagueflow-db`. No hace falta recrearlo ni volver a
+  migrar.
+- **Nunca modifiques el esquema a mano** sobre esa base (Principio V). Todo
+  cambio entra como migración de Alembic y se aplica con
+  `alembic upgrade head`.
+- **`alembic check` reporta un falso positivo conocido** en dos índices
+  funcionales de `leagues` y `teams`: ver `AGENTS.md`, sección de migraciones.
+
+---
+
 ## 3. Ciclo por Historia de Usuario
 
 Una HU = una rama = una carpeta en `specs/` = un PR.
@@ -115,7 +171,7 @@ Luego, dentro de Claude Code:
 | 3 | `/speckit-plan` | `plan.md`, `research.md`, `data-model.md`, `contracts/` (el **cómo**) |
 | 4 | `/speckit-tasks` | `tasks.md` — tareas ordenadas por dependencias |
 | 5 | `/speckit-analyze` | Chequeo de consistencia spec ↔ plan ↔ tasks (opcional pero barato) |
-| 6 | `/speckit-implement` | Escribe el código siguiendo `tasks.md` |
+| 6 | `/speckit-implement` | Escribe el código siguiendo `tasks.md` — **requiere la base de datos local de §2.2 levantada** |
 
 > Ojo: Spec Kit **no crea la rama de git** en esta configuración; solo crea la
 > carpeta `specs/NNN-*`. La rama la creas tú y debe llevar el mismo número, para

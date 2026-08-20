@@ -24,9 +24,20 @@ usando [GitHub Spec Kit](https://github.com/github/spec-kit) y Claude Code.
 | Spec 001 (fundación + auth) | ✅ Implementada y desplegada (41/41 tareas) |
 | Spec 002 (crear liga) | ✅ Implementada y desplegada |
 | Spec 003 (registrar equipos) | ✅ Implementada y desplegada |
-| Specs 004–011 | ⬜ Asignadas al resto del equipo |
+| Spec 004 (registrar jugadores) | ✅ Implementada y desplegada |
+| Spec 005 (programar partidos) | ✅ Implementada y desplegada |
+| Spec 006 (registrar resultados) | ✅ Implementada y desplegada |
+| Spec 007 (calendario y resultados) | ✅ Implementada y desplegada |
+| Spec 008 (clasificación) | 🔄 Implementada en rama `008-consultar-clasificacion` (22/22 tareas), pendiente de PR |
+| Specs 009–011 | ⬜ Goles, estadísticas de jugadores y dashboard — sin planear |
+| Presentación visual (CSS/diseño) | ⬜ **Sin spec.** El frontend es HTML sin estilos; ninguna HU del backlog lo cubre — ver nota abajo |
 | Despliegue | ✅ En línea — ver URLs abajo |
 | Caso de negocio | ⬜ Pendiente — [`docs/caso-de-negocio.md`](docs/caso-de-negocio.md); **medir tiempos desde la primera HU** |
+
+> **Sobre lo visual:** las 11 specs de la línea base y las HU 11–15 del backlog
+> son todas funcionales; **ninguna define estilos, layout ni accesibilidad**.
+> El resultado es una interfaz sin CSS. Corregirlo requiere una spec propia
+> (Principio I: no se escribe código sin spec), no maquetar sobre la marcha.
 
 ---
 
@@ -62,6 +73,25 @@ El repo **ya está inicializado** con Spec Kit: no corras `specify init` otra ve
 Los pasos completos y las convenciones del equipo están en
 [`docs/flujo-sdd.md`](docs/flujo-sdd.md) — léelo antes de tu primer commit.
 
+### Entorno local (obligatorio para `/speckit-implement`)
+
+Escribir specs, planes y tareas no necesita nada más. **Implementar sí**: la
+suite de pruebas corre contra un PostgreSQL real, así que necesitas Docker.
+
+```bash
+docker run -d --name leagueflow-db \
+  -e POSTGRES_USER=leagueflow -e POSTGRES_DB=leagueflow \
+  -e POSTGRES_HOST_AUTH_METHOD=trust \
+  -p 5432:5432 postgres:16
+docker exec leagueflow-db psql -U leagueflow -d postgres -c "CREATE DATABASE leagueflow_test;"
+```
+
+Sin contraseña a propósito: contenedor local y ninguna credencial en el repo
+(Principio VI). Detalle completo — venv, `.env`, migraciones, organizador
+semilla — en [`backend/README.md`](backend/README.md) y
+[`frontend/README.md`](frontend/README.md); el porqué y los tropiezos típicos,
+en [`docs/flujo-sdd.md`](docs/flujo-sdd.md) §2.2.
+
 ## El ciclo SDD, en corto
 
 ```
@@ -90,5 +120,6 @@ docs/                Enunciado, flujo de trabajo, caso de negocio
 | Integrante | GitHub | Rol principal |
 |---|---|---|
 | Alejandro Ríos | [@alejoriosm04](https://github.com/alejoriosm04) | Fundación y autenticación (001), ligas (002) y equipos (003) |
-| _pendiente_ | | |
-| _pendiente_ | | |
+| Quinn Villa | [@quinnie9](https://github.com/quinnie9) | Jugadores (004) y programación de partidos (005) |
+| Lina Ballesteros | | Resultados y correcciones (006), calendario (007) |
+| Jonathan Sandoval | | Clasificación (008) |

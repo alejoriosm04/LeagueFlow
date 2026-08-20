@@ -110,6 +110,20 @@ class MatchService:
         )
         return list(res.scalars()), total
 
+    async def listar_finalizados(self, league_id: uuid.UUID) -> list[Match]:
+        """Interfaz de dominio para la clasificación (spec 008).
+
+        Sin paginación: la tabla es indivisible. El filtro por estado también
+        vive aquí para no traer partidos que la clasificación descartaría.
+        """
+        await self._exigir_liga(league_id)
+        res = await self.db.execute(
+            select(Match)
+            .where(Match.league_id == league_id, Match.status == "finished")
+            .order_by(Match.scheduled_at.asc(), Match.id.asc())
+        )
+        return list(res.scalars())
+
     async def obtener_partido(self, match_id: uuid.UUID) -> Match | None:
         return await self.db.get(Match, match_id)
 
