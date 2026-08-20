@@ -68,9 +68,13 @@ describe('MatchesPage', () => {
       'fetch',
       mockFetch({
         '/auth/me': { status: 200, body: { user: null } },
-        '/leagues/l1/matches?page=1&page_size=20': {
+        '/leagues/l1/matches?page=1&page_size=100&status=scheduled': {
           status: 200,
-          body: { items: [], page: 1, page_size: 20, total: 0 },
+          body: { items: [], page: 1, page_size: 100, total: 0 },
+        },
+        '/leagues/l1/matches?page=1&page_size=100&status=finished': {
+          status: 200,
+          body: { items: [], page: 1, page_size: 100, total: 0 },
         },
         '/leagues/l1/teams?include_inactive=false&page=1&page_size=20': {
           status: 200,
@@ -89,7 +93,7 @@ describe('MatchesPage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText(/no hay partidos programados/i)).toBeInTheDocument();
+    expect(await screen.findByText(/no hay partidos en esta liga/i)).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /programar partido/i })).not.toBeInTheDocument();
   });
 
@@ -98,9 +102,13 @@ describe('MatchesPage', () => {
       'fetch',
       mockFetch({
         '/auth/me': { status: 200, body: { user: ORGANIZADOR } },
-        '/leagues/l1/matches?page=1&page_size=20': {
+        '/leagues/l1/matches?page=1&page_size=100&status=scheduled': {
           status: 200,
-          body: { items: [], page: 1, page_size: 20, total: 0 },
+          body: { items: [], page: 1, page_size: 100, total: 0 },
+        },
+        '/leagues/l1/matches?page=1&page_size=100&status=finished': {
+          status: 200,
+          body: { items: [], page: 1, page_size: 100, total: 0 },
         },
         '/leagues/l1/teams?include_inactive=false&page=1&page_size=20': {
           status: 200,
@@ -119,7 +127,7 @@ describe('MatchesPage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText(/no hay partidos programados/i)).toBeInTheDocument();
+    expect(await screen.findByText(/no hay partidos en esta liga/i)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /programar partido/i })).toHaveAttribute(
       'href',
       '/leagues/l1/matches/new',
@@ -131,9 +139,13 @@ describe('MatchesPage', () => {
       'fetch',
       mockFetch({
         '/auth/me': { status: 200, body: { user: null } },
-        '/leagues/l1/matches?page=1&page_size=20': {
+        '/leagues/l1/matches?page=1&page_size=100&status=scheduled': {
           status: 200,
-          body: { items: [PARTIDO], page: 1, page_size: 20, total: 1 },
+          body: { items: [PARTIDO], page: 1, page_size: 100, total: 1 },
+        },
+        '/leagues/l1/matches?page=1&page_size=100&status=finished': {
+          status: 200,
+          body: { items: [], page: 1, page_size: 100, total: 0 },
         },
         '/leagues/l1/teams?include_inactive=false&page=1&page_size=20': {
           status: 200,

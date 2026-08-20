@@ -14,6 +14,7 @@ from src.matches.schemas import (
     CreateMatchRequest,
     DecisionInput,
     Match,
+    MatchStatus,
     PaginatedCorrections,
     PaginatedMatches,
     ResultCorrection,
@@ -49,10 +50,11 @@ async def listar_partidos(
     db: AsyncSession = Depends(get_db),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    match_status: MatchStatus | None = Query(None, alias="status"),
 ) -> PaginatedMatches:
     """Listado público por liga (research.md §2)."""
     servicio = MatchService(db)
-    partidos, total = await servicio.listar_partidos(liga_id, page, page_size)
+    partidos, total = await servicio.listar_partidos(liga_id, page, page_size, match_status)
     return PaginatedMatches(
         items=[Match.model_validate(p) for p in partidos],
         page=page,

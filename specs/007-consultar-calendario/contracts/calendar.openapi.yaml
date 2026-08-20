@@ -1,0 +1,85 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Calendario público
+  version: "1.0.0"
+  description: Extensión compatible del listado de partidos definido en 005.
+servers:
+  - url: /api/v1
+paths:
+  /leagues/{leagueId}/matches:
+    get:
+      summary: Consultar los partidos de una liga
+      operationId: listCalendarMatches
+      security: []
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [scheduled, in_progress, finished, cancelled]
+          description: finished ordena por fecha descendente; los demás valores por fecha ascendente.
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: Página pública de partidos; puede estar vacía.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedMatches" }
+        "400":
+          description: Estado o paginación inválidos. error.code validation_error.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: Liga inexistente. error.code league_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+components:
+  schemas:
+    Match:
+      type: object
+      required: [id, league_id, home_team_id, away_team_id, scheduled_at, status, home_score, away_score, created_by, created_at, updated_at]
+      properties:
+        id: { type: string, format: uuid }
+        league_id: { type: string, format: uuid }
+        home_team_id: { type: string, format: uuid }
+        away_team_id: { type: string, format: uuid }
+        scheduled_at: { type: string, format: date-time }
+        status: { type: string, enum: [scheduled, in_progress, finished, cancelled] }
+        home_score: { type: integer, nullable: true, minimum: 0 }
+        away_score: { type: integer, nullable: true, minimum: 0 }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    PaginatedMatches:
+      type: object
+      required: [items, page, page_size, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Match" }
+        page: { type: integer, minimum: 1 }
+        page_size: { type: integer, minimum: 1, maximum: 100 }
+        total: { type: integer, minimum: 0 }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }

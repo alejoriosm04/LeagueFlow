@@ -2,6 +2,7 @@
 
 import os
 import secrets
+from datetime import UTC, datetime, timedelta
 
 import pytest
 import pytest_asyncio
@@ -169,3 +170,123 @@ async def partido_programado(cliente_organizador):
     )
     assert partido.status_code == 201
     return partido.json()
+
+
+@pytest_asyncio.fixture
+async def calendario_mixto(organizador_creado):
+    """Liga con fechas/estados controlados para filtros y orden del calendario."""
+    from src.core.db import SessionLocal
+    from src.leagues.models import League
+    from src.matches.models import Match
+    from src.teams.models import Team
+
+    async with SessionLocal() as s:
+        liga = League(
+            name="Liga calendario fixture",
+            season="2026",
+            description=None,
+            created_by=organizador_creado.id,
+        )
+        s.add(liga)
+        await s.flush()
+        equipos = [
+            Team(league_id=liga.id, name=f"Equipo calendario {i}", created_by=organizador_creado.id)
+            for i in range(1, 5)
+        ]
+        s.add_all(equipos)
+        await s.flush()
+        base = datetime(2026, 9, 1, 18, tzinfo=UTC)
+        partidos = [
+            Match(
+                league_id=liga.id,
+                home_team_id=equipos[0].id,
+                away_team_id=equipos[1].id,
+                scheduled_at=base,
+                status="scheduled",
+                created_by=organizador_creado.id,
+            ),
+            Match(
+                league_id=liga.id,
+                home_team_id=equipos[2].id,
+                away_team_id=equipos[3].id,
+                scheduled_at=base + timedelta(days=1),
+                status="scheduled",
+                created_by=organizador_creado.id,
+            ),
+            Match(
+                league_id=liga.id,
+                home_team_id=equipos[0].id,
+                away_team_id=equipos[2].id,
+                scheduled_at=base - timedelta(days=2),
+                status="finished",
+                home_score=3,
+                away_score=1,
+                created_by=organizador_creado.id,
+            ),
+            Match(
+                league_id=liga.id,
+                home_team_id=equipos[1].id,
+                away_team_id=equipos[3].id,
+                scheduled_at=base - timedelta(days=1),
+                status="finished",
+                home_score=0,
+                away_score=0,
+                created_by=organizador_creado.id,
+            ),
+            Match(
+                league_id=liga.id,
+                home_team_id=equipos[0].id,
+                away_team_id=equipos[3].id,
+                scheduled_at=base,
+                status="in_progress",
+                created_by=organizador_creado.id,
+            ),
+            Match(
+                league_id=liga.id,
+                home_team_id=equipos[1].id,
+                away_team_id=equipos[2].id,
+                scheduled_at=base,
+                status="cancelled",
+                created_by=organizador_creado.id,
+            ),
+        ]
+        s.add_all(partidos)
+        await s.commit()
+        return {"league_id": str(liga.id), "teams": equipos, "matches": partidos}
+
+
+@pytest_asyncio.fixture
+async def calendario_190(organizador_creado):
+    """Round-robin de 20 equipos: 190 partidos persistidos para paginación."""
+    from src.core.db import SessionLocal
+    from src.leagues.models import League
+    from src.matches.models import Match
+    from src.teams.models import Team
+
+    async with SessionLocal() as s:
+        liga = League(name="Liga volumen fixture", season="2026", created_by=organizador_creado.id)
+        s.add(liga)
+        await s.flush()
+        equipos = [
+            Team(league_id=liga.id, name=f"Equipo volumen {i:02}", created_by=organizador_creado.id)
+            for i in range(20)
+        ]
+        s.add_all(equipos)
+        await s.flush()
+        base = datetime(2027, 1, 1, 18, tzinfo=UTC)
+        partidos = []
+        for local in range(20):
+            for visitante in range(local + 1, 20):
+                partidos.append(
+                    Match(
+                        league_id=liga.id,
+                        home_team_id=equipos[local].id,
+                        away_team_id=equipos[visitante].id,
+                        scheduled_at=base + timedelta(hours=len(partidos)),
+                        status="scheduled",
+                        created_by=organizador_creado.id,
+                    )
+                )
+        s.add_all(partidos)
+        await s.commit()
+        return {"league_id": str(liga.id), "total": len(partidos)}

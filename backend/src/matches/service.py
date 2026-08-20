@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.errors import ErrorDeNegocio
 from src.leagues.service import LeagueService
 from src.matches.models import Match, ResultCorrectionRequest
+from src.matches.schemas import MatchStatus
 from src.teams.service import TeamService
 
 
@@ -84,15 +85,26 @@ class MatchService:
         return partido
 
     async def listar_partidos(
-        self, league_id: uuid.UUID, page: int, page_size: int
+        self,
+        league_id: uuid.UUID,
+        page: int,
+        page_size: int,
+        match_status: MatchStatus | None = None,
     ) -> tuple[list[Match], int]:
         await self._exigir_liga(league_id)
         filtros = [Match.league_id == league_id]
+        if match_status is not None:
+            filtros.append(Match.status == match_status)
         total = await self.db.scalar(select(func.count()).select_from(Match).where(*filtros)) or 0
+        orden = (
+            (Match.scheduled_at.desc(), Match.id.desc())
+            if match_status == "finished"
+            else (Match.scheduled_at.asc(), Match.id.asc())
+        )
         res = await self.db.execute(
             select(Match)
             .where(*filtros)
-            .order_by(Match.scheduled_at.asc())
+            .order_by(*orden)
             .offset((page - 1) * page_size)
             .limit(page_size)
         )
