@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Jugadores
+  version: "1.0.0"
+  description: >
+    Endpoints de la spec 004-registrar-jugadores. Las convenciones compartidas
+    (envelope de error, códigos HTTP, paginación, cookie de sesión) están en
+    ../../001-fundacion-y-autenticacion/contracts/conventions.md.
+servers:
+  - url: /api/v1
+
+paths:
+  /teams/{teamId}/players:
+    post:
+      summary: Registrar un jugador en un equipo
+      operationId: createPlayer
+      description: >
+        Requiere sesión con rol organizador (FR-004). Rechaza si el equipo no
+        existe o está inactivo (`research.md` §4).
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlayerRequest"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        "400":
+          description: >
+            Payload inválido — `name` vacío, `number` fuera de 1–99, o
+            `position` demasiado larga. error.code: `validation_error`
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol operador. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: >
+            El equipo no existe o está inactivo. error.code: `team_not_found`
+            (`research.md` §4).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: >
+            Ya existe un jugador con ese dorsal en este equipo (FR-003).
+            error.code: `player_number_duplicate`, field: `number`
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    get:
+      summary: Listar la plantilla de un equipo
+      operationId: listPlayers
+      description: Público. Por defecto solo jugadores activos.
+      security: []
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: include_inactive
+          in: query
+          description: Incluye jugadores dados de baja; para vistas de historial (research.md §3).
+          schema: { type: boolean, default: false }
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedPlayers" }
+        "404":
+          description: "El equipo no existe. error.code: `team_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /players/{playerId}:
+    get:
+      summary: Detalle de un jugador
+      operationId: getPlayer
+      description: >
+        Público. Devuelve el jugador aunque esté inactivo, para que las
+        vistas de historial no queden rotas (research.md §3).
+      security: []
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Player" }
+        "404":
+          description: "error.code: `player_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: lf_session
+  schemas:
+    CreatePlayerRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        number:
+          type: integer
+          minimum: 1
+          maximum: 99
+          nullable: true
+          description: Dorsal opcional; único por equipo cuando está informado (research.md §1).
+        position:
+          type: string
+          maxLength: 40
+          nullable: true
+          description: Texto libre, sin catálogo (research.md §2).
+    Player:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        team_id: { type: string, format: uuid }
+        name: { type: string }
+        number: { type: integer, nullable: true }
+        position: { type: string, nullable: true }
+        status: { type: string, enum: [active, inactive] }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+    PaginatedPlayers:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Player" }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
+
+security:
+  - sessionCookie: []

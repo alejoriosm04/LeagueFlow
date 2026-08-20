@@ -53,7 +53,7 @@ export function TeamsPage() {
           {equipos.map((equipo) => (
             <li key={equipo.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <TeamCrest name={equipo.name} crestUrl={equipo.crest_url} />
-              {equipo.name}
+              <Link to={`/teams/${equipo.id}/players`}>{equipo.name}</Link>
               {equipo.colors && <span>({equipo.colors})</span>}
             </li>
           ))}
