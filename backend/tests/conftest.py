@@ -377,6 +377,8 @@ async def partido_con_plantillas(organizador_creado):
             "foreign_player_id": str(jugador_ajeno.id),
             "inactive_player_id": str(jugador_inactivo.id),
         }
+
+
 async def _crear_liga_con_equipos(sesion, autor_id, nombre_liga, equipos):
     """Crea una liga con sus equipos. `equipos` es [(nombre, status), ...]."""
     from src.leagues.models import League
