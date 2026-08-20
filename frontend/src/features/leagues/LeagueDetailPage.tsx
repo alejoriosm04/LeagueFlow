@@ -33,6 +33,8 @@ export function LeagueDetailPage() {
         <Link to={`/leagues/${liga.id}/teams`}>Ver equipos</Link>
         {' · '}
         <Link to={`/leagues/${liga.id}/matches`}>Ver partidos</Link>
+        {' · '}
+        <Link to={`/leagues/${liga.id}/standings`}>Ver clasificación</Link>
       </p>
     </section>
   );

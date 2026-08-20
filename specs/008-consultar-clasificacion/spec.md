@@ -105,3 +105,20 @@ goles y orden.
 ## Assumptions
 
 - **Idioma**: la interfaz está en español.
+- **Equipos que aparecen en la tabla**: figuran todos los equipos activos de la
+  liga (con ceros si aún no han jugado) más cualquier equipo dado de baja
+  lógica que tenga al menos un partido finalizado. Excluir a un equipo inactivo
+  con historial dejaría la tabla incoherente: sus rivales conservan los puntos
+  que ganaron contra él.
+- **Partidos `in_progress`**: no contribuyen a la clasificación. Solo
+  `finished` aporta (FR-001); `scheduled`, `in_progress` y `cancelled` se
+  ignoran por igual.
+- **Correcciones pendientes**: la clasificación refleja siempre el resultado
+  vigente del partido. Una solicitud de corrección pendiente
+  (`specs/006-registrar-resultado`) no altera la tabla hasta que se aprueba; al
+  aprobarse, la tabla cambia sola en la siguiente consulta, sin recálculo
+  manual.
+- **Empate absoluto**: cuando dos equipos coinciden en puntos, diferencia de
+  goles y goles a favor, el desempate alfabético de FR-006 compara el nombre
+  normalizado (sin mayúsculas ni espacios sobrantes), igual que la unicidad de
+  nombre por liga ya definida en `specs/003-registrar-equipos`.
