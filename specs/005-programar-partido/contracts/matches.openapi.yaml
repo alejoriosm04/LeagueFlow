@@ -1,0 +1,170 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Partidos (programación)
+  version: "1.0.0"
+  description: >
+    Endpoints de la spec 005-programar-partido. Las convenciones compartidas
+    (envelope de error, códigos HTTP, paginación, cookie de sesión) están en
+    ../../001-fundacion-y-autenticacion/contracts/conventions.md.
+servers:
+  - url: /api/v1
+
+paths:
+  /leagues/{leagueId}/matches:
+    post:
+      summary: Programar un partido en una liga
+      operationId: createMatch
+      description: >
+        Requiere sesión con rol organizador (FR-006). El partido nace en
+        estado `scheduled` y sin marcador (FR-001).
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMatchRequest"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Match"
+        "400":
+          description: "Payload inválido. error.code: `validation_error`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol operador. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: >
+            Liga inexistente (`league_not_found`) o equipo inexistente /
+            inactivo / de otra liga (`team_not_found`). Ver research.md §3.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: >
+            Local y visitante son el mismo equipo (FR-002).
+            error.code: `match_same_team`
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    get:
+      summary: Listar los partidos de una liga
+      operationId: listMatches
+      description: >
+        Público. Orden ascendente por `scheduled_at` (research.md §2).
+        El calendario enriquecido llega en specs/007.
+      security: []
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: page
+          in: query
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: page_size
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PaginatedMatches" }
+        "404":
+          description: "La liga no existe. error.code: `league_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /matches/{matchId}:
+    get:
+      summary: Detalle de un partido
+      operationId: getMatch
+      description: Público (FR-005).
+      security: []
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Match" }
+        "404":
+          description: "error.code: `match_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: lf_session
+  schemas:
+    CreateMatchRequest:
+      type: object
+      required: [home_team_id, away_team_id, scheduled_at]
+      properties:
+        home_team_id: { type: string, format: uuid }
+        away_team_id: { type: string, format: uuid }
+        scheduled_at:
+          type: string
+          format: date-time
+          description: ISO 8601 UTC; puede ser pasado (research.md §1).
+    Match:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        league_id: { type: string, format: uuid }
+        home_team_id: { type: string, format: uuid }
+        away_team_id: { type: string, format: uuid }
+        scheduled_at: { type: string, format: date-time }
+        status:
+          type: string
+          enum: [scheduled, in_progress, finished, cancelled]
+        home_score: { type: integer, nullable: true }
+        away_score: { type: integer, nullable: true }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    PaginatedMatches:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Match" }
+        page: { type: integer }
+        page_size: { type: integer }
+        total: { type: integer }
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
+
+security:
+  - sessionCookie: []

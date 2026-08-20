@@ -5,6 +5,8 @@ import { useAuth } from './features/auth/AuthContext';
 import { CreateLeagueForm } from './features/leagues/CreateLeagueForm';
 import { LeagueDetailPage } from './features/leagues/LeagueDetailPage';
 import { LeaguesPage } from './features/leagues/LeaguesPage';
+import { CreateMatchForm } from './features/matches/CreateMatchForm';
+import { MatchesPage } from './features/matches/MatchesPage';
 import { CreatePlayerForm } from './features/players/CreatePlayerForm';
 import { PlayersPage } from './features/players/PlayersPage';
 import { CreateTeamForm } from './features/teams/CreateTeamForm';
@@ -44,6 +46,15 @@ export function AppRoutes() {
         element={
           <ProtectedRoute rol="organizador">
             <CreateTeamForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/leagues/:id/matches" element={<MatchesPage />} />
+      <Route
+        path="/leagues/:id/matches/new"
+        element={
+          <ProtectedRoute rol="organizador">
+            <CreateMatchForm />
           </ProtectedRoute>
         }
       />
