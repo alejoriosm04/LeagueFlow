@@ -6,6 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+MatchStatus = Literal["scheduled", "in_progress", "finished", "cancelled"]
+
 
 class CreateMatchRequest(BaseModel):
     home_team_id: uuid.UUID
@@ -21,7 +23,7 @@ class Match(BaseModel):
     home_team_id: uuid.UUID
     away_team_id: uuid.UUID
     scheduled_at: datetime
-    status: str
+    status: MatchStatus
     home_score: int | None
     away_score: int | None
     created_by: uuid.UUID

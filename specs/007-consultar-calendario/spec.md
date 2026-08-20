@@ -76,3 +76,9 @@ Ninguna entidad nueva. Esta spec solo consulta `Match` (definida en
 ## Assumptions
 
 - **Idioma**: la interfaz está en español.
+- **Semántica de grupos**: “próximos” corresponde a `scheduled` y “jugados” a
+  `finished`. `in_progress` y `cancelled` aparecen únicamente bajo su filtro.
+- **Estados filtrables**: el filtro admite los cuatro estados del modelo:
+  `scheduled`, `in_progress`, `finished` y `cancelled`.
+- **Volumen completo**: se conserva la paginación del API y la interfaz recorre
+  las páginas necesarias para mostrar los 190 partidos de SC-001.
