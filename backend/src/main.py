@@ -9,6 +9,7 @@ from src.core.errors import registrar_manejadores
 from src.leagues.router import router as leagues_router
 from src.matches.router import router as matches_router
 from src.players.router import router as players_router
+from src.statistics.router import router as standings_router
 from src.teams.router import router as teams_router
 
 settings = get_settings()
@@ -38,6 +39,7 @@ app.include_router(leagues_router, prefix="/api/v1")
 app.include_router(teams_router, prefix="/api/v1")
 app.include_router(players_router, prefix="/api/v1")
 app.include_router(matches_router, prefix="/api/v1")
+app.include_router(standings_router, prefix="/api/v1")
 
 
 @app.get("/api/health", tags=["infra"])

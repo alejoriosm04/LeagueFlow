@@ -101,6 +101,18 @@ class TeamService:
         )
         return list(res.scalars()), total
 
+    async def listar_por_liga(self, league_id: uuid.UUID) -> list[Team]:
+        """Interfaz de dominio para la clasificación (spec 008).
+
+        Sin paginación y con los inactivos incluidos: quién ocupa fila lo
+        decide el calculador, no esta consulta.
+        """
+        await self._exigir_liga(league_id)
+        res = await self.db.execute(
+            select(Team).where(Team.league_id == league_id).order_by(Team.created_at)
+        )
+        return list(res.scalars())
+
     async def obtener_equipo(self, team_id: uuid.UUID) -> Team | None:
         """Devuelve el equipo aunque esté inactivo (historial, research.md §3)."""
         return await self.db.get(Team, team_id)

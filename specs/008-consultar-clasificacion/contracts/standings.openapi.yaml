@@ -1,0 +1,106 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Clasificación pública
+  version: "1.0.0"
+  description: >
+    Tabla de posiciones de una liga, derivada en lectura de los partidos
+    finalizados. Recurso de solo lectura: no existe ninguna operación de
+    escritura sobre él (FR-002).
+servers:
+  - url: /api/v1
+paths:
+  /leagues/{leagueId}/standings:
+    get:
+      summary: Consultar la clasificación de una liga
+      operationId: getLeagueStandings
+      security: []
+      description: >
+        Devuelve la tabla completa, sin paginación, ya ordenada por puntos,
+        diferencia de goles, goles a favor y nombre normalizado del equipo.
+        Solo los partidos con status finished contribuyen.
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: >
+            Clasificación de la liga. items puede estar vacío si la liga aún no
+            tiene equipos; un equipo sin partidos jugados aparece con ceros.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Standings" }
+        "404":
+          description: Liga inexistente. error.code league_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "405":
+          description: >
+            Respuesta a cualquier verbo distinto de GET. La clasificación no se
+            edita por ninguna vía (FR-002); corregir una posición se hace
+            corrigiendo el resultado de origen en
+            PUT /matches/{matchId}/result.
+            El cuerpo NO usa el envelope compartido: este 405 lo genera el
+            router del framework antes de llegar a la aplicación, que solo
+            traduce a envelope sus propios errores de negocio y de validación.
+            El contrato afirma el código de estado, no la forma del cuerpo.
+components:
+  schemas:
+    Standings:
+      type: object
+      required: [league_id, items]
+      properties:
+        league_id: { type: string, format: uuid }
+        items:
+          type: array
+          description: Filas en orden de clasificación; position es 1..N sin huecos.
+          items: { $ref: "#/components/schemas/StandingsRow" }
+    StandingsRow:
+      type: object
+      required:
+        [
+          position,
+          team_id,
+          team_name,
+          played,
+          won,
+          drawn,
+          lost,
+          goals_for,
+          goals_against,
+          goal_difference,
+          points,
+        ]
+      properties:
+        position:
+          type: integer
+          minimum: 1
+          description: Posición en la tabla según el orden de FR-005 y FR-006.
+        team_id: { type: string, format: uuid }
+        team_name: { type: string }
+        played: { type: integer, minimum: 0, description: PJ; solo partidos finished. }
+        won: { type: integer, minimum: 0, description: G }
+        drawn: { type: integer, minimum: 0, description: E }
+        lost: { type: integer, minimum: 0, description: P }
+        goals_for: { type: integer, minimum: 0, description: GF }
+        goals_against: { type: integer, minimum: 0, description: GC }
+        goal_difference:
+          type: integer
+          description: GD = GF - GC; puede ser negativo.
+        points:
+          type: integer
+          minimum: 0
+          description: 3 por victoria, 1 por empate, 0 por derrota (FR-003).
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
