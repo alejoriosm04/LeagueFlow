@@ -59,8 +59,8 @@ export function MatchesPage() {
         <ul>
           {partidos.map((p) => (
             <li key={p.id}>
-              {nombre(p.home_team_id)} vs {nombre(p.away_team_id)} —{' '}
-              {formatearFecha(p.scheduled_at)} ({p.status})
+              <Link to={`/matches/${p.id}`}>{nombre(p.home_team_id)} vs {nombre(p.away_team_id)}</Link>{' '}
+              — {formatearFecha(p.scheduled_at)} ({p.status})
             </li>
           ))}
         </ul>

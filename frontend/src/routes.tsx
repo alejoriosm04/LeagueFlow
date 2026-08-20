@@ -7,6 +7,7 @@ import { LeagueDetailPage } from './features/leagues/LeagueDetailPage';
 import { LeaguesPage } from './features/leagues/LeaguesPage';
 import { CreateMatchForm } from './features/matches/CreateMatchForm';
 import { MatchesPage } from './features/matches/MatchesPage';
+import { MatchDetailPage } from './features/matches/MatchDetailPage';
 import { CreatePlayerForm } from './features/players/CreatePlayerForm';
 import { PlayersPage } from './features/players/PlayersPage';
 import { CreateTeamForm } from './features/teams/CreateTeamForm';
@@ -50,6 +51,7 @@ export function AppRoutes() {
         }
       />
       <Route path="/leagues/:id/matches" element={<MatchesPage />} />
+      <Route path="/matches/:matchId" element={<MatchDetailPage />} />
       <Route
         path="/leagues/:id/matches/new"
         element={
