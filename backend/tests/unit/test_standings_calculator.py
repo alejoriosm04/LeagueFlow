@@ -7,7 +7,13 @@ reglas se prueban aquí sin base de datos ni HTTP.
 
 import uuid
 
-from src.statistics.calculator import EquipoEnTabla, PartidoParaTabla, calcular_clasificacion
+from src.statistics.calculator import (
+    SCORING,
+    EquipoEnTabla,
+    PartidoParaTabla,
+    ScoringRules,
+    calcular_clasificacion,
+)
 
 
 def equipo(nombre: str, activo: bool = True) -> EquipoEnTabla:
@@ -36,6 +42,13 @@ def sin_jugar(local, visitante, estado) -> PartidoParaTabla:
 
 def por_nombre(tabla) -> dict:
     return {fila.team_name: fila for fila in tabla}
+
+
+def test_scoring_rules_valores_por_defecto():
+    """El punto de extensión de puntuación expone los valores estándar 3/1/0."""
+    assert (SCORING.win_points, SCORING.draw_points, SCORING.loss_points) == (3, 1, 0)
+    reglas = ScoringRules()
+    assert (reglas.win_points, reglas.draw_points, reglas.loss_points) == (3, 1, 0)
 
 
 def test_victoria_da_tres_puntos_y_derrota_cero():
