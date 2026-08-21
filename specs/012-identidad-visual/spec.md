@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Input**: User description: "HU12 — Identidad visual y experiencia de usuario consistente en toda la aplicación. Como cualquier usuario de LeagueFlow (espectador, operador u organizador), quiero que la aplicación se vea y se comporte como un producto real y no como un prototipo sin estilos, para poder navegarla con confianza y entender el estado de la liga de un vistazo. Referencia visual obligatoria: el mockup ASCII del dashboard en `docs/enunciado.md` §2 y las capturas de referencia de ese mismo documento."
+**Input**: User description: "HU11 — Identidad visual y experiencia de usuario consistente en toda la aplicación. Como cualquier usuario de LeagueFlow (espectador, operador u organizador), quiero que la aplicación se vea y se comporte como un producto real y no como un prototipo sin estilos, para poder navegarla con confianza y entender el estado de la liga de un vistazo. Referencia visual obligatoria: el mockup ASCII del dashboard en `docs/enunciado.md` §2 y las capturas de referencia de ese mismo documento."
 
 ## Dependencies
 
