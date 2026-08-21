@@ -99,9 +99,14 @@ describe('LoginPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     const alerta = await screen.findByRole('alert');
-    expect(alerta).toHaveTextContent('Usuario o contraseña incorrectos.');
+    // FR-015 / SC-003 (spec 012): el texto ya no es el `message` del servidor,
+    // sino la traducción del catálogo indexada por `code`. Sigue siendo
+    // genérico, que es lo que esta prueba protege.
+    expect(alerta).toHaveTextContent('El usuario o la contraseña no son correctos.');
     // FR-010: el mensaje no debe revelar si el identificador existe.
     expect(alerta.textContent).not.toContain('quien-sea');
+    // Y no se filtra el código crudo del envelope.
+    expect(alerta.textContent).not.toContain('invalid_credentials');
   });
 });
 

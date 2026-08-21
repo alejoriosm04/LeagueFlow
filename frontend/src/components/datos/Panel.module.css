@@ -1,0 +1,58 @@
+.panel {
+  background-color: var(--lf-color-superficie);
+  border: 1px solid var(--lf-color-borde);
+  border-radius: var(--lf-radio-xl);
+  box-shadow: var(--lf-sombra-3);
+  margin-bottom: var(--lf-espacio-5);
+  overflow: hidden;
+}
+
+.encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lf-espacio-3);
+  flex-wrap: wrap;
+  padding: var(--lf-espacio-4) var(--lf-espacio-5);
+  border-bottom: 1px solid var(--lf-color-borde);
+  background: var(--lf-degradado-superficie);
+}
+
+/*
+ * Filete de acento antes del título: da identidad al panel sin depender del
+ * color para transmitir información (FR-028, FR-037 — el acento destaca, no
+ * comunica estado).
+ */
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  font-size: var(--lf-texto-lg);
+  margin: 0;
+}
+
+.titulo::before {
+  content: '';
+  flex: 0 0 auto;
+  width: var(--lf-espacio-1);
+  height: var(--lf-espacio-5);
+  border-radius: var(--lf-radio-pastilla);
+  background: var(--lf-degradado-acento);
+}
+
+.acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-2);
+}
+
+.cuerpo {
+  padding: var(--lf-espacio-5);
+}
+
+@media (max-width: 767px) {
+  .encabezado,
+  .cuerpo {
+    padding: var(--lf-espacio-4);
+  }
+}

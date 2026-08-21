@@ -1,0 +1,35 @@
+.escudo,
+.sustituto {
+  /* El sustituto ocupa exactamente el mismo cuadro que el escudo real para
+     que la columna no se desalinee (FR-012). */
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--lf-radio-sm);
+  border: 1px solid var(--lf-color-borde);
+  background-color: var(--lf-color-superficie-alt);
+  overflow: hidden;
+}
+
+.sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: var(--lf-texto-xs);
+}
+
+.md {
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: var(--lf-texto-sm);
+}
+
+.escudo {
+  object-fit: contain;
+}
+
+.sustituto {
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto-suave);
+  letter-spacing: 0.02em;
+}

@@ -164,7 +164,12 @@ describe('MatchesPage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByText(/Ingeniería FC vs Medicina FC/)).toBeInTheDocument();
+    // FR-009 (spec 012): el marcador pasa al formato único
+    // "LOCAL 3 — 1 VISITANTE", así que el texto "X vs Y" ya no existe
+    // salvo en partidos sin resultado. Se consulta por rol y por el
+    // nombre del equipo, que es lo estable frente al remarcado.
+    const fila = await screen.findByRole('link', { name: /Ingeniería FC/ });
+    expect(fila).toHaveAccessibleName(/Medicina FC/);
   });
 });
 
@@ -205,7 +210,10 @@ describe('CreateMatchForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /programar partido/i }));
 
     const alerta = await screen.findByRole('alert');
-    expect(alerta).toHaveTextContent('Un equipo no puede enfrentarse a sí mismo.');
+    // FR-015 / SC-003 (spec 012): el texto sale del catálogo en español
+    // indexado por `code`, no del `message` del servidor. Misma regla, misma
+    // afirmación, redacción del catálogo.
+    expect(alerta).toHaveTextContent('Un equipo no puede jugar contra sí mismo.');
   });
 
   it('programa el partido y navega al listado', async () => {

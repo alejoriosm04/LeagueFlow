@@ -1,0 +1,21 @@
+.datos {
+  margin: 0;
+}
+
+.datos dt {
+  font-size: var(--lf-texto-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lf-color-texto-suave);
+}
+
+.datos dd {
+  margin: 0 0 var(--lf-espacio-4);
+}
+
+.accesos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--lf-espacio-4);
+  margin: 0;
+}

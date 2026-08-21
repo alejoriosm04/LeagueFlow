@@ -139,7 +139,11 @@ describe('CreatePlayerForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /registrar jugador/i }));
 
     const alerta = await screen.findByRole('alert');
-    expect(alerta).toHaveTextContent('Ya existe un jugador con ese dorsal en este equipo.');
+    // FR-015 / SC-003 (spec 012): el texto ya no es el `message` del servidor
+    // sino la traducción del catálogo, indexada por `code`. La afirmación es
+    // la misma —hay un error de campo legible— con el texto que impone el
+    // requisito nuevo.
+    expect(alerta).toHaveTextContent('Ese dorsal ya está asignado a otro jugador del equipo.');
   });
 
   it('registra el jugador y navega a la plantilla', async () => {

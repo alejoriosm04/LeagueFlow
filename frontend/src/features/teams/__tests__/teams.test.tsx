@@ -82,7 +82,10 @@ describe('TeamsPage', () => {
     renderTeamsPage();
 
     expect(await screen.findByText(/no hay equipos registrados/i)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /registrar equipo/i })).toHaveAttribute(
+    // FR-014 (spec 012): la acción del estado vacío dice qué hacer a
+    // continuación, y su etiqueta la fija el escenario 12 de quickstart.md:
+    // "Registrar el primer equipo". Mismo destino, misma afirmación.
+    expect(screen.getByRole('link', { name: /registrar el primer equipo/i })).toHaveAttribute(
       'href',
       '/leagues/l1/teams/new',
     );
@@ -103,9 +106,11 @@ describe('TeamsPage', () => {
     renderTeamsPage();
 
     expect(await screen.findByText('Ingeniería FC')).toBeInTheDocument();
-    // crest_url nulo -> no se renderiza <img>, sino la inicial del nombre.
+    // crest_url nulo -> no se renderiza <img>, sino las iniciales del equipo.
+    // FR-012 (spec 012) pide "las iniciales del equipo", no una sola letra:
+    // "Ingeniería FC" -> "IF". Misma afirmación, texto que impone el requisito.
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    expect(screen.getByText('I')).toBeInTheDocument();
+    expect(screen.getByText('IF')).toBeInTheDocument();
   });
 });
 
@@ -139,7 +144,11 @@ describe('CreateTeamForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /registrar equipo/i }));
 
     const alerta = await screen.findByRole('alert');
-    expect(alerta).toHaveTextContent('Ya existe un equipo con ese nombre en esta liga.');
+    // FR-015 / SC-003 (spec 012): el texto ya no es el `message` del servidor
+    // sino la traducción del catálogo, indexada por `code`. La afirmación es
+    // la misma —hay un error de campo legible— con el texto que impone el
+    // requisito nuevo.
+    expect(alerta).toHaveTextContent('Ya hay un equipo con ese nombre en esta liga.');
   });
 
   it('registra el equipo y navega al listado', async () => {
@@ -158,7 +167,7 @@ describe('CreateTeamForm', () => {
     );
 
     await userEvent.type(screen.getByLabelText('Nombre'), 'Ingeniería FC');
-    await userEvent.type(screen.getByLabelText('Colores (opcional)'), 'azul/blanco');
+    await userEvent.type(screen.getByLabelText('Colores'), 'azul/blanco');
     await userEvent.click(screen.getByRole('button', { name: /registrar equipo/i }));
 
     expect(await screen.findByText('listado de equipos')).toBeInTheDocument();

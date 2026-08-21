@@ -1,0 +1,159 @@
+/*
+ * Reorganización de la ficha del partido: cada bloque de contenido vive en
+ * su propio `Panel` (resumen, goles, correcciones) y las acciones sobre ese
+ * bloque —formularios— quedan justo debajo, nunca intercaladas entre los
+ * datos. El ritmo vertical lo da este `gap`, no los márgenes sueltos de cada
+ * pieza, así que un bloque nuevo no tiene que adivinar cuánto espacio dejar.
+ */
+.pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-4);
+}
+
+.resumen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-2);
+}
+
+.fecha {
+  font-size: var(--lf-texto-sm);
+  color: var(--lf-color-texto-suave);
+}
+
+.textoVacio {
+  margin: 0;
+  color: var(--lf-color-texto-suave);
+  font-size: var(--lf-texto-sm);
+}
+
+.aviso {
+  padding: var(--lf-espacio-3);
+  border-radius: var(--lf-radio-sm);
+  background-color: var(--lf-color-aviso-tinte);
+  color: var(--lf-color-aviso);
+  font-size: var(--lf-texto-sm);
+  margin: 0 0 var(--lf-espacio-4);
+}
+
+/* --- Goles ------------------------------------------------------------ */
+
+.golesLista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.golItem {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  padding: var(--lf-espacio-3) 0;
+}
+
+.golItem + .golItem {
+  border-top: 1px solid var(--lf-color-borde);
+}
+
+.golMarcador {
+  flex: 0 0 auto;
+  width: var(--lf-espacio-2);
+  height: var(--lf-espacio-2);
+  border-radius: var(--lf-radio-pastilla);
+  background-color: var(--lf-color-primario);
+}
+
+.golJugador {
+  flex: 1;
+  font-weight: var(--lf-peso-medio);
+  color: var(--lf-color-texto);
+}
+
+.golMinuto {
+  flex: 0 0 auto;
+  font-family: var(--lf-fuente-numerica);
+  font-variant-numeric: tabular-nums;
+  color: var(--lf-color-texto-suave);
+  font-size: var(--lf-texto-sm);
+}
+
+/* --- Correcciones ------------------------------------------------------ */
+
+.correcciones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-4);
+}
+
+.correccionItem {
+  padding: var(--lf-espacio-4);
+  border: 1px solid var(--lf-color-borde);
+  border-radius: var(--lf-radio-lg);
+  background-color: var(--lf-color-superficie-alt);
+}
+
+.correccionCabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lf-espacio-3);
+  margin-bottom: var(--lf-espacio-2);
+}
+
+.correccionMarcador {
+  font-family: var(--lf-fuente-numerica);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto);
+}
+
+.correccionMotivo {
+  margin: 0 0 var(--lf-espacio-2);
+  color: var(--lf-color-texto);
+}
+
+.correccionMeta {
+  margin: 0;
+  font-size: var(--lf-texto-xs);
+  color: var(--lf-color-texto-suave);
+}
+
+.correccionMeta + .correccionMeta {
+  margin-top: var(--lf-espacio-1);
+}
+
+/*
+ * Vocabulario propio de ResultCorrection (pending/approved/rejected),
+ * distinto del de DistintivoDeEstado (MatchStatus) — ver comentario de
+ * MatchDetailPage.tsx. FR-010/FR-028: el texto identifica el estado, el
+ * color es redundante.
+ */
+.pildora {
+  flex: 0 0 auto;
+  padding: var(--lf-espacio-1) var(--lf-espacio-3);
+  border-radius: var(--lf-radio-pastilla);
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-fuerte);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pending {
+  color: var(--lf-color-aviso);
+  background-color: var(--lf-color-aviso-tinte);
+}
+
+.approved {
+  color: var(--lf-color-exito);
+  background-color: var(--lf-color-exito-tinte);
+}
+
+.rejected {
+  color: var(--lf-color-peligro);
+  background-color: var(--lf-color-peligro-tinte);
+}

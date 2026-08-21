@@ -142,7 +142,11 @@ describe('CreateLeagueForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /crear liga/i }));
 
     const alerta = await screen.findByRole('alert');
-    expect(alerta).toHaveTextContent('Ya existe una liga con ese nombre y temporada.');
+    // FR-015 / SC-003 (spec 012): el texto ya no es el `message` del servidor
+    // sino la traducción del catálogo, indexada por `code`. La afirmación es
+    // la misma —hay un error de campo legible— con el texto que impone el
+    // requisito nuevo.
+    expect(alerta).toHaveTextContent('Ya existe una liga con ese nombre en esa temporada.');
   });
 
   it('crea la liga y navega a su ficha', async () => {

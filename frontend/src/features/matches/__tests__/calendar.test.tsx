@@ -54,8 +54,15 @@ describe('calendario público', () => {
     renderPage();
     expect(await screen.findByRole('heading', { name: 'Próximos partidos' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Partidos jugados' })).toBeInTheDocument();
-    expect(screen.getAllByText(/Tigres vs Halcones/)).toHaveLength(4);
-    expect(screen.getByText(/3–1/)).toBeInTheDocument();
+    // FR-009 (spec 012): el marcador pasa al formato único
+    // "LOCAL 3 — 1 VISITANTE", así que el texto "X vs Y" ya no existe
+    // salvo en partidos sin resultado. Se consulta por rol y por el
+    // nombre del equipo, que es lo estable frente al remarcado.
+    expect(screen.getAllByRole('link', { name: /Tigres/ })).toHaveLength(4);
+    // El marcador del partido jugado, en el formato de FR-009.
+    expect(screen.getByText('3 — 1')).toBeInTheDocument();
+    // Y el estado se lee por texto, no solo por color (FR-010).
+    expect(screen.getAllByText('Finalizado').length).toBeGreaterThan(0);
     expect(screen.queryByRole('link', { name: /programar partido/i })).not.toBeInTheDocument();
   });
 
@@ -95,7 +102,7 @@ describe('calendario público', () => {
     );
     await userEvent.click(await screen.findByRole('link', { name: 'Ver partidos' }));
     expect(await screen.findByRole('heading', { name: 'Próximos partidos' })).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Tigres vs Halcones' })[0]).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /Tigres/ })[0]).toBeInTheDocument();
   });
 
   it('recorre dos páginas y muestra los 190 partidos', async () => {
@@ -122,6 +129,6 @@ describe('calendario público', () => {
     }));
     renderPage();
     expect(await screen.findByRole('heading', { name: 'Próximos partidos' })).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Tigres vs Halcones' })).toHaveLength(190);
+    expect(screen.getAllByRole('link', { name: /Tigres/ })).toHaveLength(190);
   });
 });

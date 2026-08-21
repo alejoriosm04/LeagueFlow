@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ApiError } from '../../services/apiClient';
+import { Boton, CampoDeFormulario, EstadoError } from '../../components';
+import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { playersApi } from './api';
 
 export function CreatePlayerForm() {
@@ -9,50 +10,70 @@ export function CreatePlayerForm() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
   const [position, setPosition] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [fallo, setFallo] = useState<unknown>(null);
   const [enviando, setEnviando] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!teamId) return;
-    setError(null);
+    setFallo(null);
     setEnviando(true);
     try {
       const dorsal = number.trim() === '' ? null : Number(number);
-      await playersApi.crear(teamId, {
-        name,
-        number: dorsal,
-        position: position || null,
-      });
+      await playersApi.crear(teamId, { name, number: dorsal, position: position || null });
       navigate(`/teams/${teamId}/players`);
     } catch (err) {
-      // 409 / 400: se muestra el error.message del envelope (FR-003, validation).
-      setError(err instanceof ApiError ? err.message : 'No fue posible registrar el jugador.');
+      setFallo(err);
     } finally {
       setEnviando(false);
     }
   }
 
+  const mensaje = fallo ? mensajeDeError(fallo) : null;
+  const campo = campoDelError(fallo);
+  // El dorsal duplicado llega con `field: "number"`; el resto se muestra como
+  // error general del formulario.
+  const errorDeDorsal = campo === 'number' ? mensaje : null;
+
   return (
-    <form onSubmit={onSubmit} style={{ maxWidth: 420 }}>
+    <form onSubmit={onSubmit} className="lf-formulario">
       <h1>Registrar jugador</h1>
-      <label htmlFor="name">Nombre</label>
-      <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
-      <label htmlFor="number">Dorsal (1–99, opcional)</label>
-      <input
+
+      <CampoDeFormulario
+        id="name"
+        etiqueta="Nombre"
+        requerido
+        error={campo === 'name' ? mensaje : null}
+      >
+        <input value={name} onChange={(e) => setName(e.target.value)} required />
+      </CampoDeFormulario>
+
+      <CampoDeFormulario
         id="number"
-        type="number"
-        min={1}
-        max={99}
-        value={number}
-        onChange={(e) => setNumber(e.target.value)}
-      />
-      <label htmlFor="position">Posición (opcional)</label>
-      <input id="position" value={position} onChange={(e) => setPosition(e.target.value)} />
-      {error && <p role="alert">{error}</p>}
-      <button type="submit" disabled={enviando}>
-        {enviando ? 'Registrando…' : 'Registrar jugador'}
-      </button>
+        etiqueta="Dorsal"
+        ayuda="Entre 1 y 99. Opcional."
+        error={errorDeDorsal}
+      >
+        <input
+          type="number"
+          min={1}
+          max={99}
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+        />
+      </CampoDeFormulario>
+
+      <CampoDeFormulario id="position" etiqueta="Posición" ayuda="Opcional.">
+        <input value={position} onChange={(e) => setPosition(e.target.value)} />
+      </CampoDeFormulario>
+
+      {mensaje && !errorDeDorsal && campo !== 'name' && <EstadoError mensaje={mensaje} />}
+
+      <div className="lf-acciones-formulario">
+        <Boton type="submit" enviando={enviando}>
+          Registrar jugador
+        </Boton>
+      </div>
     </form>
   );
 }

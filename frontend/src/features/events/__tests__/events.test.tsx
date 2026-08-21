@@ -104,7 +104,13 @@ describe('goles del partido', () => {
   it('advierte cuando los goles no cuadran con el marcador', async () => {
     vi.stubGlobal('fetch', stubFetch({ cuadra: false }).fn);
     renderFicha();
-    expect(await screen.findByRole('status')).toHaveTextContent(/no coinciden con el marcador/i);
+    // El estado de carga también lleva role="status" (EstadoCarga, FR-013):
+    // hay que esperar a que la sección de goles exista para no atrapar ese
+    // aviso transitorio en vez del de inconsistencia.
+    const seccion = await screen.findByRole('region', { name: /goles/i });
+    expect(await within(seccion).findByRole('status')).toHaveTextContent(
+      /no coinciden con el marcador/i,
+    );
   });
 
   it('no advierte cuando los goles cuadran', async () => {

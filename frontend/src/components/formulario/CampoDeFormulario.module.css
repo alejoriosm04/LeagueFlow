@@ -1,0 +1,68 @@
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-1);
+  margin-bottom: var(--lf-espacio-4);
+}
+
+.filaEtiqueta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--lf-espacio-1);
+}
+
+.etiqueta {
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-medio);
+  color: var(--lf-color-texto);
+}
+
+.requerido {
+  color: var(--lf-color-peligro);
+}
+
+.ayuda {
+  font-size: var(--lf-texto-xs);
+  color: var(--lf-color-texto-suave);
+}
+
+/* FR-028: el error no se marca solo con color; lleva su propio texto. */
+.error {
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-medio);
+  color: var(--lf-color-peligro);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  padding: var(--lf-espacio-3);
+  border: 1px solid var(--lf-color-borde-fuerte);
+  border-radius: var(--lf-radio-md);
+  background-color: var(--lf-color-superficie);
+  color: var(--lf-color-texto);
+  width: 100%;
+  max-width: 26rem;
+  transition: border-color var(--lf-transicion), box-shadow var(--lf-transicion);
+}
+
+.campo input:hover,
+.campo select:hover,
+.campo textarea:hover {
+  border-color: var(--lf-color-primario);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campo input,
+  .campo select,
+  .campo textarea {
+    transition: none;
+  }
+}
+
+.conError input,
+.conError select,
+.conError textarea {
+  border-color: var(--lf-color-peligro);
+  border-width: 2px;
+}

@@ -1,0 +1,76 @@
+.icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--lf-espacio-4);
+  height: var(--lf-espacio-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+}
+
+.grid span {
+  background-color: currentcolor;
+  border-radius: 1px;
+}
+
+.cuadro {
+  width: 100%;
+  height: 100%;
+  border: 2px solid currentcolor;
+  border-radius: var(--lf-radio-sm);
+}
+
+.circulo {
+  width: 100%;
+  height: 100%;
+  border: 2px solid currentcolor;
+  border-radius: var(--lf-radio-pastilla);
+}
+
+.rombo {
+  width: 71%;
+  height: 71%;
+  border: 2px solid currentcolor;
+  transform: rotate(45deg);
+}
+
+.barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+}
+
+.barras span {
+  flex: 1;
+  background-color: currentcolor;
+  border-radius: 1px;
+}
+
+.barras span:nth-child(1) {
+  height: 40%;
+}
+
+.barras span:nth-child(2) {
+  height: 70%;
+}
+
+.barras span:nth-child(3) {
+  height: 100%;
+}
+
+.mediocirculo {
+  width: 100%;
+  height: 100%;
+  border: 2px solid currentcolor;
+  border-radius: var(--lf-radio-pastilla) var(--lf-radio-pastilla) var(--lf-radio-sm)
+    var(--lf-radio-sm);
+}

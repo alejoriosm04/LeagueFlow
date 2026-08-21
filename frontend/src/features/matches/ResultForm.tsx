@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { ApiError } from '../../services/apiClient';
+import { Boton, CampoDeFormulario, EstadoError } from '../../components';
+import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { matchesApi } from './api';
 
 export function ResultForm({ matchId, onSuccess }: { matchId: string; onSuccess: () => void }) {
   const [homeScore, setHomeScore] = useState('');
   const [awayScore, setAwayScore] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [errorLocal, setErrorLocal] = useState<string | null>(null);
+  const [fallo, setFallo] = useState<unknown>(null);
   const [enviando, setEnviando] = useState(false);
 
   async function onSubmit(event: React.FormEvent) {
@@ -13,30 +15,68 @@ export function ResultForm({ matchId, onSuccess }: { matchId: string; onSuccess:
     const home = Number(homeScore);
     const away = Number(awayScore);
     if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0) {
-      setError('Los goles deben ser enteros mayores o iguales a cero.');
+      setErrorLocal('Los goles deben ser enteros mayores o iguales a cero.');
       return;
     }
-    setError(null);
+    setErrorLocal(null);
+    setFallo(null);
     setEnviando(true);
     try {
       await matchesApi.registrarResultado(matchId, { home_score: home, away_score: away });
       onSuccess();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No fue posible registrar el resultado.');
+      setFallo(err);
     } finally {
       setEnviando(false);
     }
   }
 
+  const mensaje = errorLocal ?? (fallo ? mensajeDeError(fallo) : null);
+  const campo = errorLocal ? null : campoDelError(fallo);
+
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="lf-formulario">
       <h2>Registrar resultado</h2>
-      <label htmlFor="result-home">Goles local</label>
-      <input id="result-home" type="number" min="0" step="1" required value={homeScore} onChange={(e) => setHomeScore(e.target.value)} />
-      <label htmlFor="result-away">Goles visitante</label>
-      <input id="result-away" type="number" min="0" step="1" required value={awayScore} onChange={(e) => setAwayScore(e.target.value)} />
-      {error && <p role="alert">{error}</p>}
-      <button type="submit" disabled={enviando}>{enviando ? 'Registrando…' : 'Registrar resultado'}</button>
+
+      <CampoDeFormulario
+        id="result-home"
+        etiqueta="Goles local"
+        requerido
+        error={campo === 'home_score' ? mensaje : null}
+      >
+        <input
+          type="number"
+          min="0"
+          step="1"
+          required
+          value={homeScore}
+          onChange={(e) => setHomeScore(e.target.value)}
+        />
+      </CampoDeFormulario>
+
+      <CampoDeFormulario
+        id="result-away"
+        etiqueta="Goles visitante"
+        requerido
+        error={campo === 'away_score' ? mensaje : null}
+      >
+        <input
+          type="number"
+          min="0"
+          step="1"
+          required
+          value={awayScore}
+          onChange={(e) => setAwayScore(e.target.value)}
+        />
+      </CampoDeFormulario>
+
+      {mensaje && !campo && <EstadoError mensaje={mensaje} />}
+
+      <div className="lf-acciones-formulario">
+        <Boton type="submit" enviando={enviando}>
+          Registrar resultado
+        </Boton>
+      </div>
     </form>
   );
 }

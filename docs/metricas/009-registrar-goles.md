@@ -10,8 +10,8 @@
 | Tareas completadas | 23 |
 | Tests escritos (backend) | 39 funciones de prueba; 42 casos recolectados (16 unit, 8 contrato, 15 integración + 3 parametrizaciones) |
 | Tests escritos (frontend) | 6 |
-| Tests en verde al cerrar | 169 backend (76 unit+contrato, 93 integración) + 38 frontend |
-| Ciclos de corrección | 5 |
+| Tests en verde al cerrar | 205 backend + 44 frontend (suite completa tras integrar `main` con la 008 mezclada; 169 backend + 38 frontend antes de esa integración) |
+| Ciclos de corrección | 6 |
 | Archivos de código creados/modificados | 14 |
 
 **Ciclos de corrección**: cuántas veces hubo que volver sobre algo ya dado por
@@ -22,12 +22,13 @@ sospechoso en una HU no trivial.
 **Qué se reprocesó y por qué** (una línea por ciclo; es el dato más valioso
 para la comparativa SDD vs. prompts sueltos del caso de negocio):
 
-- `/speckit-analyze` detectó que T007 y el quickstart mandaban comprobar la clasificación con `GET /leagues/{id}/standings`, endpoint de la spec 008 que **no existe en esta rama** porque 008 sigue sin mezclar; se sustituyó por la aserción sobre el marcador oficial del propio partido, que es el invariante realmente disponible.
+- `/speckit-analyze` detectó que T007 y el quickstart mandaban comprobar la clasificación con `GET /leagues/{id}/standings`, endpoint de la spec 008 que no existía en la rama porque 008 seguía sin mezclar; se sustituyó por la aserción sobre el marcador oficial del propio partido, que era el invariante disponible. Al mezclarse 008 (PR #36) se cumplió la condición que T007 dejó escrita y se añadió también la aserción sobre la clasificación.
 - `/speckit-analyze` detectó que T006 pedía probar `403 insufficient_role` en un endpoint que acepta los dos únicos roles existentes: el 403 es inalcanzable ahí. Se sustituyó por afirmar el `401` anónimo y que ambos roles son aceptados.
 - `/speckit-analyze` detectó que FR-004 solo tenía cobertura de diseño (CHECK y `Literal`) y ninguna prueba de comportamiento; se añadió el caso `type: "RED_CARD"` → `400`.
 - La fixture nueva se escribió apoyándose en dos helpers de `conftest.py` que existen en la rama de la 008 pero no en `main`; hubo que reescribirla autocontenida, lo que además evita definiciones duplicadas al mezclar los dos PR en paralelo.
 - En la fase roja, `test_registrar_goles_no_altera_el_marcador_oficial` pasaba en vacío: no afirmaba que los `POST` tuvieran éxito, así que con el endpoint ausente el marcador "no cambiaba" trivialmente. Se reforzó exigiendo `201` en cada registro.
 - Limpiezas tras las compuertas: dos líneas de más de 100 caracteres que rompían Ruff E501 en las pruebas de integración.
+- Al integrar `main` con la 008 ya mezclada hubo que resolver a mano un conflicto en `backend/tests/conftest.py`: las dos ramas habían añadido fixtures distintas al final del archivo. Se conservaron ambos bloques; la suite completa (205 backend + 44 frontend) quedó en verde tras la resolución. Es el mismo choque que ya se había anticipado al escribir la fixture autocontenida — la rama salió de `main` antes del squash de 008 y arrastró esa deuda hasta el final.
 
 ## Llenado por la persona (dos números, al cerrar)
 
