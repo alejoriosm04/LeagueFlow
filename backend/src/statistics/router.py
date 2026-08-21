@@ -6,8 +6,17 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.db import get_db
-from src.statistics.schemas import DashboardSummary, Standings
-from src.statistics.service import DashboardService, StandingsService
+from src.statistics.schemas import (
+    DashboardSummary,
+    PlayerStatistics,
+    Standings,
+    TopScorers,
+)
+from src.statistics.service import (
+    DashboardService,
+    PlayerStatisticsService,
+    StandingsService,
+)
 
 router = APIRouter(tags=["standings"])
 
@@ -37,3 +46,22 @@ async def obtener_dashboard(
     (FR-002) sin que la respuesta deje de ser 200.
     """
     return await DashboardService(db).obtener_resumen(liga_id)
+
+
+# --- Estadísticas de jugador (spec 010) --------------------------------------
+
+
+@router.get("/players/{player_id}/statistics")
+async def obtener_ficha_jugador(
+    player_id: uuid.UUID, db: AsyncSession = Depends(get_db)
+) -> PlayerStatistics:
+    """FR-010, FR-011: consulta pública, sin sesión."""
+    return await PlayerStatisticsService(db).obtener_ficha_jugador(player_id)
+
+
+@router.get("/leagues/{league_id}/top-scorers")
+async def obtener_tabla_goleadores(
+    league_id: uuid.UUID, db: AsyncSession = Depends(get_db)
+) -> TopScorers:
+    """FR-009, FR-011: consulta pública, ordenada por goles descendente (NFR-003)."""
+    return await PlayerStatisticsService(db).tabla_goleadores(league_id)
