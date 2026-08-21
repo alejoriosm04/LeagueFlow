@@ -8,6 +8,12 @@
 
 **Input**: User description: "Un organizador de una liga necesita poder dividir los equipos inscritos en grupos o divisiones (por ejemplo \"Grupo A\" y \"Grupo B\") para organizar torneos con fase de grupos. Necesita crear, renombrar y eliminar grupos dentro de su liga, y asignar cada equipo a un grupo (un equipo pertenece como máximo a un grupo por liga). Cualquier visitante, sin iniciar sesión, debe poder consultar qué equipos están en cada grupo de una liga. Una liga sin grupos definidos sigue funcionando exactamente igual que hoy."
 
+## Clarifications
+
+### Session 2026-08-21
+
+- Q: ¿Cómo deben tratarse los equipos inactivos en la organización por grupos? → A: Los equipos inactivos se muestran en la composición si ya pertenecen al grupo (historial), pero NO se pueden asignar a un grupo nuevo.
+
 ## Dependencies
 
 Historia **aditiva** sobre el modelo ya entregado. No re-decide stack ni modelo
@@ -112,6 +118,8 @@ y verificar que muestra cada grupo con sus equipos.
   evalúa de forma normalizada (mismo criterio que ligas y equipos).
 - ¿Qué ocurre con una liga sin grupos? Funciona exactamente igual que hoy: la
   clasificación y el resto de la operación no dependen de los grupos.
+- ¿Qué ocurre si se intenta asignar un equipo inactivo a un grupo? Se rechaza;
+  los equipos inactivos solo permanecen en la composición si ya eran miembros.
 
 ## Requirements *(mandatory)*
 
@@ -134,6 +142,10 @@ y verificar que muestra cada grupo con sus equipos.
   grupos de una liga y su composición.
 - **FR-010**: Una liga sin grupos MUST mantener intacto el comportamiento del
   resto de la aplicación (la clasificación no depende de los grupos).
+- **FR-011**: El sistema MUST rechazar la asignación de un equipo inactivo a un
+  grupo (solo equipos activos son asignables).
+- **FR-012**: La composición pública MUST incluir los equipos inactivos que ya
+  pertenecen al grupo.
 
 ### Key Entities
 
