@@ -35,6 +35,8 @@ export function LeagueDetailPage() {
         <Link to={`/leagues/${liga.id}/matches`}>Ver partidos</Link>
         {' · '}
         <Link to={`/leagues/${liga.id}/standings`}>Ver clasificación</Link>
+        {' · '}
+        <Link to={`/leagues/${liga.id}/top-scorers`}>Ver goleadores</Link>
       </p>
     </section>
   );

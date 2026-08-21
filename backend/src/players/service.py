@@ -105,3 +105,22 @@ class PlayerService:
     async def obtener_jugador(self, player_id: uuid.UUID) -> Player | None:
         """Devuelve el jugador aunque esté inactivo (historial, research.md §3)."""
         return await self.db.get(Player, player_id)
+
+    async def mapa_nombres(self, player_ids: list[uuid.UUID]) -> dict[uuid.UUID, str]:
+        """Interfaz de dominio para alineaciones (spec 010): id -> nombre, en lote."""
+        if not player_ids:
+            return {}
+        res = await self.db.execute(select(Player.id, Player.name).where(Player.id.in_(player_ids)))
+        return dict(res.all())
+
+    async def listar_por_equipos(self, team_ids: list[uuid.UUID]) -> list[Player]:
+        """Interfaz de dominio para estadísticas (spec 010).
+
+        Sin paginación y con los inactivos incluidos (mismo criterio que
+        `TeamService.listar_por_liga`): un jugador dado de baja conserva su
+        historial de goles y partidos jugados.
+        """
+        if not team_ids:
+            return []
+        res = await self.db.execute(select(Player).where(Player.team_id.in_(team_ids)))
+        return list(res.scalars())

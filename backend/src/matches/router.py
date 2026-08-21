@@ -17,11 +17,13 @@ from src.matches.schemas import (
     Match,
     MatchEvent,
     MatchEvents,
+    MatchLineupView,
     MatchStatus,
     PaginatedCorrections,
     PaginatedMatches,
     ResultCorrection,
     ScoreInput,
+    UpsertLineupInput,
 )
 from src.matches.service import MatchService
 
@@ -168,3 +170,27 @@ async def listar_eventos(partido_id: uuid.UUID, db: AsyncSession = Depends(get_d
         items=[MatchEvent.model_validate(e) for e in eventos],
         consistency=consistencia,
     )
+
+
+# --- Alineaciones (spec 010) ------------------------------------------------
+
+
+@router.put("/matches/{partido_id}/lineup")
+async def guardar_alineacion(
+    partido_id: uuid.UUID,
+    datos: UpsertLineupInput,
+    actor: Usuario = Depends(requiere_rol("operador", "organizador")),
+    db: AsyncSession = Depends(get_db),
+) -> MatchLineupView:
+    """FR-001, FR-005: solo operador u organizador. Reemplazo completo (research.md §1)."""
+    return await MatchService(db).guardar_alineacion(
+        partido_id, datos.home_player_ids, datos.away_player_ids, actor.id
+    )
+
+
+@router.get("/matches/{partido_id}/lineup")
+async def obtener_alineacion(
+    partido_id: uuid.UUID, db: AsyncSession = Depends(get_db)
+) -> MatchLineupView:
+    """FR-004: consulta pública. `status` señala si la alineación existe."""
+    return await MatchService(db).obtener_alineacion(partido_id)

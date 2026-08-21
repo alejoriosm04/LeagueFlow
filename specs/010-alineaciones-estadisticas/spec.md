@@ -52,8 +52,10 @@ ordena bien.
    sus estadísticas, **Then** se muestran cero goles y cero partidos jugados
    en lugar de un error o una ficha vacía.
 7. **Given** una corrección de resultado aprobada que elimina un gol, **When**
-   se consultan las estadísticas del goleador, **Then** el conteo refleja la
-   corrección.
+  se consultan las estadísticas del goleador, **Then** el conteo refleja la
+  corrección **solo cuando la corrección elimina o anula el evento GOAL** que
+  originaba ese gol; un cambio de marcador oficial sin cambio de eventos no
+  altera la tabla de goleadores.
 8. **Given** un visitante sin sesión o un espectador, **When** intenta
    registrar una alineación, **Then** el sistema rechaza la operación; **When**
    consulta estadísticas, **Then** accede sin autenticarse.
@@ -95,11 +97,14 @@ forma permanente. La desviación está registrada en
 - **FR-001**: El operador MUST poder registrar la alineación de un partido: el
   conjunto de jugadores que participaron, por cada uno de los dos equipos.
 - **FR-002**: El sistema MUST rechazar la inclusión en la alineación de un
-  jugador que no pertenezca a ninguno de los dos equipos del partido.
+  jugador que no pertenezca a ninguno de los dos equipos del partido,
+  incluyendo jugadores de terceros equipos aunque pertenezcan a la misma liga.
 - **FR-003**: El sistema MUST permitir modificar la alineación de un partido
   mientras se mantenga la coherencia con los eventos ya registrados.
 - **FR-004**: La alineación MUST ser opcional: un partido puede finalizarse
   sin ella, y en ese caso el sistema MUST señalarlo en la ficha del partido.
+  La señalización MUST exponerse en API con `lineup_status` y valores
+  `registered` o `missing`.
 - **FR-005**: Registrar una alineación MUST requerir sesión con rol operador u
   organizador.
 
@@ -112,6 +117,9 @@ forma permanente. La desviación está registrada en
   como el número de partidos finalizados en cuya alineación figura.
 - **FR-008**: El sistema MUST NOT permitir editar directamente el conteo de
   goles, los partidos jugados ni ninguna estadística acumulada de un jugador.
+  En términos de contrato HTTP, los recursos de estadísticas son solo lectura:
+  no existen operaciones `POST`, `PUT`, `PATCH` ni `DELETE` para editar
+  estadísticas de jugadores.
 - **FR-009**: El espectador MUST poder consultar la tabla de goleadores de una
   liga, ordenada por goles descendente.
 - **FR-010**: El espectador MUST poder consultar la ficha estadística de un
@@ -130,6 +138,17 @@ forma permanente. La desviación está registrada en
   desde los eventos (`specs/009-registrar-goles`) y las alineaciones. Entidad
   propia de esta spec.
 
+## Non-Functional Requirements
+
+- **NFR-001 (Auditabilidad)**: Toda alta o corrección de alineación MUST quedar
+  auditada con `created_by`/`updated_at` y ser trazable al partido y al actor.
+- **NFR-002 (Seguridad en lecturas públicas)**: Las respuestas públicas de
+  estadísticas MUST excluir cualquier dato sensible (credenciales, tokens,
+  correos u otros identificadores no deportivos).
+- **NFR-003 (Determinismo del ranking)**: La tabla de goleadores MUST tener
+  orden determinista para empates (desempate estable explícito) para evitar
+  variaciones entre consultas idénticas.
+
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
@@ -144,8 +163,12 @@ forma permanente. La desviación está registrada en
 
 - **Alineación opcional**: registrar la alineación no es obligatorio para
   finalizar un partido. Los jugadores de un partido sin alineación no suman
-  partidos jugados, y la ficha del partido lo indica explícitamente.
+  partidos jugados, y la ficha del partido lo indica explícitamente mediante
+  `lineup_status = "missing"`.
 - **Coherencia alineación-eventos**: los goles solo pueden atribuirse a
   jugadores de la alineación cuando esta existe; si no existe, basta con que
   el jugador pertenezca a uno de los dos equipos.
+- **Semántica de correcciones**: "corrección de resultado" y "corrección de
+  eventos" son conceptos distintos. Un cambio de marcador sin cambiar eventos
+  no altera goleadores; eliminar/anular un evento GOAL sí altera goleadores.
 - **Idioma**: la interfaz está en español.
