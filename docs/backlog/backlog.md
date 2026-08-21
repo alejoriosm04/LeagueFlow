@@ -28,7 +28,14 @@
 > | User Story 8 (HU08) | `specs/009-registrar-goles/` |
 > | User Story 9 (HU09) | `specs/010-alineaciones-estadisticas/` |
 > | User Story 10 (HU10) | `specs/011-dashboard-liga/` |
+> | User Story 11 (HU11) — Identidad visual | `specs/012-identidad-visual/` |
 > | User Story 11-15 (HU11-15) | Backlog futuro / pool de demo en vivo — sin spec todavía |
+>
+> **Nota de renumeración**: `specs/012-identidad-visual` se incorpora como
+> **HU11** (historia transversal de presentación). Las antiguas HU11-HU15
+> (highlights, perfil de equipo, búsqueda, calendario todos-contra-todos y
+> exportación de clasificación) se replantearán y renumerarán en un paso
+> posterior; por ahora permanecen intactas.
 
 ## Clarifications
 
