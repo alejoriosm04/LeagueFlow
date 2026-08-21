@@ -11,10 +11,17 @@ from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.errors import ErrorDeNegocio
+from src.matches.schemas import Match
 from src.matches.service import MatchService
 from src.players.service import PlayerService
 from src.statistics.calculator import EquipoEnTabla, PartidoParaTabla, calcular_clasificacion
-from src.statistics.schemas import PlayerStatistics, Standings, TopScorerRow, TopScorers
+from src.statistics.schemas import (
+    DashboardSummary,
+    PlayerStatistics,
+    Standings,
+    TopScorerRow,
+    TopScorers,
+)
 from src.teams.service import TeamService
 
 
@@ -26,7 +33,6 @@ class StandingsService:
         """Deriva la tabla en lectura. Una liga inexistente produce 404."""
         equipos = await TeamService(self.db).listar_por_liga(league_id)
         partidos = await MatchService(self.db).listar_finalizados(league_id)
-
         filas = calcular_clasificacion(
             [
                 EquipoEnTabla(id=equipo.id, name=equipo.name, activo=equipo.status == "active")
@@ -44,6 +50,33 @@ class StandingsService:
             ],
         )
         return Standings(league_id=league_id, items=filas)
+
+
+class DashboardService:
+    """Orquestación del dashboard general de la liga — spec 011.
+
+    No reimplementa el filtro/orden de `MatchService` ni el cálculo de
+    `StandingsService`: los llama tal cual y recorta a 5 (research.md §2).
+    Sin SQL ni cálculo propio.
+    """
+
+    def __init__(self, db: AsyncSession) -> None:
+        self.db = db
+
+    async def obtener_resumen(self, league_id: uuid.UUID) -> DashboardSummary:
+        recientes, _ = await MatchService(self.db).listar_partidos(
+            league_id, page=1, page_size=5, match_status="finished"
+        )
+        proximos, _ = await MatchService(self.db).listar_partidos(
+            league_id, page=1, page_size=5, match_status="scheduled"
+        )
+        clasificacion = await StandingsService(self.db).obtener_clasificacion(league_id)
+        return DashboardSummary(
+            league_id=league_id,
+            recent_matches=[Match.model_validate(m) for m in recientes],
+            upcoming_matches=[Match.model_validate(m) for m in proximos],
+            top_standings=clasificacion.items[:5],
+        )
 
 
 class PlayerStatisticsService:
@@ -89,16 +122,13 @@ class PlayerStatisticsService:
         equipos = await TeamService(self.db).listar_por_liga(league_id)  # valida la liga (404)
         equipos_por_id = {equipo.id: equipo for equipo in equipos}
         jugadores = await PlayerService(self.db).listar_por_equipos(list(equipos_por_id))
-
         match_service = MatchService(self.db)
         ids = [jugador.id for jugador in jugadores]
         goles = await match_service.goles_por_jugadores(ids)
         partidos = await match_service.partidos_jugados_por_jugadores(ids)
-
         goleadores = [jugador for jugador in jugadores if goles.get(jugador.id, 0) > 0]
         goleadores.sort(key=lambda j: (-goles[j.id], j.name.strip().lower(), str(j.id)))
         maximo = goles[goleadores[0].id] if goleadores else 0
-
         filas = [
             TopScorerRow(
                 rank=posicion,

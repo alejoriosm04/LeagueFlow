@@ -8,6 +8,8 @@ import uuid
 
 from pydantic import BaseModel, Field
 
+from src.matches.schemas import Match
+
 
 class StandingsRow(BaseModel):
     """Fila de la tabla. El orden de los campos es el orden del contrato."""
@@ -30,6 +32,28 @@ class Standings(BaseModel):
 
     league_id: uuid.UUID
     items: list[StandingsRow]
+
+
+class DashboardSummary(BaseModel):
+    """Vista agregada de solo lectura — specs/011-dashboard-liga.
+
+    No es una entidad persistida: se compone en cada lectura recortando lo
+    que ya devuelven `MatchService.listar_partidos` (007) y
+    `StandingsService.obtener_clasificacion` (008) a 5 elementos cada uno.
+    `Match` y `StandingsRow` se reutilizan tal cual; este schema no
+    redeclara sus propiedades (Principio III).
+    """
+
+    league_id: uuid.UUID
+    recent_matches: list[Match] = Field(
+        max_length=5, description="Últimos 5 finalizados, más reciente primero."
+    )
+    upcoming_matches: list[Match] = Field(
+        max_length=5, description="Próximos 5 programados, más cercano primero."
+    )
+    top_standings: list[StandingsRow] = Field(
+        max_length=5, description="Primeras 5 filas de la clasificación."
+    )
 
 
 # --- Estadísticas de jugador (spec 010) -------------------------------------
@@ -66,4 +90,11 @@ class TopScorers(BaseModel):
     items: list[TopScorerRow]
 
 
-__all__ = ["PlayerStatistics", "Standings", "StandingsRow", "TopScorerRow", "TopScorers"]
+__all__ = [
+    "DashboardSummary",
+    "PlayerStatistics",
+    "Standings",
+    "StandingsRow",
+    "TopScorerRow",
+    "TopScorers",
+]

@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './features/auth/LoginPage';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { useAuth } from './features/auth/AuthContext';
+import { DashboardPage } from './features/dashboard/DashboardPage';
 import { CreateLeagueForm } from './features/leagues/CreateLeagueForm';
 import { LeagueDetailPage } from './features/leagues/LeagueDetailPage';
 import { LeaguesPage } from './features/leagues/LeaguesPage';
@@ -44,6 +45,7 @@ export function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/leagues" element={<LeaguesPage />} />
       <Route path="/leagues/:id" element={<LeagueDetailPage />} />
+      <Route path="/leagues/:id/dashboard" element={<DashboardPage />} />
       <Route path="/leagues/:id/teams" element={<TeamsPage />} />
       <Route
         path="/leagues/:id/teams/new"

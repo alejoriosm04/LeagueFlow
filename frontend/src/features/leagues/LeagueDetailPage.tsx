@@ -30,6 +30,8 @@ export function LeagueDetailPage() {
       </p>
       {liga.description && <p>{liga.description}</p>}
       <p>
+        <Link to={`/leagues/${liga.id}/dashboard`}>Ver dashboard</Link>
+        {' · '}
         <Link to={`/leagues/${liga.id}/teams`}>Ver equipos</Link>
         {' · '}
         <Link to={`/leagues/${liga.id}/matches`}>Ver partidos</Link>
