@@ -8,6 +8,12 @@
 
 **Input**: User description: "Un operador necesita registrar las tarjetas amarillas y rojas que recibe un jugador durante un partido en curso o finalizado. La tarjeta se registra como un evento del partido. El sistema debe derivar automáticamente, en cada consulta, si un jugador está suspendido (dos amarillas en partidos distintos o una roja). Cualquier visitante, sin iniciar sesión, debe poder consultar la ficha disciplinaria de un jugador: cuántas tarjetas tiene y si está suspendido."
 
+## Clarifications
+
+### Session 2026-08-21
+
+- Q: ¿La suspensión de un jugador tiene duración o expiración, o es una marca derivada que permanece toda la temporada? → A: Marca derivada sin expiración: "suspendido" = alcanzó el umbral (1 roja, o 2 amarillas en partidos distintos) en la temporada; no se cumple ni se borra.
+
 ## Dependencies
 
 Historia **aditiva** sobre el modelo ya entregado. No re-decide stack ni modelo
@@ -140,8 +146,8 @@ verificar que muestra el conteo de amarillas/rojas y su estado de suspensión.
 - **FR-006**: El equipo de la tarjeta MUST derivarse del jugador, NUNCA ser
   proporcionado por el cliente.
 - **FR-007**: El sistema MUST derivar la suspensión de un jugador en cada lectura
-  (una roja, o dos amarillas en partidos distintos), y MUST NOT almacenarla como
-  una bandera editable.
+  (una roja, o dos amarillas en partidos distintos) como una marca sin expiración
+  dentro de la temporada, y MUST NOT almacenarla como una bandera editable.
 - **FR-008**: Cualquier visitante, sin autenticación, MUST poder consultar la
   ficha disciplinaria de un jugador (conteo de amarillas y rojas, y estado de
   suspensión).
@@ -173,6 +179,9 @@ verificar que muestra el conteo de amarillas/rojas y su estado de suspensión.
 
 - **Acumulación por temporada**: la cuenta de amarillas es por toda la temporada
   (no se reinicia por jornada ni por fase).
+- **Suspensión sin expiración**: la marca "suspendido" no se cumple ni se borra
+  dentro de la temporada; es un estado derivado permanente de las tarjetas (roja
+  o dos amarillas en partidos distintos).
 - **Dos amarillas en el mismo partido** no disparan la suspensión por acumulación;
   solo cuentan amarillas en partidos distintos. Una expulsión por doble amarilla
   en el mismo partido se reflejaría registrando una tarjeta roja aparte.
