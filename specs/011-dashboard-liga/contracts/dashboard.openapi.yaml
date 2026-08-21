@@ -1,0 +1,145 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Dashboard público de la liga
+  version: "1.0.0"
+  description: >
+    Vista agregada de solo lectura que compone, en una sola respuesta, los
+    últimos 5 partidos finalizados, los próximos 5 partidos programados y los
+    5 primeros lugares de la clasificación de una liga. No introduce cálculos
+    propios: recorta lo que ya devuelven `GET /leagues/{leagueId}/matches`
+    (specs/007-consultar-calendario) y `GET /leagues/{leagueId}/standings`
+    (specs/008-consultar-clasificacion).
+servers:
+  - url: /api/v1
+paths:
+  /leagues/{leagueId}/dashboard:
+    get:
+      summary: Consultar el dashboard general de una liga
+      operationId: getLeagueDashboard
+      security: []
+      description: >
+        Recurso de solo lectura, sin autenticación (FR-003). Cada bloque
+        (recent_matches, upcoming_matches, top_standings) puede llegar vacío
+        cuando la liga aún no tiene partidos o equipos; la respuesta sigue
+        siendo 200, nunca un error (FR-002).
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Resumen del dashboard de la liga.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DashboardSummary" }
+        "400":
+          description: leagueId inválido (no es un UUID). error.code validation_error.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: Liga inexistente. error.code league_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+components:
+  schemas:
+    DashboardSummary:
+      type: object
+      required: [league_id, recent_matches, upcoming_matches, top_standings]
+      properties:
+        league_id: { type: string, format: uuid }
+        recent_matches:
+          type: array
+          maxItems: 5
+          description: >
+            Últimos 5 partidos con status finished, ordenados por scheduled_at
+            descendente (idéntico a status=finished en
+            GET /leagues/{leagueId}/matches). Vacío si la liga no tiene
+            partidos finalizados.
+          items: { $ref: "#/components/schemas/Match" }
+        upcoming_matches:
+          type: array
+          maxItems: 5
+          description: >
+            Próximos 5 partidos con status scheduled, ordenados por
+            scheduled_at ascendente (idéntico a status=scheduled en
+            GET /leagues/{leagueId}/matches). Vacío si la liga no tiene
+            partidos programados.
+          items: { $ref: "#/components/schemas/Match" }
+        top_standings:
+          type: array
+          maxItems: 5
+          description: >
+            Primeras 5 filas de GET /leagues/{leagueId}/standings, en el mismo
+            orden (FR-005/FR-006 de 008). Vacío solo si la liga no tiene
+            ningún equipo; un equipo sin partidos jugados aparece con ceros.
+          items: { $ref: "#/components/schemas/StandingsRow" }
+    Match:
+      type: object
+      required:
+        [
+          id,
+          league_id,
+          home_team_id,
+          away_team_id,
+          scheduled_at,
+          status,
+          home_score,
+          away_score,
+          created_by,
+          created_at,
+          updated_at,
+        ]
+      properties:
+        id: { type: string, format: uuid }
+        league_id: { type: string, format: uuid }
+        home_team_id: { type: string, format: uuid }
+        away_team_id: { type: string, format: uuid }
+        scheduled_at: { type: string, format: date-time }
+        status: { type: string, enum: [scheduled, in_progress, finished, cancelled] }
+        home_score: { type: integer, nullable: true, minimum: 0 }
+        away_score: { type: integer, nullable: true, minimum: 0 }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    StandingsRow:
+      type: object
+      required:
+        [
+          position,
+          team_id,
+          team_name,
+          played,
+          won,
+          drawn,
+          lost,
+          goals_for,
+          goals_against,
+          goal_difference,
+          points,
+        ]
+      properties:
+        position: { type: integer, minimum: 1 }
+        team_id: { type: string, format: uuid }
+        team_name: { type: string }
+        played: { type: integer, minimum: 0 }
+        won: { type: integer, minimum: 0 }
+        drawn: { type: integer, minimum: 0 }
+        lost: { type: integer, minimum: 0 }
+        goals_for: { type: integer, minimum: 0 }
+        goals_against: { type: integer, minimum: 0 }
+        goal_difference: { type: integer }
+        points: { type: integer, minimum: 0 }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
