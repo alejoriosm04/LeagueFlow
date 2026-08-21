@@ -241,6 +241,35 @@ PRs automáticos por dependencias vulnerables).
 
 ## 5. Reparto para la demo en vivo
 
+### 5.1 Bloque de trabajo paralelo (specs 013–017)
+
+Antes de la demo, cinco HU se desarrollan **en paralelo** por integrantes
+distintos, cada una en una zona independiente para minimizar conflictos
+(mapa en `docs/backlog/backlog.md`):
+
+| Spec | Zona / rol |
+|---|---|
+| `013-grupos-divisiones` | módulo nuevo `groups/` (frontend + servicio propio) |
+| `014-tarjetas-sanciones` | extiende `MatchEvent` + módulo `sanctions/` |
+| `015-exportacion-csv` | solo lectura; reempaqueta standings/calendario |
+| `016-auditoria` | middleware genérico + tabla `audit_log` |
+| `017-bloqueo-login` | seguridad en `auth/` (exclusivo) |
+
+Reglas para que el merge no se vuelva un caos:
+
+1. **Nadie corre `/speckit-plan` para re-decidir stack ni modelo** (AGENTS.md §5).
+   Cada `plan.md` referencia el de `001` y solo documenta lo que añade.
+2. **Migraciones en paralelo**: cuatro de las cinco specs migran. Orden de merge
+   pactado `013 → 014 → 016 → 017`; una migración por spec, y al mergear se
+   re-puntea `down_revision`. Protocolo completo en `AGENTS.md`, sección
+   "migraciones en paralelo".
+3. **Archivos compartidos de bajo riesgo**: `main.py` (una línea de router por
+   spec) y `frontend/src/routes.tsx` (una ruta por spec). Son adiciones de una
+   línea; se resuelven con rebase, no con magia.
+4. Cada spec commitea su `specs/NNN-*/` junto con el código, en su propio PR.
+
+### 5.2 Las 2 HU sorpresa del profesor
+
 El profesor asigna 2 HU nuevas en el momento, y **cada integrante debe correr el
 motor SDD desde su propia máquina**. Para que eso no se vuelva un caos:
 

@@ -101,3 +101,27 @@ Qué hacer:
    que su definición haya cambiado de verdad.
 3. Deja en la migración solo tu tabla/índice nuevo. Nunca toques índices
    existentes de specs anteriores (Principio IV: no romper lo que ya funciona).
+
+## Nota sobre migraciones en paralelo (bloque de trabajo paralelo)
+
+Las specs `013` a `017` se desarrollan **en paralelo** por integrantes distintos
+(Demo Day). Cuatro de ellas crean migraciones —013 (grupos), 014
+(tarjetas/sanciones), 016 (auditoría) y 017 (bloqueo de login)—; la 015
+(exportación a CSV) no persiste nada.
+
+Si dos personas corren `alembic revision --autogenerate` en paralelo contra el
+mismo `main`, Alembic genera dos migraciones con el mismo `down_revision` y deja
+**dos cabezas** en el historial. Eso rompe `alembic upgrade head` y el pipeline.
+
+Qué hacer:
+
+1. **Orden de merge pactado.** Las specs que migran se mezclan en orden fijo:
+   `013 → 014 → 016 → 017`. La `015` puede mezclarse en cualquier momento.
+2. **Una migración = un archivo**, generada contra `main` actualizado y revisada
+   según la nota de índices funcionales de arriba.
+3. **Al mergear, re-puntea `down_revision`.** Antes de abrir tu PR, rebasea tu
+   rama sobre `main` y deja que tu único archivo de migración apunte
+   (`down_revision`) a la cabeza ya mezclada. No uses `alembic merge heads` salvo
+   que sea estrictamente necesario.
+4. **No mezcles dos specs que migran "a ciegas" en la misma sesión** sin correr
+   `alembic upgrade head` desde base vacía al final (el CI ya lo hace en cada PR).
