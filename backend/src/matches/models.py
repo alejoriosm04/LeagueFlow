@@ -50,6 +50,11 @@ class Match(Base, UUIDPrimaryKey, TimestampCreated, TimestampUpdated):
             "(status <> 'finished' AND home_score IS NULL AND away_score IS NULL)",
             name="ck_matches_status_scores_coherent",
         ),
+        # specs/011-dashboard-liga/research.md §4: cubre el filtro + orden que
+        # ya usan listar_partidos (007) y listar_finalizados (008), y que el
+        # dashboard (011) reutiliza tal cual sin añadir consultas propias.
+        # Aditivo: no toca columnas ni constraints existentes.
+        Index("ix_matches_league_status_scheduled", "league_id", "status", "scheduled_at"),
     )
 
 

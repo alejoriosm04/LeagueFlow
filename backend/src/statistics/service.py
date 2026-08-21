@@ -9,9 +9,10 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.matches.schemas import Match
 from src.matches.service import MatchService
 from src.statistics.calculator import EquipoEnTabla, PartidoParaTabla, calcular_clasificacion
-from src.statistics.schemas import Standings
+from src.statistics.schemas import DashboardSummary, Standings
 from src.teams.service import TeamService
 
 
@@ -41,3 +42,31 @@ class StandingsService:
             ],
         )
         return Standings(league_id=league_id, items=filas)
+
+
+class DashboardService:
+    """Orquestación del dashboard general de la liga — spec 011.
+
+    No reimplementa el filtro/orden de `MatchService` ni el cálculo de
+    `StandingsService`: los llama tal cual y recorta a 5 (research.md §2).
+    Sin SQL ni cálculo propio.
+    """
+
+    def __init__(self, db: AsyncSession) -> None:
+        self.db = db
+
+    async def obtener_resumen(self, league_id: uuid.UUID) -> DashboardSummary:
+        recientes, _ = await MatchService(self.db).listar_partidos(
+            league_id, page=1, page_size=5, match_status="finished"
+        )
+        proximos, _ = await MatchService(self.db).listar_partidos(
+            league_id, page=1, page_size=5, match_status="scheduled"
+        )
+        clasificacion = await StandingsService(self.db).obtener_clasificacion(league_id)
+
+        return DashboardSummary(
+            league_id=league_id,
+            recent_matches=[Match.model_validate(m) for m in recientes],
+            upcoming_matches=[Match.model_validate(m) for m in proximos],
+            top_standings=clasificacion.items[:5],
+        )

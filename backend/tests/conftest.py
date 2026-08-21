@@ -576,3 +576,106 @@ async def clasificacion_empates(organizador_creado):
             resultado[clave] = {"league_id": str(liga.id), "orden_esperado": esperado}
         await s.commit()
     return resultado
+
+
+@pytest_asyncio.fixture
+async def dashboard_resumen(organizador_creado):
+    """Liga con más de 5 elementos en cada bloque del dashboard (spec 011).
+
+    7 equipos, 7 partidos `finished` y 7 `scheduled`, con fechas escalonadas
+    e insertados en un orden que NO coincide con el orden esperado de ningún
+    bloque — así, un dashboard que usara el orden de inserción en vez del
+    `scheduled_at` heredado de 007 (o el cálculo heredado de 008) fallaría
+    la prueba. Ninguna fixture existente cubre los tres bloques a la vez con
+    más de 5 elementos cada uno (`calendario_mixto` tiene 2+2,
+    `calendario_190` no tiene `finished`, `clasificacion_liga` tiene 5 filas).
+    """
+    from src.core.db import SessionLocal
+
+    async with SessionLocal() as s:
+        nombres = [f"Equipo dashboard {i}" for i in range(1, 8)]
+        liga, equipos = await _crear_liga_con_equipos(
+            s,
+            organizador_creado.id,
+            "Liga dashboard fixture",
+            [(n, "active") for n in nombres],
+        )
+        e1, e2, e3, e4, e5, e6, e7 = (equipos[n] for n in nombres)
+
+        # Partidos finalizados: offset en días desde `base_fin`, insertados
+        # fuera de orden. Marcadores elegidos para que el top 5 de la
+        # clasificación resultante no tenga empates (ver `clasificacion_esperada`).
+        base_fin = datetime(2026, 6, 1, 18, tzinfo=UTC)
+        finalizados = [
+            (e1, e2, 0, (2, 0)),
+            (e3, e4, 6, (1, 1)),
+            (e5, e6, 2, (3, 1)),
+            (e7, e1, 9, (0, 2)),
+            (e2, e3, 1, (1, 0)),
+            (e4, e5, 8, (2, 2)),
+            (e6, e7, 4, (1, 0)),
+        ]
+        por_offset_fin = {}
+        for local, visitante, offset, marcador in finalizados:
+            partido = _partido(
+                liga.id,
+                local,
+                visitante,
+                organizador_creado.id,
+                base_fin + timedelta(days=offset),
+                "finished",
+                marcador,
+            )
+            s.add(partido)
+            por_offset_fin[offset] = partido
+
+        # Partidos programados: mismo patrón, offsets futuros fuera de orden.
+        base_prox = datetime(2027, 1, 1, 18, tzinfo=UTC)
+        programados = [
+            (e1, e3, 5),
+            (e2, e4, 1),
+            (e5, e7, 8),
+            (e6, e1, 3),
+            (e3, e5, 9),
+            (e4, e6, 2),
+            (e7, e2, 6),
+        ]
+        por_offset_prox = {}
+        for local, visitante, offset in programados:
+            partido = _partido(
+                liga.id,
+                local,
+                visitante,
+                organizador_creado.id,
+                base_prox + timedelta(days=offset),
+                "scheduled",
+            )
+            s.add(partido)
+            por_offset_prox[offset] = partido
+
+        await s.commit()
+
+        return {
+            "league_id": str(liga.id),
+            "teams": {n: str(e.id) for n, e in equipos.items()},
+            # Los 5 finalizados más recientes (offset mayor = fecha más
+            # reciente), de más a menos reciente.
+            "recientes_esperados": [str(por_offset_fin[o].id) for o in (9, 8, 6, 4, 2)],
+            # Los 5 programados más próximos (offset menor = fecha más
+            # cercana), del más cercano en adelante.
+            "proximos_esperados": [str(por_offset_prox[o].id) for o in (1, 2, 3, 5, 6)],
+            # Top 5 de la clasificación calculada a mano desde `finalizados`:
+            # dashboard 1: PJ2 G2 E0 P0 GF4 GC0 GD+4 Pts6
+            # dashboard 5: PJ2 G1 E1 P0 GF5 GC3 GD+2 Pts4
+            # dashboard 6: PJ2 G1 E0 P1 GF2 GC3 GD-1 Pts3 (GF 2 > dashboard 2)
+            # dashboard 2: PJ2 G1 E0 P1 GF1 GC2 GD-1 Pts3
+            # dashboard 4: PJ2 E2 E0 P0 GF3 GC3 GD 0 Pts2
+            # (fuera del top 5: dashboard 3 con 1pt, dashboard 7 con 0pts)
+            "clasificacion_esperada": [
+                "Equipo dashboard 1",
+                "Equipo dashboard 5",
+                "Equipo dashboard 6",
+                "Equipo dashboard 2",
+                "Equipo dashboard 4",
+            ],
+        }
