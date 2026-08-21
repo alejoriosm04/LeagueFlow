@@ -134,3 +134,37 @@ class EventConsistency(BaseModel):
 class MatchEvents(BaseModel):
     items: list[MatchEvent]
     consistency: EventConsistency
+
+
+# --- Alineaciones (spec 010) ------------------------------------------------
+
+LineupStatus = Literal["registered", "missing"]
+
+
+class UpsertLineupInput(BaseModel):
+    """FR-001, FR-003. `PUT` reemplaza la alineación completa (home + away)."""
+
+    home_player_ids: list[uuid.UUID]
+    away_player_ids: list[uuid.UUID]
+
+    @field_validator("home_player_ids", "away_player_ids")
+    @classmethod
+    def sin_duplicados(cls, value: list[uuid.UUID]) -> list[uuid.UUID]:
+        if len(value) != len(set(value)):
+            raise ValueError("No se puede repetir un jugador en la misma alineación.")
+        return value
+
+
+class LineupPlayer(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    player_id: uuid.UUID
+    player_name: str
+    team_id: uuid.UUID
+
+
+class MatchLineupView(BaseModel):
+    match_id: uuid.UUID
+    status: LineupStatus
+    home_players: list[LineupPlayer]
+    away_players: list[LineupPlayer]

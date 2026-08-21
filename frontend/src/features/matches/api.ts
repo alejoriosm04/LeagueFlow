@@ -70,6 +70,29 @@ export interface PaginatedCorrections {
   total: number;
 }
 
+// --- Alineaciones (spec 010) ------------------------------------------------
+// Contrato: specs/010-alineaciones-estadisticas/contracts/lineups-statistics.openapi.yaml
+
+export type LineupStatus = 'registered' | 'missing';
+
+export interface LineupPlayer {
+  player_id: string;
+  player_name: string;
+  team_id: string;
+}
+
+export interface MatchLineupView {
+  match_id: string;
+  status: LineupStatus;
+  home_players: LineupPlayer[];
+  away_players: LineupPlayer[];
+}
+
+export interface UpsertLineupInput {
+  home_player_ids: string[];
+  away_player_ids: string[];
+}
+
 export const matchesApi = {
   listar: (leagueId: string, page = 1, pageSize = 20, status?: MatchStatus) =>
     apiClient.get<PaginatedMatches>(
@@ -104,4 +127,8 @@ export const matchesApi = {
     ),
   decidirCorreccion: (correctionId: string, datos: DecisionInput) =>
     apiClient.post<ResultCorrection>(`/result-corrections/${correctionId}/decision`, datos),
+  obtenerAlineacion: (matchId: string) =>
+    apiClient.get<MatchLineupView>(`/matches/${matchId}/lineup`),
+  guardarAlineacion: (matchId: string, datos: UpsertLineupInput) =>
+    apiClient.put<MatchLineupView>(`/matches/${matchId}/lineup`, datos),
 };

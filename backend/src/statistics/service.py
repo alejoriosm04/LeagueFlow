@@ -7,11 +7,14 @@ de negocio en `calculator.py`.
 
 import uuid
 
+from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.errors import ErrorDeNegocio
 from src.matches.service import MatchService
+from src.players.service import PlayerService
 from src.statistics.calculator import EquipoEnTabla, PartidoParaTabla, calcular_clasificacion
-from src.statistics.schemas import Standings
+from src.statistics.schemas import PlayerStatistics, Standings, TopScorerRow, TopScorers
 from src.teams.service import TeamService
 
 
@@ -41,3 +44,72 @@ class StandingsService:
             ],
         )
         return Standings(league_id=league_id, items=filas)
+
+
+class PlayerStatisticsService:
+    """Estadísticas de jugador — spec 010 (FR-006 a FR-011).
+
+    Al igual que `StandingsService`, no importa los modelos de `matches` ni
+    `players`: consume sus servicios (Principio VIII) y deriva en lectura,
+    nunca persiste un acumulado (FR-008).
+    """
+
+    def __init__(self, db: AsyncSession) -> None:
+        self.db = db
+
+    async def obtener_ficha_jugador(self, player_id: uuid.UUID) -> PlayerStatistics:
+        """FR-010. 404 `player_not_found` si el jugador no existe."""
+        jugador = await PlayerService(self.db).obtener_jugador(player_id)
+        if jugador is None:
+            raise ErrorDeNegocio(
+                code="player_not_found",
+                message="El jugador no existe.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        equipo = await TeamService(self.db).obtener_equipo(jugador.team_id)
+        match_service = MatchService(self.db)
+        goles = await match_service.goles_por_jugadores([jugador.id])
+        partidos = await match_service.partidos_jugados_por_jugadores([jugador.id])
+        return PlayerStatistics(
+            player_id=jugador.id,
+            player_name=jugador.name,
+            team_id=jugador.team_id,
+            team_name=equipo.name if equipo is not None else "",
+            goals=goles.get(jugador.id, 0),
+            matches_played=partidos.get(jugador.id, 0),
+        )
+
+    async def tabla_goleadores(self, league_id: uuid.UUID) -> TopScorers:
+        """FR-009, NFR-003.
+
+        Solo incluye jugadores con al menos un gol: es una tabla "de
+        goleadores", no el listado completo de plantillas (no está
+        contemplado explícitamente en la spec; ver checklist CHK015/CHK024).
+        """
+        equipos = await TeamService(self.db).listar_por_liga(league_id)  # valida la liga (404)
+        equipos_por_id = {equipo.id: equipo for equipo in equipos}
+        jugadores = await PlayerService(self.db).listar_por_equipos(list(equipos_por_id))
+
+        match_service = MatchService(self.db)
+        ids = [jugador.id for jugador in jugadores]
+        goles = await match_service.goles_por_jugadores(ids)
+        partidos = await match_service.partidos_jugados_por_jugadores(ids)
+
+        goleadores = [jugador for jugador in jugadores if goles.get(jugador.id, 0) > 0]
+        goleadores.sort(key=lambda j: (-goles[j.id], j.name.strip().lower(), str(j.id)))
+        maximo = goles[goleadores[0].id] if goleadores else 0
+
+        filas = [
+            TopScorerRow(
+                rank=posicion,
+                player_id=jugador.id,
+                player_name=jugador.name,
+                team_id=jugador.team_id,
+                team_name=equipos_por_id[jugador.team_id].name,
+                goals=goles[jugador.id],
+                matches_played=partidos.get(jugador.id, 0),
+                is_top_scorer=goles[jugador.id] == maximo,
+            )
+            for posicion, jugador in enumerate(goleadores, start=1)
+        ]
+        return TopScorers(items=filas)

@@ -1,0 +1,225 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API - Alineaciones y estadisticas de jugadores
+  version: "1.0.0"
+  description: >
+    Registro/correccion de alineaciones por partido y consultas publicas de
+    estadisticas de jugador. Las estadisticas son derivadas de MatchEvent
+    (GOAL) y MatchLineup; nunca se editan directamente.
+servers:
+  - url: /api/v1
+security:
+  - cookieAuth: []
+paths:
+  /matches/{matchId}/lineup:
+    put:
+      summary: Registrar o reemplazar la alineacion de un partido
+      operationId: upsertMatchLineup
+      description: >
+        Requiere rol operador u organizador. Reemplaza completamente la
+        alineacion (home + away). Si la correccion excluye jugadores con goles
+        ya registrados en el partido, se rechaza.
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpsertLineupInput" }
+      responses:
+        "200":
+          description: Alineacion guardada.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchLineupView" }
+        "400":
+          description: Cuerpo invalido. error.code validation_error.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "401":
+          description: Sin sesion. error.code not_authenticated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: Rol insuficiente. error.code insufficient_role.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: Partido, jugador o equipo inexistente.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: >
+            player_not_in_match, player_not_in_team,
+            lineup_conflicts_with_events.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    get:
+      summary: Consultar alineacion de partido
+      operationId: getMatchLineup
+      security: []
+      description: >
+        Consulta publica. Cuando no hay alineacion registrada, devuelve
+        status=missing y listas vacias (incluye partidos finalizados sin
+        alineacion).
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Estado de alineacion del partido.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchLineupView" }
+        "404":
+          description: Partido inexistente. error.code match_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /leagues/{leagueId}/top-scorers:
+    get:
+      summary: Consultar tabla de goleadores de una liga
+      operationId: getTopScorers
+      security: []
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Tabla ordenada por goles descendente.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TopScorers" }
+        "404":
+          description: Liga inexistente. error.code league_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /players/{playerId}/statistics:
+    get:
+      summary: Consultar ficha estadistica de un jugador
+      operationId: getPlayerStatistics
+      security: []
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Ficha estadistica derivada del jugador.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PlayerStatistics" }
+        "404":
+          description: Jugador inexistente. error.code player_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+
+  schemas:
+    UpsertLineupInput:
+      type: object
+      required: [home_player_ids, away_player_ids]
+      properties:
+        home_player_ids:
+          type: array
+          items: { type: string, format: uuid }
+          minItems: 0
+          uniqueItems: true
+        away_player_ids:
+          type: array
+          items: { type: string, format: uuid }
+          minItems: 0
+          uniqueItems: true
+
+    MatchLineupView:
+      type: object
+      required: [match_id, status, home_players, away_players]
+      properties:
+        match_id: { type: string, format: uuid }
+        status:
+          type: string
+          enum: [registered, missing]
+        home_players:
+          type: array
+          items: { $ref: "#/components/schemas/LineupPlayer" }
+        away_players:
+          type: array
+          items: { $ref: "#/components/schemas/LineupPlayer" }
+
+    LineupPlayer:
+      type: object
+      required: [player_id, player_name, team_id]
+      properties:
+        player_id: { type: string, format: uuid }
+        player_name: { type: string }
+        team_id: { type: string, format: uuid }
+
+    TopScorers:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/TopScorerRow" }
+
+    TopScorerRow:
+      type: object
+      required:
+        [rank, player_id, player_name, team_id, team_name, goals, matches_played, is_top_scorer]
+      properties:
+        rank: { type: integer, minimum: 1 }
+        player_id: { type: string, format: uuid }
+        player_name: { type: string }
+        team_id: { type: string, format: uuid }
+        team_name: { type: string }
+        goals: { type: integer, minimum: 0 }
+        matches_played: { type: integer, minimum: 0 }
+        is_top_scorer:
+          type: boolean
+          description: true cuando goals coincide con el maximo de la liga.
+
+    PlayerStatistics:
+      type: object
+      required: [player_id, player_name, team_id, team_name, goals, matches_played]
+      properties:
+        player_id: { type: string, format: uuid }
+        player_name: { type: string }
+        team_id: { type: string, format: uuid }
+        team_name: { type: string }
+        goals: { type: integer, minimum: 0 }
+        matches_played: { type: integer, minimum: 0 }
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }

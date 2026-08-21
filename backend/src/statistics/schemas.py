@@ -32,4 +32,38 @@ class Standings(BaseModel):
     items: list[StandingsRow]
 
 
-__all__ = ["Standings", "StandingsRow"]
+# --- Estadísticas de jugador (spec 010) -------------------------------------
+#
+# Vistas derivadas de solo lectura: nunca se editan (FR-008). Se recalculan en
+# cada consulta desde `match_events` y `match_lineups` (data-model.md).
+
+
+class PlayerStatistics(BaseModel):
+    """Ficha estadística de un jugador (FR-010)."""
+
+    player_id: uuid.UUID
+    player_name: str
+    team_id: uuid.UUID
+    team_name: str
+    goals: int = Field(ge=0)
+    matches_played: int = Field(ge=0)
+
+
+class TopScorerRow(BaseModel):
+    """Fila de la tabla de goleadores (FR-009). Orden: goals DESC, name ASC, id ASC (NFR-003)."""
+
+    rank: int = Field(ge=1)
+    player_id: uuid.UUID
+    player_name: str
+    team_id: uuid.UUID
+    team_name: str
+    goals: int = Field(ge=0)
+    matches_played: int = Field(ge=0)
+    is_top_scorer: bool = Field(description="true cuando goals coincide con el máximo de la liga.")
+
+
+class TopScorers(BaseModel):
+    items: list[TopScorerRow]
+
+
+__all__ = ["PlayerStatistics", "Standings", "StandingsRow", "TopScorerRow", "TopScorers"]
