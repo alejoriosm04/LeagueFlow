@@ -1,0 +1,56 @@
+.fila {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  padding: var(--lf-espacio-3) 0;
+  text-decoration: none;
+  color: var(--lf-color-texto);
+}
+
+.enlace:hover .nombre {
+  text-decoration: underline;
+}
+
+.equipo {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.visitante {
+  justify-content: flex-end;
+}
+
+.nombre {
+  font-weight: var(--lf-peso-medio);
+  text-transform: uppercase;
+  font-size: var(--lf-texto-sm);
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.marcador {
+  flex: 0 0 auto;
+  font-family: var(--lf-fuente-numerica);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--lf-texto-lg);
+  font-weight: var(--lf-peso-fuerte);
+  white-space: nowrap;
+  padding: 0 var(--lf-espacio-3);
+}
+
+.sinResultado {
+  flex: 0 0 auto;
+  color: var(--lf-color-texto-suave);
+  font-size: var(--lf-texto-sm);
+  text-transform: uppercase;
+  padding: 0 var(--lf-espacio-3);
+}
+
+.estado {
+  flex: 0 0 auto;
+}

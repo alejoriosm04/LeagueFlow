@@ -1,0 +1,76 @@
+/*
+ * Vive en la cabecera de contenido, sobre la superficie de marca (FR-040).
+ * Se resuelve como una píldora blanca propia en los dos estados, así el
+ * texto sigue siendo el mismo par oscuro-sobre-claro que en el resto de la
+ * aplicación sin importar qué haya detrás (FR-044).
+ */
+.contenedor {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  padding: var(--lf-espacio-2) var(--lf-espacio-4) var(--lf-espacio-2) var(--lf-espacio-2);
+  border-radius: var(--lf-radio-pastilla);
+  background-color: var(--lf-color-superficie);
+  box-shadow: var(--lf-sombra-1);
+  font-size: var(--lf-texto-sm);
+}
+
+.contenedorSinSesion {
+  padding: var(--lf-espacio-2) var(--lf-espacio-5);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--lf-espacio-6);
+  height: var(--lf-espacio-6);
+  border-radius: var(--lf-radio-pastilla);
+  background: var(--lf-degradado-marca);
+  color: var(--lf-color-superficie);
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-fuerte);
+}
+
+.usuario {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.nombre {
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto);
+}
+
+.rol {
+  color: var(--lf-color-texto-suave);
+  font-size: var(--lf-texto-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.salir {
+  border: 0;
+  background-color: transparent;
+  color: var(--lf-color-texto-suave);
+  padding: var(--lf-espacio-1) 0;
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-medio);
+  cursor: pointer;
+}
+
+.salir:hover {
+  color: var(--lf-color-peligro);
+}
+
+.entrar {
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-primario);
+  text-decoration: none;
+}
+
+.entrar:hover {
+  color: var(--lf-color-primario-fuerte);
+}

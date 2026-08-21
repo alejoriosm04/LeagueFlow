@@ -1,0 +1,284 @@
+.textoVacio {
+  margin: 0;
+  color: var(--lf-color-texto-suave);
+  font-size: var(--lf-texto-sm);
+}
+
+/*
+ * Rejilla de 12 columnas — reproduce la proporción de la maqueta de
+ * referencia `LeagueFlow Wow` (spec.md, Assumptions), medida sobre su DOM:
+ * fila 1 va 5/7 (Próximo partido / Rendimiento) y la fila principal va 7/5
+ * (Tabla de posiciones / columna de gráfico + métricas + progreso). El ancho
+ * lo decide el `span`, nunca un literal de píxeles, y `align-items: stretch`
+ * iguala las alturas de cada fila para que ninguna tarjeta corta deje un
+ * hueco vacío al lado de una larga. Por debajo de 1024px cada tarjeta ocupa
+ * las 12 columnas — una por fila (FR-029, FR-030).
+ */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--lf-espacio-4);
+  align-items: stretch;
+}
+
+@media (max-width: 1023px) {
+  .rejilla > * {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+/* Propaga el estirado de la fila al `Panel` (siempre un `<section>` hijo
+   directo) o a `.columnaSecundaria`: sin esto la tarjeta exterior se estira
+   pero su contenido no, y el hueco reaparece un nivel más adentro. */
+.tarjeta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tarjeta > section,
+.tarjeta > .columnaSecundaria {
+  flex: 1;
+}
+
+.span5 {
+  grid-column: span 5;
+}
+
+.span7 {
+  grid-column: span 7;
+}
+
+.columnaSecundaria {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-4);
+}
+
+/* --- Próximo partido ---------------------------------------------------- */
+
+.proximoPartido {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-5);
+}
+
+.proximoFecha {
+  margin: 0;
+  font-size: var(--lf-texto-sm);
+  color: var(--lf-color-texto-suave);
+}
+
+.enfrentamiento {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  gap: var(--lf-espacio-3);
+  padding: var(--lf-espacio-2) 0 var(--lf-espacio-3);
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--lf-radio-lg);
+}
+
+.enfrentamiento:hover .nombreEquipo {
+  color: var(--lf-color-primario);
+}
+
+.ladoEquipo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  min-width: 0;
+  flex: 1;
+}
+
+.nombreEquipo {
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.versus {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto-suave);
+  letter-spacing: 0.08em;
+}
+
+/* --- Rendimiento de la temporada ---------------------------------------- */
+
+.barraEstado {
+  display: flex;
+  width: 100%;
+  height: 0.625rem;
+  border-radius: var(--lf-radio-pastilla);
+  overflow: hidden;
+  background-color: var(--lf-color-superficie-alt);
+}
+
+.segmentoLocal {
+  background-color: var(--lf-color-exito);
+}
+
+.segmentoEmpates {
+  background-color: var(--lf-color-aviso);
+}
+
+.segmentoVisitante {
+  background-color: var(--lf-color-peligro);
+}
+
+.metricasTemporada {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--lf-espacio-4);
+  margin: var(--lf-espacio-5) 0 0;
+}
+
+@media (max-width: 560px) {
+  .metricasTemporada {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.metricasTemporada dt {
+  font-size: var(--lf-texto-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lf-color-texto-suave);
+  white-space: nowrap;
+}
+
+.metricasTemporada dd {
+  margin: var(--lf-espacio-1) 0 0;
+  font-size: var(--lf-texto-2xl);
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--lf-interlineado-titulo);
+}
+
+/* Cada número toma el color de su segmento en la barra. La etiqueta ya
+   identifica el dato (FR-028): el color solo refuerza. */
+.valorLocal {
+  color: var(--lf-color-exito);
+}
+
+.valorEmpates {
+  color: var(--lf-color-aviso);
+}
+
+.valorVisitante {
+  color: var(--lf-color-peligro);
+}
+
+/* --- Tabla de posiciones ------------------------------------------------- */
+
+.celdaEquipo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  min-width: 0;
+}
+
+/* --- Equipos / Jugadores ------------------------------------------------- */
+
+.metricas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lf-espacio-4);
+}
+
+.metrica {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-1);
+  padding: var(--lf-espacio-4) var(--lf-espacio-5);
+  border-radius: var(--lf-radio-xl);
+  border: 1px solid var(--lf-color-borde);
+  background: var(--lf-degradado-superficie);
+  box-shadow: var(--lf-sombra-1);
+}
+
+.metricaEtiqueta {
+  font-size: var(--lf-texto-sm);
+  color: var(--lf-color-texto-suave);
+}
+
+.metricaValor {
+  font-size: var(--lf-texto-3xl);
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--lf-interlineado-titulo);
+}
+
+/* --- Temporada completada ------------------------------------------------ */
+
+.temporadaCompletada {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lf-espacio-4);
+  padding: var(--lf-espacio-5);
+  border-radius: var(--lf-radio-xl);
+  background: var(--lf-degradado-acento);
+  box-shadow: var(--lf-sombra-2);
+}
+
+.temporadaTexto {
+  min-width: 0;
+}
+
+/* Sobre el degradado de acento: FR-038 obliga a declarar el contraste contra
+   el extremo más claro, que es `acento-claro`; el par
+   `marca-fondo-alto sobre acento-claro` ya está auditado en tokens.css. */
+.temporadaEtiqueta {
+  margin: 0;
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-medio);
+  color: var(--lf-color-marca-fondo-alto);
+}
+
+.temporadaPorcentaje {
+  margin: 0;
+  font-size: var(--lf-texto-3xl);
+  font-weight: var(--lf-peso-fuerte);
+  line-height: var(--lf-interlineado-titulo);
+  color: var(--lf-color-marca-fondo-alto);
+  font-variant-numeric: tabular-nums;
+}
+
+.temporadaDetalle {
+  margin: 0;
+  font-size: var(--lf-texto-xs);
+  color: var(--lf-color-marca-fondo-alto);
+}
+
+/* Anillo de progreso en CSS puro: `conic-gradient` con colores del sistema
+   (FR-036, sin literales). El porcentaje llega por variable inline y va
+   escrito al lado en texto, así que el anillo ilustra pero no informa solo
+   (FR-028). El hueco central se recorta con `mask`. */
+.anillo {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: var(--lf-radio-pastilla);
+  background: conic-gradient(
+    var(--lf-color-superficie) var(--lf-anillo-pct, 0%),
+    var(--lf-color-marca-superponer-fuerte) var(--lf-anillo-pct, 0%) 100%
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 0.6rem), black calc(100% - 0.6rem));
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 0.6rem),
+    black calc(100% - 0.6rem)
+  );
+}

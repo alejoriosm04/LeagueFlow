@@ -28,16 +28,22 @@ usando [GitHub Spec Kit](https://github.com/github/spec-kit) y Claude Code.
 | Spec 005 (programar partidos) | ✅ Implementada y desplegada |
 | Spec 006 (registrar resultados) | ✅ Implementada y desplegada |
 | Spec 007 (calendario y resultados) | ✅ Implementada y desplegada |
-| Spec 008 (clasificación) | 🔄 Implementada en rama `008-consultar-clasificacion` (22/22 tareas), pendiente de PR |
-| Specs 009–011 | ⬜ Goles, estadísticas de jugadores y dashboard — sin planear |
-| Presentación visual (CSS/diseño) | ⬜ **Sin spec.** El frontend es HTML sin estilos; ninguna HU del backlog lo cubre — ver nota abajo |
-| Despliegue | ✅ En línea — ver URLs abajo |
+| Spec 008 (clasificación) | ✅ Implementada y desplegada (22/22 tareas, PR #36) |
+| Spec 009 (registrar goles por jugador) | ✅ Implementada y desplegada (23/23 tareas, PR #37) |
+| Spec 010 (alineaciones y estadísticas de jugadores) | ✅ Implementada y desplegada (PR #40) |
+| Spec 011 (dashboard general de la liga) | ✅ Implementada y desplegada (PR #42) |
+| Spec 012 (identidad visual y experiencia consistente) | 🔄 Implementada en rama `012-identidad-visual`, integrando Dashboard y Estadísticas (specs 010–011, mezcladas a `main` después de redactar esta historia) sobre el mismo catálogo visual, pendiente de PR |
+| Despliegue | ✅ En línea — ver URLs abajo (la identidad visual de la Spec 012 aún no está desplegada: llega a producción cuando se mezcle su PR) |
 | Caso de negocio | ⬜ Pendiente — [`docs/caso-de-negocio.md`](docs/caso-de-negocio.md); **medir tiempos desde la primera HU** |
 
-> **Sobre lo visual:** las 11 specs de la línea base y las HU 11–15 del backlog
-> son todas funcionales; **ninguna define estilos, layout ni accesibilidad**.
-> El resultado es una interfaz sin CSS. Corregirlo requiere una spec propia
-> (Principio I: no se escribe código sin spec), no maquetar sobre la marcha.
+> **Sobre lo visual:** hasta la Spec 012 el frontend era HTML funcional sin
+> estilos — las specs 001 a 009 no definen apariencia, layout ni
+> accesibilidad a propósito (esa decisión se aplazó, no se improvisó sobre la
+> marcha). La Spec 012 es la que cierra esa brecha: sistema de valores
+> visuales único (`frontend/src/styles/tokens.css`), marco de aplicación,
+> catálogo de componentes reutilizable, tres estados de pantalla, contraste
+> WCAG verificado por prueba automática y adaptabilidad a 1280/768/375 px. Su
+> `spec.md` es la referencia — [`specs/012-identidad-visual/spec.md`](specs/012-identidad-visual/spec.md).
 
 ---
 
@@ -122,4 +128,4 @@ docs/                Enunciado, flujo de trabajo, caso de negocio
 | Alejandro Ríos | [@alejoriosm04](https://github.com/alejoriosm04) | Fundación y autenticación (001), ligas (002) y equipos (003) |
 | Quinn Villa | [@quinnie9](https://github.com/quinnie9) | Jugadores (004) y programación de partidos (005) |
 | Lina Ballesteros | | Resultados y correcciones (006), calendario (007) |
-| Jonathan Sandoval | | Clasificación (008) |
+| Jonathan Sandoval | [@jasgidp](https://github.com/jasgidp) | Clasificación (008), registro de goles (009) e identidad visual (012) |

@@ -1,0 +1,210 @@
+/*
+ * Sistema de valores visuales de LeagueFlow — fuente única de verdad.
+ * spec 012-identidad-visual (FR-019, FR-020, FR-036). Ninguna pantalla ni hoja
+ * de componente puede declarar un color, tamaño, espaciado, radio, sombra o
+ * degradado literal: todo se consume con var(--lf-*). La prueba de auditoría
+ * de tokens falla si aparece un literal fuera de este archivo (SC-009, SC-012).
+ *
+ * Los degradados se componen a partir de colores declarados aquí. FR-038: el
+ * texto que se pinta encima declara su par contra el extremo MÁS CLARO del
+ * degradado, que es el caso peor, de modo que el contraste sigue siendo
+ * verificable de forma automática aunque el fondo real no sea plano.
+ *
+ * pares-de-contraste (leídos por styles/__tests__/contraste.test.ts, SC-004):
+ *   texto sobre fondo
+ *   texto sobre superficie
+ *   texto sobre superficie-alt
+ *   texto sobre podio
+ *   texto sobre primario-tinte
+ *   texto sobre acento-tinte
+ *   texto-suave sobre fondo
+ *   texto-suave sobre superficie
+ *   primario sobre fondo
+ *   primario sobre superficie
+ *   primario sobre primario-tinte
+ *   superficie sobre primario
+ *   superficie sobre primario-fuerte
+ *   superficie sobre peligro
+ *   superficie sobre acento
+ *   superficie sobre marca-fondo
+ *   superficie sobre marca-fondo-alto
+ *   superficie sobre marca-fondo-suave
+ *   marca-texto sobre marca-fondo
+ *   marca-texto sobre marca-fondo-alto
+ *   acento-claro sobre marca-fondo
+ *   acento-claro sobre marca-fondo-alto
+ *   superficie sobre marca-superficie
+ *   marca-texto sobre marca-superficie
+ *   marca-texto sobre marca-fondo-suave
+ *   marca-fondo-alto sobre acento-claro
+ *   texto sobre fondo-alto
+ *   texto-suave sobre fondo-alto
+ *   primario sobre fondo-alto
+ *   acento sobre fondo
+ *   acento sobre superficie
+ *   acento sobre acento-tinte
+ *   peligro sobre peligro-tinte
+ *   peligro sobre superficie
+ *   exito sobre exito-tinte
+ *   exito sobre superficie
+ *   aviso sobre aviso-tinte
+ *   aviso sobre superficie
+ *   neutro sobre neutro-tinte
+ * fin-pares-de-contraste
+ */
+
+:root {
+  /* --- Color (data-model.md §1.1) --- */
+  --lf-color-fondo: #eaf1fa;
+  --lf-color-superficie: #ffffff;
+  --lf-color-superficie-alt: #e2eaf5;
+  --lf-color-texto: #14213d;
+  --lf-color-texto-suave: #4a5568;
+  --lf-color-borde: #d3deeb;
+  --lf-color-borde-fuerte: #6b7684;
+  --lf-color-primario: #0b4fa2;
+  --lf-color-primario-fuerte: #083b7c;
+  --lf-color-primario-tinte: #dbe7fb;
+  --lf-color-peligro: #a41d1d;
+  --lf-color-peligro-tinte: #fbe4e4;
+  --lf-color-exito: #14532d;
+  --lf-color-exito-tinte: #d6efdd;
+  --lf-color-aviso: #7a4b00;
+  --lf-color-aviso-tinte: #fdecc8;
+  --lf-color-neutro: #3f4650;
+  --lf-color-neutro-tinte: #e6e8eb;
+  --lf-color-podio: #fff4d6;
+
+  /* Identidad de marca: el marco de aplicación y todo lo que vive sobre él
+   * (FR-040 a FR-045). `marca-superficie` es el sólido equivalente de las
+   * tarjetas translúcidas de la maqueta: se declara plano para que el gate de
+   * contraste pueda medirlo. */
+  --lf-color-marca-fondo: #33465e;
+  --lf-color-marca-fondo-alto: #1e2c40;
+  --lf-color-marca-fondo-suave: #47607e;
+  --lf-color-marca-texto: #d7e2ee;
+  --lf-color-marca-superficie: #3d5470;
+  /*
+   * Blanco translúcido sobre la superficie de marca: hover e ítems inertes de
+   * la navegación, chips de la cabecera, `:hover` de acciones sobre el marco.
+   * Declarados aquí —nunca como rgb() suelto en una hoja de componente— para
+   * que la auditoría de tokens (SC-009) los reconozca como del sistema.
+   */
+  --lf-color-marca-superponer-sutil: rgb(255 255 255 / 8%);
+  --lf-color-marca-superponer: rgb(255 255 255 / 12%);
+  --lf-color-marca-superponer-fuerte: rgb(255 255 255 / 16%);
+  --lf-color-marca-borde-sutil: rgb(255 255 255 / 12%);
+  --lf-color-marca-borde-medio: rgb(255 255 255 / 16%);
+  /* Borde de control sobre superficie de marca: 4.08:1 contra marca-fondo y
+   * 3.29:1 contra marca-superficie, por encima del 3:1 de componente. */
+  --lf-color-marca-borde: #94abc4;
+  --lf-color-fondo-alto: #dbe4f1;
+
+  /*
+   * Acento cálido: destaca datos e identidad. NO es acción ni error (FR-037).
+   * FR-045: `acento-claro` solo hace de TEXTO sobre `marca-fondo` (4.76:1) y
+   * `marca-fondo-alto` (6.97:1). Sobre `marca-superficie` se queda en 3.84:1,
+   * así que ahí únicamente rellena, filetea o marca — nunca escribe.
+   */
+  --lf-color-acento: #a04d0d;
+  --lf-color-acento-tinte: #fde8d0;
+  --lf-color-acento-claro: #f2a65a;
+
+  /* --- Tipografía (data-model.md §1.2) --- */
+  --lf-fuente-base: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --lf-fuente-numerica: var(--lf-fuente-base);
+  --lf-texto-xs: 0.75rem;
+  --lf-texto-sm: 0.875rem;
+  --lf-texto-md: 1rem;
+  --lf-texto-lg: 1.125rem;
+  --lf-texto-xl: 1.375rem;
+  --lf-texto-2xl: 1.75rem;
+  --lf-texto-3xl: 2.5rem;
+  --lf-texto-4xl: 3.25rem;
+  --lf-peso-normal: 400;
+  --lf-peso-medio: 600;
+  --lf-peso-fuerte: 700;
+  --lf-interlineado: 1.5;
+  --lf-interlineado-titulo: 1.15;
+  --lf-espaciado-marca: 0.14em;
+
+  /* --- Espaciado, borde y sombra (data-model.md §1.3) --- */
+  --lf-espacio-1: 0.25rem;
+  --lf-espacio-2: 0.5rem;
+  --lf-espacio-3: 0.75rem;
+  --lf-espacio-4: 1rem;
+  --lf-espacio-5: 1.5rem;
+  --lf-espacio-6: 2rem;
+  --lf-espacio-7: 3rem;
+  --lf-espacio-8: 4rem;
+  --lf-radio-sm: 4px;
+  --lf-radio-md: 8px;
+  --lf-radio-lg: 12px;
+  --lf-radio-xl: 20px;
+  --lf-radio-tarjeta: 18px;
+  --lf-radio-pastilla: 999px;
+  --lf-sombra-1: 0 1px 2px rgb(20 33 61 / 8%), 0 1px 3px rgb(20 33 61 / 6%);
+  --lf-sombra-2: 0 4px 12px rgb(20 33 61 / 14%);
+  --lf-sombra-3: 0 16px 36px rgb(20 33 61 / 14%);
+  --lf-sombra-marca: 0 24px 56px rgb(15 30 52 / 32%);
+  --lf-ancho-nav: 236px;
+  --lf-ancho-marco: 1420px;
+  --lf-ancho-contenido: 1180px;
+  --lf-transicion: 160ms ease;
+
+  /* --- Degradados (FR-036) --- */
+  --lf-degradado-marca: linear-gradient(
+    135deg,
+    var(--lf-color-marca-fondo-alto) 0%,
+    var(--lf-color-marca-fondo) 58%,
+    var(--lf-color-marca-fondo-suave) 100%
+  );
+  --lf-degradado-fondo: linear-gradient(
+    180deg,
+    var(--lf-color-superficie-alt) 0%,
+    var(--lf-color-fondo) 320px
+  );
+  --lf-degradado-superficie: linear-gradient(
+    160deg,
+    var(--lf-color-superficie) 0%,
+    var(--lf-color-superficie-alt) 100%
+  );
+  --lf-degradado-acento: linear-gradient(
+    120deg,
+    var(--lf-color-acento) 0%,
+    var(--lf-color-acento-claro) 100%
+  );
+  /* Lienzo claro que enmarca la superficie de marca (FR-040). */
+  --lf-degradado-lienzo: radial-gradient(
+    1200px 600px at 20% -10%,
+    var(--lf-color-superficie) 0%,
+    var(--lf-color-fondo) 55%,
+    var(--lf-color-fondo-alto) 100%
+  );
+  /*
+   * Velo que asienta el texto sobre el patrón del bloque principal. Las
+   * paradas translúcidas se declaran aquí, en el único archivo donde la
+   * auditoría admite un literal de color (SC-009).
+   */
+  --lf-degradado-velo: linear-gradient(
+    180deg,
+    rgb(30 44 64 / 0%) 0%,
+    rgb(30 44 64 / 88%) 55%,
+    var(--lf-color-marca-fondo-alto) 100%
+  );
+  /* Franjas diagonales: sustituyen a la fotografía que la maqueta deja como
+   * hueco, sin alojar ningún activo. */
+  --lf-patron-franjas: repeating-linear-gradient(
+    35deg,
+    var(--lf-color-marca-fondo-suave) 0 7px,
+    var(--lf-color-marca-superficie) 7px 14px
+  );
+
+  /*
+   * Cortes de adaptabilidad. Se documentan aquí para tener un único lugar de
+   * referencia, pero las @media usan el literal: CSS no admite var() en la
+   * condición de una media query (data-model.md §1.3).
+   *   --lf-corte-tablet: 1024px
+   *   --lf-corte-movil: 768px
+   */
+}

@@ -1,0 +1,35 @@
+.distintivo {
+  display: inline-block;
+  padding: var(--lf-espacio-1) var(--lf-espacio-3);
+  border-radius: var(--lf-radio-pastilla);
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-fuerte);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid currentcolor;
+}
+
+/*
+ * FR-010 y FR-028: el estado se identifica SIEMPRE por el texto del
+ * distintivo. El color y el borde son canales redundantes, nunca el único.
+ */
+.scheduled {
+  color: var(--lf-color-primario);
+  background-color: var(--lf-color-primario-tinte);
+}
+
+.in_progress {
+  color: var(--lf-color-aviso);
+  background-color: var(--lf-color-aviso-tinte);
+}
+
+.finished {
+  color: var(--lf-color-exito);
+  background-color: var(--lf-color-exito-tinte);
+}
+
+.cancelled {
+  color: var(--lf-color-neutro);
+  background-color: var(--lf-color-neutro-tinte);
+}

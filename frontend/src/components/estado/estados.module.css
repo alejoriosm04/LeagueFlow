@@ -1,0 +1,64 @@
+.bloque {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--lf-espacio-3);
+  padding: var(--lf-espacio-6);
+  border-radius: var(--lf-radio-md);
+  border: 1px solid var(--lf-color-borde);
+  background-color: var(--lf-color-superficie);
+}
+
+.carga {
+  color: var(--lf-color-texto-suave);
+  flex-direction: row;
+  align-items: center;
+}
+
+.titulo {
+  font-size: var(--lf-texto-lg);
+  font-weight: var(--lf-peso-fuerte);
+  margin: 0;
+}
+
+.descripcion {
+  margin: 0;
+  color: var(--lf-color-texto-suave);
+}
+
+/* FR-028: el error no se distingue solo por color; lleva su rótulo de texto. */
+.error {
+  border-color: var(--lf-color-peligro);
+  background-color: var(--lf-color-peligro-tinte);
+  color: var(--lf-color-peligro);
+}
+
+.rotulo {
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-fuerte);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mensaje {
+  margin: 0;
+  color: var(--lf-color-texto);
+}
+
+.accion {
+  display: inline-block;
+  padding: var(--lf-espacio-2) var(--lf-espacio-4);
+  border-radius: var(--lf-radio-sm);
+  background-color: var(--lf-color-primario);
+  color: var(--lf-color-superficie);
+  text-decoration: none;
+  font-weight: var(--lf-peso-medio);
+  font-size: var(--lf-texto-sm);
+  border: 1px solid var(--lf-color-primario);
+  cursor: pointer;
+}
+
+.accion:hover {
+  background-color: var(--lf-color-primario-fuerte);
+  color: var(--lf-color-superficie);
+}

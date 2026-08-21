@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ApiError } from '../../services/apiClient';
+import { Boton, CampoDeFormulario, EstadoCarga, EstadoError, TituloDePantalla } from '../../components';
+import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { teamsApi } from '../teams/api';
 import type { Team } from '../teams/api';
 import { matchesApi } from './api';
@@ -12,7 +13,7 @@ export function CreateMatchForm() {
   const [homeTeamId, setHomeTeamId] = useState('');
   const [awayTeamId, setAwayTeamId] = useState('');
   const [scheduledAt, setScheduledAt] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [fallo, setFallo] = useState<unknown>(null);
   const [enviando, setEnviando] = useState(false);
   const [cargando, setCargando] = useState(true);
 
@@ -21,14 +22,14 @@ export function CreateMatchForm() {
     teamsApi
       .listar(id)
       .then((r) => setEquipos(r.items))
-      .catch(() => setError('No se pudieron cargar los equipos.'))
+      .catch((causa) => setFallo(causa))
       .finally(() => setCargando(false));
   }, [id]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!id) return;
-    setError(null);
+    setFallo(null);
     setEnviando(true);
     try {
       // datetime-local es naive; lo enviamos como UTC con Z para el contrato ISO.
@@ -40,57 +41,81 @@ export function CreateMatchForm() {
       });
       navigate(`/leagues/${id}/matches`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No fue posible programar el partido.');
+      setFallo(err);
     } finally {
       setEnviando(false);
     }
   }
 
-  if (cargando) return <p>Cargando equipos…</p>;
+  if (cargando) {
+    return (
+      <section className="lf-formulario">
+        <TituloDePantalla>Programar partido</TituloDePantalla>
+        <EstadoCarga recurso="los equipos" />
+      </section>
+    );
+  }
+
+  const mensaje = fallo ? mensajeDeError(fallo) : null;
+  const campo = campoDelError(fallo);
 
   return (
-    <form onSubmit={onSubmit} style={{ maxWidth: 420 }}>
-      <h1>Programar partido</h1>
-      <label htmlFor="home">Equipo local</label>
-      <select
+    <form onSubmit={onSubmit} className="lf-formulario">
+      <TituloDePantalla>Programar partido</TituloDePantalla>
+
+      <CampoDeFormulario
         id="home"
-        value={homeTeamId}
-        onChange={(e) => setHomeTeamId(e.target.value)}
-        required
+        etiqueta="Equipo local"
+        requerido
+        error={campo === 'home_team_id' ? mensaje : null}
       >
-        <option value="">Selecciona…</option>
-        {equipos.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
-        ))}
-      </select>
-      <label htmlFor="away">Equipo visitante</label>
-      <select
+        <select value={homeTeamId} onChange={(e) => setHomeTeamId(e.target.value)} required>
+          <option value="">Selecciona…</option>
+          {equipos.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </CampoDeFormulario>
+
+      <CampoDeFormulario
         id="away"
-        value={awayTeamId}
-        onChange={(e) => setAwayTeamId(e.target.value)}
-        required
+        etiqueta="Equipo visitante"
+        requerido
+        error={campo === 'away_team_id' ? mensaje : null}
       >
-        <option value="">Selecciona…</option>
-        {equipos.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.name}
-          </option>
-        ))}
-      </select>
-      <label htmlFor="when">Fecha y hora</label>
-      <input
+        <select value={awayTeamId} onChange={(e) => setAwayTeamId(e.target.value)} required>
+          <option value="">Selecciona…</option>
+          {equipos.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
+      </CampoDeFormulario>
+
+      <CampoDeFormulario
         id="when"
-        type="datetime-local"
-        value={scheduledAt}
-        onChange={(e) => setScheduledAt(e.target.value)}
-        required
-      />
-      {error && <p role="alert">{error}</p>}
-      <button type="submit" disabled={enviando || equipos.length < 2}>
-        {enviando ? 'Programando…' : 'Programar partido'}
-      </button>
+        etiqueta="Fecha y hora"
+        requerido
+        error={campo === 'scheduled_at' ? mensaje : null}
+      >
+        <input
+          type="datetime-local"
+          value={scheduledAt}
+          onChange={(e) => setScheduledAt(e.target.value)}
+          required
+        />
+      </CampoDeFormulario>
+
+      {mensaje && !campo && <EstadoError mensaje={mensaje} />}
+
+      <div className="lf-acciones-formulario">
+        <Boton type="submit" enviando={enviando} disabled={equipos.length < 2}>
+          Programar partido
+        </Boton>
+      </div>
     </form>
   );
 }

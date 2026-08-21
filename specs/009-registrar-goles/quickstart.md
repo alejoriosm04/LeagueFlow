@@ -43,8 +43,10 @@ cd frontend && npm run dev
    solo dos goles del local. El `POST` responde `201` igual, y
    `GET /matches/{id}/events` devuelve `consistency.matches_official: false`.
    El marcador oficial **no cambia**: compruébalo con `GET /matches/{id}`
-   antes y después. (La clasificación de 008 no se verifica aquí: ese
-   endpoint no existe en esta rama hasta que 008 se mezcle a `main`.)
+   antes y después. Con 008 ya mezclada en `main`, comprueba también que
+   `GET /leagues/{id}/standings` devuelve exactamente la misma tabla antes y
+   después de registrar los goles: la clasificación se deriva del marcador,
+   no de los eventos.
 5. **Sin sesión (AS5, FR-006)**: `POST` sin cookie → `401 not_authenticated`.
    Con sesión de un rol sin permiso → `403 insufficient_role`.
 6. **Partido no jugable**: intentar registrar un gol en un partido `scheduled` o

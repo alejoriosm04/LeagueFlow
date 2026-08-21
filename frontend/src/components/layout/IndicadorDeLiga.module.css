@@ -1,0 +1,52 @@
+/*
+ * Vive en la cabecera de contenido, directamente sobre la superficie de
+ * marca (FR-040): fondo translúcido y texto claro, nunca los colores de
+ * texto pensados para superficies claras (FR-044).
+ */
+.contenedor {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--lf-espacio-2);
+  min-width: 0;
+  max-width: 100%;
+  padding: var(--lf-espacio-2) var(--lf-espacio-4) var(--lf-espacio-2) var(--lf-espacio-2);
+  border: 1px solid var(--lf-color-marca-borde-medio);
+  border-radius: var(--lf-radio-pastilla);
+  background-color: var(--lf-color-marca-superponer);
+}
+
+.sigla {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--lf-espacio-6);
+  height: var(--lf-espacio-6);
+  border-radius: var(--lf-radio-sm);
+  background-color: var(--lf-color-acento-claro);
+  color: var(--lf-color-marca-fondo-alto);
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-fuerte);
+}
+
+.etiqueta {
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-fuerte);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lf-color-marca-texto);
+}
+
+.nombre {
+  font-weight: var(--lf-peso-medio);
+  color: var(--lf-color-superficie);
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.neutro {
+  color: var(--lf-color-marca-texto);
+  font-style: italic;
+}

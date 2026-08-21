@@ -1,0 +1,80 @@
+/*
+ * FR-030: el desplazamiento horizontal ocurre AQUÍ, dentro del contenedor de
+ * la tabla, nunca en la página. El contenedor es alcanzable con teclado
+ * (role="region" + tabIndex) para que se pueda desplazar sin ratón.
+ */
+.contenedor {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--lf-texto-sm);
+}
+
+.leyenda {
+  text-align: left;
+  padding-bottom: var(--lf-espacio-3);
+  color: var(--lf-color-texto-suave);
+  font-size: var(--lf-texto-sm);
+}
+
+.encabezado {
+  background-color: var(--lf-color-superficie-alt);
+}
+
+.encabezado th {
+  padding: var(--lf-espacio-3);
+  text-align: left;
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-fuerte);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lf-color-texto-suave);
+  border-bottom: 2px solid var(--lf-color-borde);
+  white-space: nowrap;
+}
+
+.fila td {
+  padding: var(--lf-espacio-3);
+  border-bottom: 1px solid var(--lf-color-borde);
+  vertical-align: middle;
+}
+
+.fila:hover td {
+  background-color: var(--lf-color-primario-tinte);
+}
+
+/* Filas alternas (FR-008). */
+.fila:nth-child(even) {
+  background-color: var(--lf-color-superficie-alt);
+}
+
+/* Numéricos a la derecha, con cifras de ancho fijo para que la columna lea
+   alineada aunque cambien los dígitos (FR-008). */
+.numerica {
+  text-align: right;
+  font-family: var(--lf-fuente-numerica);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Podio (FR-011): fondo propio + el distintivo de texto de DestacadoDePodio. */
+.podio1 td,
+.podio2 td,
+.podio3 td {
+  background-color: var(--lf-color-podio);
+}
+
+.podio1 td:first-child {
+  box-shadow: inset 4px 0 0 0 var(--lf-color-primario);
+}
+
+.podio2 td:first-child {
+  box-shadow: inset 4px 0 0 0 var(--lf-color-texto-suave);
+}
+
+.podio3 td:first-child {
+  box-shadow: inset 4px 0 0 0 var(--lf-color-aviso);
+}

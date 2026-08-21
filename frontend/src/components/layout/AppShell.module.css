@@ -1,0 +1,313 @@
+/*
+ * Marco de aplicación — FR-040. Un lienzo claro (`.lienzo`) enmarca una única
+ * superficie de marca (`.marco`) que contiene la barra lateral (`.aside`) y
+ * la columna de contenido (`.columna`: cabecera + `.contenido`).
+ * `.contenido` es una superficie clara elevada sobre esa marca (FR-043): las
+ * pantallas existentes, con su `<h1>` oscuro y sus `Panel` blancos, quedan
+ * legibles ahí sin que ninguna haya tenido que cambiar.
+ */
+
+/*
+ * El marco llena el alto disponible del lienzo, no solo el de su contenido:
+ * es lo que hace que la aplicación se lea como un producto con marco propio
+ * en cualquier pantalla, incluidas las que tienen poco contenido (FR-040).
+ */
+.lienzo {
+  min-height: 100vh;
+  padding: var(--lf-espacio-5);
+  display: flex;
+  justify-content: center;
+  background: var(--lf-degradado-lienzo);
+}
+
+.marco {
+  width: 100%;
+  max-width: var(--lf-ancho-marco);
+  display: grid;
+  grid-template-columns: var(--lf-ancho-nav) 1fr;
+  align-items: stretch;
+  gap: var(--lf-espacio-4);
+  padding: var(--lf-espacio-4);
+  border-radius: var(--lf-radio-xl);
+  background: var(--lf-degradado-marca);
+  box-shadow: var(--lf-sombra-marca);
+}
+
+/* --- Barra lateral ----------------------------------------------------- */
+
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-1);
+  padding: var(--lf-espacio-3) var(--lf-espacio-2);
+  color: var(--lf-color-marca-texto);
+}
+
+.filaMarca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lf-espacio-2);
+  padding: var(--lf-espacio-1) var(--lf-espacio-2) var(--lf-espacio-6);
+}
+
+.marca {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: var(--lf-texto-lg);
+  font-weight: var(--lf-peso-fuerte);
+  letter-spacing: var(--lf-espaciado-marca);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.marcaLeague {
+  color: var(--lf-color-superficie);
+}
+
+.marcaFlow {
+  color: var(--lf-color-acento-claro);
+}
+
+.botonMenu {
+  display: none;
+  align-items: center;
+  gap: var(--lf-espacio-2);
+  padding: var(--lf-espacio-2) var(--lf-espacio-3);
+  border: 1px solid var(--lf-color-marca-borde);
+  border-radius: var(--lf-radio-pastilla);
+  background-color: transparent;
+  color: var(--lf-color-marca-texto);
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-medio);
+  cursor: pointer;
+}
+
+.lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  padding: var(--lf-espacio-3) var(--lf-espacio-3);
+  border-radius: var(--lf-radio-md);
+  text-decoration: none;
+  color: var(--lf-color-marca-texto);
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-medio);
+  transition: background-color var(--lf-transicion), color var(--lf-transicion);
+}
+
+.item:hover {
+  background-color: var(--lf-color-marca-superponer-sutil);
+  color: var(--lf-color-superficie);
+}
+
+/*
+ * Sección activa (FR-004): tres canales, y el color es el tercero.
+ * 1) relleno + filete de acento a la izquierda, 2) peso tipográfico ya
+ * fuerte en todos por diseño, 3) fondo e icono en blanco. FR-028: nunca
+ * solo color.
+ */
+.activo,
+.activo:hover {
+  background-color: var(--lf-color-marca-superponer-fuerte);
+  color: var(--lf-color-superficie);
+  font-weight: var(--lf-peso-fuerte);
+  box-shadow: inset 3px 0 0 var(--lf-color-acento-claro);
+}
+
+/* Sin liga en contexto: ni lista ni elementos deshabilitados (FR-006). */
+.compacta {
+  padding: var(--lf-espacio-1);
+}
+
+.sinLiga {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-3);
+  padding: var(--lf-espacio-4);
+  border-radius: var(--lf-radio-lg);
+  background-color: var(--lf-color-marca-superponer-sutil);
+  border: 1px solid var(--lf-color-marca-borde-sutil);
+}
+
+.avisoSinLiga {
+  margin: 0;
+  font-size: var(--lf-texto-xs);
+  line-height: var(--lf-interlineado);
+  color: var(--lf-color-marca-texto);
+}
+
+.accesoLigas {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--lf-espacio-2) var(--lf-espacio-4);
+  border-radius: var(--lf-radio-pastilla);
+  background-color: var(--lf-color-acento-claro);
+  color: var(--lf-color-marca-fondo-alto);
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-fuerte);
+  text-decoration: none;
+}
+
+.accesoLigas:hover {
+  background-color: var(--lf-color-superficie);
+  color: var(--lf-color-primario);
+}
+
+/* --- Columna de contenido ----------------------------------------------- */
+
+.columna {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-4);
+  min-width: 0;
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lf-espacio-4);
+  flex-wrap: wrap;
+  padding: var(--lf-espacio-2) var(--lf-espacio-3);
+}
+
+/* Destino del <h1> de la pantalla. Sobre la superficie de marca, así que el
+   color de texto es el propio de esa superficie, nunca el de superficie
+   clara (FR-044). El tamaño lo pone TituloDePantalla.module.css. */
+.tituloDePantalla {
+  flex: 1;
+  min-width: 0;
+  color: var(--lf-color-superficie);
+}
+
+.filaLiga {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  flex-wrap: wrap;
+  padding: 0 var(--lf-espacio-3);
+}
+
+.cambiarLiga {
+  flex: 0 0 auto;
+  padding: var(--lf-espacio-2) var(--lf-espacio-4);
+  border: 1px solid var(--lf-color-marca-borde);
+  border-radius: var(--lf-radio-pastilla);
+  color: var(--lf-color-marca-texto);
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-medio);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--lf-transicion), color var(--lf-transicion);
+}
+
+.cambiarLiga:hover {
+  background-color: var(--lf-color-marca-superponer);
+  color: var(--lf-color-superficie);
+}
+
+.contenido {
+  flex: 1;
+  min-width: 0;
+  padding: var(--lf-espacio-6);
+  border-radius: var(--lf-radio-xl);
+  background-color: var(--lf-color-fondo);
+  box-shadow: var(--lf-sombra-3);
+}
+
+/* ---------------------------------------------------------------------
+ * Adaptabilidad (FR-005, FR-029, FR-030). Tres cortes:
+ *   >= 1024px  barra lateral fija, como el mockup del enunciado
+ *   768-1023px lateral estrecha
+ *   < 768px    colapsada tras el botón "Menú"
+ * Los valores van literales porque CSS no admite var() en la condición de
+ * una media query (data-model.md §1.3).
+ * ------------------------------------------------------------------- */
+
+@media (max-width: 1023px) {
+  .lienzo {
+    padding: var(--lf-espacio-3);
+  }
+
+  .marco {
+    grid-template-columns: 180px 1fr;
+    gap: var(--lf-espacio-3);
+    padding: var(--lf-espacio-3);
+  }
+
+  .contenido {
+    padding: var(--lf-espacio-5);
+  }
+}
+
+@media (max-width: 767px) {
+  .marco {
+    grid-template-columns: 1fr;
+    /* Con una sola columna, `.aside` y `.columna` pasan a ser dos filas.
+       Sin esto, el `stretch` por defecto de las filas de grid —el que en
+       escritorio hace que la barra lateral iguale la altura del contenido—
+       repartiría el sobrante de alto entre las dos filas, dejando una franja
+       oscura vacía entre la marca y la cabecera. */
+    align-content: start;
+  }
+
+  .filaMarca {
+    padding-bottom: var(--lf-espacio-2);
+  }
+
+  .botonMenu {
+    display: inline-flex;
+  }
+
+  .navegacion {
+    display: none;
+  }
+
+  /* La barra compacta no tiene secciones que colapsar: es un único acceso,
+     así que se queda visible sin pasar por el botón "Menú". */
+  .navegacion.compacta {
+    display: block;
+  }
+
+  .navegacion.abierta {
+    display: block;
+  }
+
+  .lista {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .item {
+    flex: 1 1 auto;
+  }
+
+  .cabecera {
+    padding: var(--lf-espacio-1) var(--lf-espacio-2);
+  }
+
+  .filaLiga {
+    padding: 0 var(--lf-espacio-2);
+  }
+
+  .contenido {
+    padding: var(--lf-espacio-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}

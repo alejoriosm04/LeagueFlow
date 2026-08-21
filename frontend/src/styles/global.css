@@ -1,0 +1,139 @@
+/*
+ * Reset mínimo, tipografía base y foco visible compartido.
+ * spec 012-identidad-visual (FR-020, FR-024, FR-030).
+ * Solo consume var(--lf-*): sin literales.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+html {
+  /* FR-030: la página nunca desplaza en horizontal; lo hacen los contenedores. */
+  overflow-x: hidden;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-family: var(--lf-fuente-base);
+  font-size: var(--lf-texto-md);
+  line-height: var(--lf-interlineado);
+  color: var(--lf-color-texto);
+  background-color: var(--lf-color-fondo);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.25;
+  font-weight: var(--lf-peso-fuerte);
+}
+
+h1 {
+  font-size: var(--lf-texto-2xl);
+}
+
+h2 {
+  font-size: var(--lf-texto-xl);
+}
+
+h3 {
+  font-size: var(--lf-texto-lg);
+}
+
+a {
+  color: var(--lf-color-primario);
+}
+
+a:hover {
+  color: var(--lf-color-primario-fuerte);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+input,
+button,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/*
+ * FR-024: foco visible en todo elemento interactivo. Ninguna hoja de
+ * componente puede anularlo con `outline: none`.
+ */
+:focus-visible {
+  outline: 3px solid var(--lf-color-primario);
+  outline-offset: 2px;
+  border-radius: var(--lf-radio-sm);
+}
+
+/* Enlace de salto para llegar al contenido sin recorrer la navegación. */
+.lf-salto-a-contenido {
+  position: absolute;
+  left: -9999px;
+  top: var(--lf-espacio-2);
+  z-index: 100;
+  padding: var(--lf-espacio-2) var(--lf-espacio-4);
+  background-color: var(--lf-color-superficie);
+  border-radius: var(--lf-radio-sm);
+  box-shadow: var(--lf-sombra-2);
+}
+
+.lf-salto-a-contenido:focus {
+  left: var(--lf-espacio-4);
+}
+
+/*
+ * Contenedor de formulario compartido. Vive aquí, y no en una hoja por
+ * pantalla, porque los nueve formularios de la aplicación comparten
+ * exactamente la misma caja: repetirla nueve veces sería justo lo que
+ * FR-020 prohíbe.
+ */
+.lf-formulario {
+  max-width: 34rem;
+  padding: var(--lf-espacio-6);
+  border: 1px solid var(--lf-color-borde);
+  border-radius: var(--lf-radio-xl);
+  background-color: var(--lf-color-superficie);
+  box-shadow: var(--lf-sombra-3);
+}
+
+.lf-formulario > h1 {
+  margin-bottom: var(--lf-espacio-5);
+}
+
+@media (max-width: 767px) {
+  .lf-formulario {
+    padding: var(--lf-espacio-4);
+  }
+}
+
+.lf-acciones-formulario {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  margin-top: var(--lf-espacio-5);
+}

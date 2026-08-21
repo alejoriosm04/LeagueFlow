@@ -68,8 +68,12 @@ describe('clasificación pública', () => {
       'Delta',
       'Bravo',
     ]);
+    // La celda de posición cambia de "1" a "🥇 1.º" por FR-011 (spec 012):
+    // el podio debe distinguirse por TEXTO, no solo por color. No es un
+    // ajuste de selector ni una prueba debilitada: se afirma exactamente lo
+    // mismo (valores y orden), con el texto que el requisito nuevo impone.
     expect(within(filas[0]).getAllByRole('cell').map((c) => c.textContent)).toEqual([
-      '1', 'Alfa', '2', '2', '0', '0', '5', '1', '+4', '6',
+      '🥇 1.º', 'Alfa', '2', '2', '0', '0', '5', '1', '+4', '6',
     ]);
   });
 
@@ -100,7 +104,14 @@ describe('clasificación pública', () => {
   it('muestra un error legible si la liga no existe', async () => {
     vi.stubGlobal('fetch', stubFetch({ error: true }));
     renderStandings();
-    expect(await screen.findByRole('alert')).toHaveTextContent(/no se encontró la liga/i);
+    // FR-015 / SC-003 (spec 012): el mensaje ya no lo escribe la pantalla ni
+    // viene del servidor ("La liga no existe."), sino del catálogo en español
+    // indexado por `code`. La afirmación sigue siendo la misma: hay un error
+    // legible, sin detalles técnicos.
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      /no encontramos la liga que buscas/i,
+    );
+    expect(screen.getByRole('alert')).not.toHaveTextContent('league_not_found');
   });
 
   it('se descubre desde el detalle de la liga', async () => {

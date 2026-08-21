@@ -107,7 +107,13 @@ describe('goles del partido', () => {
   it('advierte cuando los goles no cuadran con el marcador', async () => {
     vi.stubGlobal('fetch', stubFetch({ cuadra: false }).fn);
     renderFicha();
-    expect(await screen.findByRole('status')).toHaveTextContent(/no coinciden con el marcador/i);
+    // El estado de carga también lleva role="status" (EstadoCarga, FR-013):
+    // hay que esperar a que la sección de goles exista para no atrapar ese
+    // aviso transitorio en vez del de inconsistencia.
+    const seccion = await screen.findByRole('region', { name: /goles/i });
+    expect(await within(seccion).findByRole('status')).toHaveTextContent(
+      /no coinciden con el marcador/i,
+    );
   });
 
   it('no advierte cuando los goles cuadran', async () => {
@@ -115,6 +121,13 @@ describe('goles del partido', () => {
     renderFicha();
     await screen.findByRole('region', { name: /goles/i });
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('no duplica el formulario de solicitud de corrección para un operador', async () => {
+    vi.stubGlobal('fetch', stubFetch({ rol: 'operador' }).fn);
+    renderFicha();
+    await screen.findByRole('region', { name: /goles/i });
+    expect(screen.getAllByRole('heading', { name: 'Solicitar corrección' })).toHaveLength(1);
   });
 
   it('traduce el rechazo del jugador ajeno a un mensaje legible', async () => {

@@ -1,0 +1,17 @@
+.podio {
+  display: inline-block;
+  min-width: 3.25rem;
+  padding: var(--lf-espacio-1) var(--lf-espacio-2);
+  border-radius: var(--lf-radio-pastilla);
+  font-weight: var(--lf-peso-fuerte);
+  font-size: var(--lf-texto-xs);
+  white-space: nowrap;
+  background-color: var(--lf-color-superficie);
+  border: 1px solid var(--lf-color-borde);
+}
+
+.plano {
+  display: inline-block;
+  min-width: 3.25rem;
+  font-variant-numeric: tabular-nums;
+}
