@@ -4,6 +4,7 @@ import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { useAuth } from './features/auth/AuthContext';
 import { CreateLeagueForm } from './features/leagues/CreateLeagueForm';
 import { LeagueDetailPage } from './features/leagues/LeagueDetailPage';
+import { DashboardPage } from './features/dashboard/DashboardPage';
 import { LeaguesPage } from './features/leagues/LeaguesPage';
 import { CreateMatchForm } from './features/matches/CreateMatchForm';
 import { MatchesPage } from './features/matches/MatchesPage';
@@ -43,7 +44,7 @@ function SoloOrganizador() {
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Portada />} />
+      <Route path="/" element={<Inicio />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/leagues" element={<LeaguesPage />} />
       <Route path="/leagues/:id" element={<LeagueDetailPage />} />

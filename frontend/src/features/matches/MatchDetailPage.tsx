@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { EstadoCarga, EstadoError, FilaDeMarcador, Panel } from '../../components';
 import { formatearFechaHora } from '../../lib/formato';
 import { Link, useParams } from 'react-router-dom';
