@@ -12,6 +12,23 @@ from src.statistics.schemas import StandingsRow
 
 
 @dataclass(frozen=True)
+class ScoringRules:
+    """Única fuente de verdad de la puntuación de la clasificación (FR-003).
+
+    Punto de extensión deliberado (enunciado §12): si una victoria, un empate o
+    una derrota pasaran a valer otra cantidad, se cambia aquí y en ningún otro
+    sitio. Por defecto, los valores estándar del fútbol: 3 / 1 / 0.
+    """
+
+    win_points: int = 3
+    draw_points: int = 1
+    loss_points: int = 0
+
+
+SCORING: ScoringRules = ScoringRules()
+
+
+@dataclass(frozen=True)
 class EquipoEnTabla:
     """Equipo candidato a ocupar una fila. `activo` es Team.status == 'active'."""
 
@@ -54,7 +71,11 @@ class _Acumulado:
     @property
     def points(self) -> int:
         """FR-003: 3 por victoria, 1 por empate, 0 por derrota."""
-        return self.won * 3 + self.drawn
+        return (
+            self.won * SCORING.win_points
+            + self.drawn * SCORING.draw_points
+            + self.lost * SCORING.loss_points
+        )
 
     @property
     def goal_difference(self) -> int:
@@ -119,4 +140,4 @@ def calcular_clasificacion(
     ]
 
 
-__all__ = ["EquipoEnTabla", "PartidoParaTabla", "calcular_clasificacion"]
+__all__ = ["EquipoEnTabla", "PartidoParaTabla", "ScoringRules", "SCORING", "calcular_clasificacion"]

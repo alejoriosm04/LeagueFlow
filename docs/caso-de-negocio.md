@@ -20,16 +20,16 @@ qué dato es automático, cuál es aproximado y cuál requiere a una persona.
 | HU | Tareas (hechas/total) | Tests | Ciclos corrección | Tiempo spec+plan+tasks | Tiempo implement | Costo IA | Días calendario | Commits |
 |---|---|---|---|---|---|---|---|---|
 | 001-fundacion-y-autenticacion | 41/41 | 21 / 21 | 10 | <pendiente> | <pendiente> | <pendiente, del panel de uso> | 0.7 | 4 |
-| 002-crear-liga | 16/16 | 25 / 25 | 4 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 0.7 | 3 |
+| 002-crear-liga | 16/16 | 25 / 25 | 4 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 0.8 | 4 |
 | 003-registrar-equipos | 15/15 | 26 / 26 | 3 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 0.8 | 4 |
-| 004-registrar-jugadores | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 005-programar-partido | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 006-registrar-resultado | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 007-consultar-calendario | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 008-consultar-clasificacion | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 009-registrar-goles | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 010-alineaciones-estadisticas | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
-| 011-dashboard-liga | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | 0.1 | 2 |
+| 004-registrar-jugadores | 14/15 | 26 / 26 (21 backend + 5 frontend) | 1 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 0.9 | 3 |
+| 005-programar-partido | 14/15 | 21 / 21 (16 backend + 5 frontend) | 1 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 0.9 | 3 |
+| 006-registrar-resultado | 24/24 | 116 backend + 27 frontend | 3 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 1.0 | 3 |
+| 007-consultar-calendario | 18/18 | 127 backend + 32 frontend | 3 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 1.1 | 3 |
+| 008-consultar-clasificacion | 22/22 | 163 backend (74 unit+contrato, 89 integración) + 38 frontend | 6 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 1.7 | 3 |
+| 009-registrar-goles | 23/23 | 169 backend (76 unit+contrato, 93 integración) + 38 frontend | 5 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 1.7 | 3 |
+| 010-alineaciones-estadisticas | 23/29 | Frontend: 52/52 (`npx vitest run`, suite completa). Backend: no ejecutable en este entorno (sin PostgreSQL); revisados manualmente y verificados por lint, `ruff check`/`format`, compilación y generación del schema OpenAPI de la app viva | 4 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 1.9 | 4 |
+| 011-dashboard-liga | 18/19 | Backend: 217 recolectados, 215 en verde localmente (12 nuevos del dashboard incluidos); 2 fallos preexistentes, ajenos a esta HU (ver Observaciones). Frontend: 51 en verde (7 nuevos) | 7 | <ej. 45 min> | <ej. 2 h> | <del panel de uso de tu herramienta> | 2.0 | 3 |
 
 > `⬜` = falta `docs/metricas/<spec>.md`. **Días calendario** y **commits**
 > salen de `git log` y miden tiempo transcurrido, no esfuerzo: el esfuerzo
