@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { EstadoCarga, EstadoError, FilaDeMarcador, Panel } from '../../components';
 import { formatearFechaHora } from '../../lib/formato';
+import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { teamsApi } from '../teams/api';
 import type { Team } from '../teams/api';
@@ -12,10 +13,16 @@ import { playersApi } from '../players/api';
 import type { Player } from '../players/api';
 import { CorrectionDecisionForm } from './CorrectionDecisionForm';
 import { CorrectionRequestForm } from './CorrectionRequestForm';
+import { LineupForm } from './LineupForm';
 import { matchesApi } from './api';
-import type { Match, ResultCorrection } from './api';
+import type { Match, MatchLineupView, ResultCorrection } from './api';
 import { ResultForm } from './ResultForm';
 import estilos from './MatchDetailPage.module.css';
+
+const etiquetaAlineacion: Record<MatchLineupView['status'], string> = {
+  registered: 'Alineación registrada',
+  missing: 'Alineación no registrada',
+};
 
 function fecha(value: string | null) {
   return value ? formatearFechaHora(value) : '—';
@@ -44,6 +51,7 @@ export function MatchDetailPage() {
   const [partido, setPartido] = useState<Match | null>(null);
   const [correcciones, setCorrecciones] = useState<ResultCorrection[]>([]);
   const [goles, setGoles] = useState<MatchEvents | null>(null);
+  const [alineacion, setAlineacion] = useState<MatchLineupView | null>(null);
   const [jugadores, setJugadores] = useState<Player[]>([]);
   const [equipos, setEquipos] = useState<{ local: Team | null; visitante: Team | null }>({
     local: null,
@@ -56,14 +64,16 @@ export function MatchDetailPage() {
     if (!matchId) return;
     setCargando(true);
     try {
-      const [match, history, eventos] = await Promise.all([
+      const [match, history, eventos, lineup] = await Promise.all([
         matchesApi.obtener(matchId),
         matchesApi.listarCorrecciones(matchId),
         eventsApi.listar(matchId),
+        matchesApi.obtenerAlineacion(matchId),
       ]);
       setPartido(match);
       setCorrecciones(history.items);
       setGoles(eventos);
+      setAlineacion(lineup);
       // Los nombres se resuelven por la API pública del dominio Player.
       const plantillas = await Promise.all([
         playersApi.listar(match.home_team_id),
@@ -140,6 +150,48 @@ export function MatchDetailPage() {
         <ResultForm matchId={matchId} onSuccess={() => void cargar()} />
       )}
 
+      <p><strong>Estado:</strong> {partido.status}</p>
+      <p><strong>Marcador vigente:</strong> {partido.home_score ?? '—'} – {partido.away_score ?? '—'}</p>
+      {autenticado && partido.status === 'scheduled' && <ResultForm matchId={matchId} onSuccess={() => void cargar()} />}
+      {autenticado && partido.status === 'finished' && <CorrectionRequestForm matchId={matchId} onSuccess={() => void cargar()} />}
+      <section aria-label="Alineación">
+        <h2>Alineación</h2>
+        <p>{alineacion ? etiquetaAlineacion[alineacion.status] : 'Cargando…'}</p>
+        {alineacion?.status === 'registered' && (
+          <div>
+            <div>
+              <h3>Local</h3>
+              <ul>
+                {alineacion.home_players.map((j) => (
+                  <li key={j.player_id}>
+                    <Link to={`/players/${j.player_id}/statistics`}>{j.player_name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3>Visitante</h3>
+              <ul>
+                {alineacion.away_players.map((j) => (
+                  <li key={j.player_id}>
+                    <Link to={`/players/${j.player_id}/statistics`}>{j.player_name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+        {autenticado && alineacion && (
+          <LineupForm
+            matchId={matchId}
+            jugadoresLocal={jugadores.filter((j) => j.team_id === partido.home_team_id)}
+            jugadoresVisitante={jugadores.filter((j) => j.team_id === partido.away_team_id)}
+            seleccionLocal={alineacion.home_players.map((j) => j.player_id)}
+            seleccionVisitante={alineacion.away_players.map((j) => j.player_id)}
+            onSuccess={() => void cargar()}
+          />
+        )}
+      </section>
       <section aria-label="Goles">
         <Panel titulo="Goles">
           {goles && goles.consistency.matches_official === false && (

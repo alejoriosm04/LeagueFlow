@@ -113,6 +113,37 @@ class ResultCorrectionRequest(Base, UUIDPrimaryKey, TimestampCreated):
     )
 
 
+class MatchLineup(Base, UUIDPrimaryKey, TimestampCreated, TimestampUpdated):
+    """Jugador participante de un partido, por equipo — specs/010.
+
+    Grano: una fila por jugador participante (FR-001). `PUT /matches/{id}/lineup`
+    la trata como reemplazo completo idempotente (research.md §1): corregir una
+    alineación borra e inserta de nuevo, así que `created_at`/`updated_at`
+    reflejan la última escritura, no el historial de correcciones (NFR-001).
+    """
+
+    __tablename__ = "match_lineups"
+
+    match_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("matches.id", ondelete="RESTRICT"), nullable=False
+    )
+    team_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("teams.id", ondelete="RESTRICT"), nullable=False
+    )
+    player_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("players.id", ondelete="RESTRICT"), nullable=False
+    )
+    created_by: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
+    )
+
+    __table_args__ = (
+        Index("uq_match_lineups_match_player", "match_id", "player_id", unique=True),
+        Index("ix_match_lineups_match_team", "match_id", "team_id"),
+        Index("ix_match_lineups_player", "player_id"),
+    )
+
+
 class MatchEvent(Base, UUIDPrimaryKey, TimestampCreated):
     """Hecho ocurrido durante un partido — specs/009-registrar-goles.
 
@@ -151,4 +182,4 @@ class MatchEvent(Base, UUIDPrimaryKey, TimestampCreated):
     )
 
 
-__all__ = ["Match", "MatchEvent", "ResultCorrectionRequest"]
+__all__ = ["Match", "MatchEvent", "MatchLineup", "ResultCorrectionRequest"]

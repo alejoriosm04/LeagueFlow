@@ -1,10 +1,11 @@
 """Reglas de negocio de partidos (FR-001, FR-002, FR-003, FR-005)."""
 
 import uuid
+from collections.abc import Sequence
 from datetime import UTC, datetime
 
 from fastapi import status
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,8 +16,19 @@ from src.matches.goal_rules import (
     calcular_consistencia,
     validar_registro_de_gol,
 )
-from src.matches.models import Match, MatchEvent, ResultCorrectionRequest
-from src.matches.schemas import EventConsistency, EventType, MatchStatus
+from src.matches.lineup_rules import (
+    JugadorCandidato,
+    detectar_conflicto_con_eventos,
+    validar_lado_de_alineacion,
+)
+from src.matches.models import Match, MatchEvent, MatchLineup, ResultCorrectionRequest
+from src.matches.schemas import (
+    EventConsistency,
+    EventType,
+    LineupPlayer,
+    MatchLineupView,
+    MatchStatus,
+)
 from src.players.service import PlayerService
 from src.teams.service import TeamService
 
@@ -146,15 +158,143 @@ class MatchService:
         return partido
 
     async def jugadores_alineados(self, match_id: uuid.UUID) -> set[uuid.UUID] | None:
-        """Puerto de lectura de la alineación (FR-003 de la spec 009).
+        """Puerto de lectura de la alineación (FR-003 de la spec 009, cerrado en 010).
 
-        Devuelve `None` —"este partido no tiene alineación registrada"— hasta
-        que `specs/010-alineaciones-estadisticas` cree `MatchLineup` y lo
-        sustituya por la consulta real. La regla que consume este valor ya está
-        implementada y probada en `goal_rules.validar_registro_de_gol`.
+        `None` significa "sin alineación registrada" (FR-003 de 009 no aplica);
+        un conjunto —vacío incluido— significa que sí existe alineación.
+        data-model.md de esta HU define `lineup_status` por existencia de filas
+        en `match_lineups`, así que una alineación guardada explícitamente vacía
+        es indistinguible de "nunca registrada": ambas devuelven `None` aquí.
         """
         await self._exigir_partido(match_id)
-        return None
+        res = await self.db.execute(
+            select(MatchLineup.player_id).where(MatchLineup.match_id == match_id)
+        )
+        alineados = set(res.scalars())
+        return alineados or None
+
+    # --- Alineaciones (spec 010) --------------------------------------------
+
+    async def guardar_alineacion(
+        self,
+        match_id: uuid.UUID,
+        home_player_ids: list[uuid.UUID],
+        away_player_ids: list[uuid.UUID],
+        actor_id: uuid.UUID,
+    ) -> MatchLineupView:
+        """FR-001, FR-002, FR-003: reemplazo completo idempotente."""
+        partido = await self._exigir_partido(match_id)
+        player_service = PlayerService(self.db)
+
+        async def _candidatos(ids: list[uuid.UUID]) -> list[JugadorCandidato | None]:
+            candidatos: list[JugadorCandidato | None] = []
+            for player_id in ids:
+                jugador = await player_service.obtener_jugador(player_id)
+                candidatos.append(
+                    JugadorCandidato(id=jugador.id, team_id=jugador.team_id)
+                    if jugador is not None
+                    else None
+                )
+            return candidatos
+
+        validar_lado_de_alineacion(
+            jugadores=await _candidatos(home_player_ids),
+            equipo_id=partido.home_team_id,
+            otro_equipo_id=partido.away_team_id,
+        )
+        validar_lado_de_alineacion(
+            jugadores=await _candidatos(away_player_ids),
+            equipo_id=partido.away_team_id,
+            otro_equipo_id=partido.home_team_id,
+        )
+
+        nueva_alineacion = set(home_player_ids) | set(away_player_ids)
+        res = await self.db.execute(
+            select(MatchEvent.player_id)
+            .where(MatchEvent.match_id == match_id, MatchEvent.type == "GOAL")
+            .distinct()
+        )
+        detectar_conflicto_con_eventos(
+            jugadores_con_gol=set(res.scalars()), nueva_alineacion=nueva_alineacion
+        )
+
+        await self.db.execute(delete(MatchLineup).where(MatchLineup.match_id == match_id))
+        filas = [
+            MatchLineup(
+                match_id=match_id, team_id=partido.home_team_id, player_id=pid, created_by=actor_id
+            )
+            for pid in home_player_ids
+        ] + [
+            MatchLineup(
+                match_id=match_id, team_id=partido.away_team_id, player_id=pid, created_by=actor_id
+            )
+            for pid in away_player_ids
+        ]
+        self.db.add_all(filas)
+        await self.db.commit()
+        return await self.obtener_alineacion(match_id)
+
+    async def obtener_alineacion(self, match_id: uuid.UUID) -> MatchLineupView:
+        """FR-004: lectura pública. `status` se deriva de la existencia de filas."""
+        partido = await self._exigir_partido(match_id)
+        res = await self.db.execute(
+            select(MatchLineup)
+            .where(MatchLineup.match_id == match_id)
+            .order_by(MatchLineup.team_id, MatchLineup.player_id)
+        )
+        filas = list(res.scalars())
+        if not filas:
+            return MatchLineupView(
+                match_id=match_id, status="missing", home_players=[], away_players=[]
+            )
+
+        nombres = await PlayerService(self.db).mapa_nombres([fila.player_id for fila in filas])
+
+        def _armar(equipo_id: uuid.UUID) -> list[LineupPlayer]:
+            jugadores = [
+                LineupPlayer(
+                    player_id=fila.player_id,
+                    player_name=nombres.get(fila.player_id, ""),
+                    team_id=fila.team_id,
+                )
+                for fila in filas
+                if fila.team_id == equipo_id
+            ]
+            return sorted(
+                jugadores, key=lambda j: (j.player_name.strip().lower(), str(j.player_id))
+            )
+
+        return MatchLineupView(
+            match_id=match_id,
+            status="registered",
+            home_players=_armar(partido.home_team_id),
+            away_players=_armar(partido.away_team_id),
+        )
+
+    async def goles_por_jugadores(self, player_ids: Sequence[uuid.UUID]) -> dict[uuid.UUID, int]:
+        """Fuente de estadísticas (spec 010, FR-006): goles por jugador, desde eventos."""
+        if not player_ids:
+            return {}
+        res = await self.db.execute(
+            select(MatchEvent.player_id, func.count())
+            .where(MatchEvent.type == "GOAL", MatchEvent.player_id.in_(player_ids))
+            .group_by(MatchEvent.player_id)
+        )
+        return dict(res.all())
+
+    async def partidos_jugados_por_jugadores(
+        self, player_ids: Sequence[uuid.UUID]
+    ) -> dict[uuid.UUID, int]:
+        """Fuente de estadísticas (spec 010, FR-007): partidos finalizados por jugador."""
+        if not player_ids:
+            return {}
+        res = await self.db.execute(
+            select(MatchLineup.player_id, func.count(func.distinct(MatchLineup.match_id)))
+            .join(Match, Match.id == MatchLineup.match_id)
+            .where(MatchLineup.player_id.in_(player_ids), Match.status == "finished")
+            .group_by(MatchLineup.player_id)
+        )
+        return dict(res.all())
 
     async def registrar_gol(
         self,

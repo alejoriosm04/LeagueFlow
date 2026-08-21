@@ -32,6 +32,9 @@ function stubFetch({ rol = null as string | null, cuadra = false, error = false 
     }
     if (path === '/teams/th/players') return Response.json({ items: jugadores.th, page: 1, page_size: 20, total: 1 });
     if (path === '/teams/ta/players') return Response.json({ items: jugadores.ta, page: 1, page_size: 20, total: 1 });
+    if (path === '/matches/m1/lineup') {
+      return Response.json({ match_id: 'm1', status: 'missing', home_players: [], away_players: [] });
+    }
     if (path === '/matches/m1/events') {
       if (init?.method === 'POST') {
         if (error) {
