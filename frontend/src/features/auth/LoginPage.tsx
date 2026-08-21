@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Boton, CampoDeFormulario, EstadoError } from '../../components';
+import { Boton, CampoDeFormulario, EstadoError, TituloDePantalla } from '../../components';
 import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { useAuth } from './AuthContext';
 
@@ -35,7 +35,7 @@ export function LoginPage() {
 
   return (
     <form onSubmit={onSubmit} className="lf-formulario">
-      <h1>Iniciar sesión</h1>
+      <TituloDePantalla>Iniciar sesión</TituloDePantalla>
 
       <CampoDeFormulario
         id="username"

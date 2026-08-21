@@ -1,0 +1,17 @@
+/*
+ * El título vive en la cabecera, sobre la superficie de marca: usa los
+ * colores de texto propios de esa superficie, nunca los de superficie clara
+ * (FR-044). Cuando la pantalla se renderiza fuera del shell, el mismo `<h1>`
+ * cae sobre fondo claro; por eso el color lo hereda el contenedor de destino
+ * (`.tituloDePantalla` en AppShell.module.css) y no se fija aquí.
+ */
+.titulo {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--lf-texto-2xl);
+  font-weight: var(--lf-peso-fuerte);
+  line-height: var(--lf-interlineado-titulo);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

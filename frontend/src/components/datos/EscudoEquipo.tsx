@@ -4,6 +4,11 @@
  *
  * Los escudos son enlaces externos (Assumption de la spec). Si `crestUrl`
  * falta O falla al cargar, se muestran las iniciales en el mismo cuadro.
+ *
+ * `circular` existe porque la maqueta de referencia usa badges redondos en
+ * el bloque de próximo partido y en la tabla de posiciones; el sustituto de
+ * iniciales adopta la misma forma para que el hueco no cambie de silueta
+ * según haya escudo o no.
  */
 
 import { useState } from 'react';
@@ -13,12 +18,20 @@ import estilos from './EscudoEquipo.module.css';
 interface EscudoEquipoProps {
   nombre: string;
   crestUrl?: string | null;
-  tamano?: 'sm' | 'md';
+  tamano?: 'sm' | 'md' | 'lg';
+  circular?: boolean;
 }
 
-export function EscudoEquipo({ nombre, crestUrl, tamano = 'sm' }: EscudoEquipoProps) {
+const claseDeTamano = { sm: estilos.sm, md: estilos.md, lg: estilos.lg } as const;
+
+export function EscudoEquipo({
+  nombre,
+  crestUrl,
+  tamano = 'sm',
+  circular = false,
+}: EscudoEquipoProps) {
   const [fallo, setFallo] = useState(false);
-  const clase = tamano === 'md' ? estilos.md : estilos.sm;
+  const clase = `${claseDeTamano[tamano]} ${circular ? estilos.circular : ''}`;
 
   if (crestUrl && !fallo) {
     return (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { EstadoCarga, EstadoError, Panel } from '../../components';
+import { EstadoCarga, EstadoError, Panel, TituloDePantalla } from '../../components';
 import { mensajeDeError } from '../../lib/mensajesDeError';
 import { leaguesApi } from './api';
 import type { League } from './api';
@@ -30,7 +30,7 @@ export function LeagueDetailPage() {
   if (cargando || error) {
     return (
       <section>
-        <h1>Liga</h1>
+        <TituloDePantalla>Liga</TituloDePantalla>
         {cargando ? (
           <EstadoCarga recurso="la liga" />
         ) : (
@@ -43,7 +43,7 @@ export function LeagueDetailPage() {
 
   return (
     <section>
-      <h1>{liga.name}</h1>
+      <TituloDePantalla>{liga.name}</TituloDePantalla>
 
       <Panel titulo="Datos de la liga">
         <dl className={estilos.datos}>
@@ -60,9 +60,11 @@ export function LeagueDetailPage() {
 
       <Panel titulo="Accesos">
         <p className={estilos.accesos}>
+          <Link to={`/leagues/${liga.id}/dashboard`}>Ver dashboard</Link>
           <Link to={`/leagues/${liga.id}/teams`}>Ver equipos</Link>
           <Link to={`/leagues/${liga.id}/matches`}>Ver partidos</Link>
           <Link to={`/leagues/${liga.id}/standings`}>Ver clasificación</Link>
+          <Link to={`/leagues/${liga.id}/top-scorers`}>Ver goleadores</Link>
         </p>
       </Panel>
     </section>

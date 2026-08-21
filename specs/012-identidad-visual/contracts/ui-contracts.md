@@ -32,6 +32,27 @@ Garantiza `<header role="banner">`, `<nav aria-label="Secciones">` y `<main>`
 en toda pantalla (FR-001, FR-027). No recibe la liga en contexto por props: la
 resuelve con `useLigaEnContexto()`.
 
+### `TituloDePantalla`
+
+```ts
+interface TituloDePantallaProps {
+  children: React.ReactNode;   // el título; puede ser marcado, no solo texto
+}
+```
+
+El `<h1>` de la pantalla (FR-027) **se pinta en la cabecera del marco**, a
+tamaño de titular sobre la superficie de marca (FR-042, FR-044). Cada pantalla
+sigue declarando el suyo; el componente lo mueve de sitio con un portal, nunca
+lo duplica: sigue habiendo exactamente un `<h1>` por pantalla.
+
+Fuera del `AppShell` —una pantalla renderizada suelta en una prueba de
+componente— no hay destino y el `<h1>` se pinta en su lugar natural, así que
+las pruebas lo siguen encontrando por rol sin conocer el shell.
+
+Se usa un portal, y no un contexto que pase el texto hacia arriba, porque el
+título puede ser marcado (el nombre de una liga o de un jugador ya cargado) y
+porque así la pantalla nunca se queda sin encabezado principal.
+
 ### `useLigaEnContexto()`
 
 ```ts
@@ -52,13 +73,15 @@ solo: ninguna pantalla tiene que informarla.**
 | `/leagues/:id/…` | el id está en la ruta |
 | `/teams/:teamId/…` | con el `league_id` del equipo (`specs/003`) |
 | `/matches/:matchId` | con el `league_id` del partido (`specs/005`) |
+| `/players/:playerId/…` | con el `league_id` del equipo del jugador (`specs/004` → `specs/003`) |
 | resto | sin liga |
 
-Las dos rutas indirectas no son un adorno: sin ellas la navegación quedaría
-inerte en las pantallas de jugadores y de detalle de partido, y la sección
-Jugadores —cuyo `coincide` son precisamente rutas `/teams/:teamId/players`— no
-podría resaltarse nunca (FR-004). Todo se cachea en memoria por id, así que la
-resolución cuesta una petición la primera vez y ninguna después.
+Las rutas indirectas no son un adorno: sin ellas la navegación quedaría
+inerte en las pantallas de jugadores, de detalle de partido y de ficha
+individual de estadísticas, y las secciones Jugadores y Estadísticas —cuyo
+`coincide` incluye precisamente esas rutas— no podrían resaltarse nunca
+(FR-004). Todo se cachea en memoria por id, así que la resolución cuesta una
+petición la primera vez y ninguna después.
 
 ### `secciones.ts`
 
@@ -69,7 +92,6 @@ interface Seccion {
   ruta: (leagueId: string) => string;      // a dónde navega el ítem
   coincide: readonly string[];             // patrones de ruta que lo marcan activo
   requiereLiga: true;
-  pendiente?: 'specs/010' | 'specs/011';
 }
 
 export const secciones: readonly Seccion[];
@@ -187,12 +209,32 @@ Texto "1.º/2.º/3.º" + medalla; nunca solo color (FR-011, FR-028).
 interface EscudoEquipoProps {
   nombre: string;                   // origen de las iniciales del sustituto
   crestUrl?: string | null;
-  tamano?: 'sm' | 'md';             // por defecto 'sm'
+  tamano?: 'sm' | 'md' | 'lg';      // por defecto 'sm'
+  circular?: boolean;               // badge redondo (maqueta de referencia)
 }
 ```
 
 Si `crestUrl` falta **o falla al cargar**, muestra las iniciales ocupando el
 mismo cuadro (FR-012).
+
+### `GraficoDeBarras`
+
+```ts
+interface BarraDeDatos {
+  etiqueta: string;
+  valor: number;
+}
+
+interface GraficoDeBarrasProps {
+  datos: readonly BarraDeDatos[];
+  descripcion: string;              // resume el gráfico para lectores de pantalla
+  destacarUltima?: boolean;         // pinta en acento la barra más reciente
+}
+```
+
+Añadido al integrar `specs/011` (DashboardPage, tarjeta "Goles por fecha"):
+cada barra imprime su valor como texto visible, así que el color nunca es el
+único portador del dato (FR-028) y no hace falta un rol ARIA especial.
 
 ## 3. Estados de pantalla
 

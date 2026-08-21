@@ -24,6 +24,20 @@
   font-size: var(--lf-texto-sm);
 }
 
+.lg {
+  width: 4.5rem;
+  height: 4.5rem;
+  font-size: var(--lf-texto-xl);
+}
+
+/* Badge redondo de la maqueta: misma silueta lleve escudo real o iniciales. */
+.circular {
+  border-radius: var(--lf-radio-pastilla);
+  background-color: var(--lf-color-primario-tinte);
+  border-color: transparent;
+  color: var(--lf-color-primario);
+}
+
 .escudo {
   object-fit: contain;
 }

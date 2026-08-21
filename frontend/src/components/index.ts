@@ -8,7 +8,7 @@
 
 /* --- Estructura de aplicación --- */
 export { AppShell } from './layout/AppShell';
-export { PendienteDeEntrega } from './layout/PendienteDeEntrega';
+export { TituloDePantalla } from './layout/TituloDePantalla';
 export { secciones, seccionActiva } from './layout/secciones';
 export type { Seccion, IdDeSeccion } from './layout/secciones';
 export { useLigaEnContexto } from './layout/useLigaEnContexto';
@@ -23,6 +23,8 @@ export type { EstadoDePartido } from './datos/DistintivoDeEstado';
 export { FilaDeMarcador } from './datos/FilaDeMarcador';
 export { DestacadoDePodio } from './datos/DestacadoDePodio';
 export { EscudoEquipo } from './datos/EscudoEquipo';
+export { GraficoDeBarras } from './datos/GraficoDeBarras';
+export type { BarraDeDatos } from './datos/GraficoDeBarras';
 
 /* --- Estados de pantalla --- */
 export { EstadoCarga } from './estado/EstadoCarga';

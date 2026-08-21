@@ -30,8 +30,9 @@ usando [GitHub Spec Kit](https://github.com/github/spec-kit) y Claude Code.
 | Spec 007 (calendario y resultados) | ✅ Implementada y desplegada |
 | Spec 008 (clasificación) | ✅ Implementada y desplegada (22/22 tareas, PR #36) |
 | Spec 009 (registrar goles por jugador) | ✅ Implementada y desplegada (23/23 tareas, PR #37) |
-| Spec 012 (identidad visual y experiencia consistente) | 🔄 Implementada en rama `012-identidad-visual` (102/105 tareas; las 3 restantes son verificación manual con backend en marcha), pendiente de PR |
-| Specs 010–011 | ⬜ Alineaciones y estadísticas de jugadores, y dashboard — spec en borrador, sin planear |
+| Spec 010 (alineaciones y estadísticas de jugadores) | ✅ Implementada y desplegada (PR #40) |
+| Spec 011 (dashboard general de la liga) | ✅ Implementada y desplegada (PR #42) |
+| Spec 012 (identidad visual y experiencia consistente) | 🔄 Implementada en rama `012-identidad-visual`, integrando Dashboard y Estadísticas (specs 010–011, mezcladas a `main` después de redactar esta historia) sobre el mismo catálogo visual, pendiente de PR |
 | Despliegue | ✅ En línea — ver URLs abajo (la identidad visual de la Spec 012 aún no está desplegada: llega a producción cuando se mezcle su PR) |
 | Caso de negocio | ⬜ Pendiente — [`docs/caso-de-negocio.md`](docs/caso-de-negocio.md); **medir tiempos desde la primera HU** |
 

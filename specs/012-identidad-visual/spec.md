@@ -245,9 +245,6 @@ claro al siguiente paso, sin mostrar secciones inoperables.
 
 - ¿Qué muestra el indicador de liga en contexto en pantallas que no pertenecen
   a ninguna liga (inicio de sesión, listado de ligas, creación de liga)?
-- ¿Qué ocurre al activar una sección de la navegación cuyo destino aún no está
-  implementado (Dashboard y Estadísticas, pendientes de `specs/011` y
-  `specs/010`)?
 - ¿Qué ocurre con las secciones que dependen de una liga cuando todavía no hay
   ninguna liga en contexto?
 - ¿Qué se muestra cuando un nombre de equipo, liga o jugador es mucho más largo
@@ -364,7 +361,9 @@ claro al siguiente paso, sin mostrar secciones inoperables.
   implementadas: inicio de sesión; ligas (listado, detalle, creación); equipos
   (listado, creación); jugadores (listado, creación); partidos (listado,
   detalle, programación, registro de resultado, solicitud y decisión de
-  corrección, registro de goles); calendario y resultados; y clasificación.
+  corrección, registro de goles, alineaciones); calendario y resultados;
+  clasificación; dashboard general de la liga (`specs/011`); y estadísticas
+  —tabla de goleadores y ficha individual de jugador (`specs/010`)—.
 - **FR-032**: Esta historia MUST NOT modificar reglas de negocio, contratos de
   API, entidades, campos ni esquema de base de datos.
 - **FR-033**: Toda la suite de pruebas automatizadas existente MUST seguir en
@@ -515,12 +514,63 @@ definición explícita:
   **no** implementa, con su razón:
   - **Buscador global y campana de notificaciones**: no existe contrato de API
     que los sirva y FR-032/FR-035 prohíben inventarlo. Se omiten en lugar de
-    dibujar controles que no hacen nada.
+    dibujar controles que no hacen nada. Es la única pieza de la cabecera de
+    la maqueta que no se reproduce: el saludo ("Hola, {usuario} · {rol}"),
+    el badge de liga con sus iniciales y el botón "Cambiar liga" sí están,
+    porque todos se derivan de datos ya publicados (`specs/001` y
+    `specs/002`).
   - **Tarjetas de dashboard con datos agregados** (próximo partido,
-    rendimiento de la temporada, goles por jornada, porcentaje completado) y el
-    feed "Última actividad": son el alcance de `specs/011-dashboard-liga` y
-    `specs/010-alineaciones-estadisticas`, que no están entregadas y no tienen
-    endpoints. Dashboard y Estadísticas siguen mostrando "aún no disponible".
+    rendimiento de la temporada, goles por jornada, contadores de equipos y
+    jugadores, porcentaje completado): eran el alcance de
+    `specs/011-dashboard-liga`, que en el momento de redactar esta historia no
+    estaba entregada. `specs/011` se entregó después y se integró aquí: el
+    Dashboard navega a `DashboardPage` (`/leagues/:id/dashboard`) y esa
+    pantalla reproduce las tarjetas de la maqueta —construidas enteramente
+    sobre el catálogo de componentes y los valores visuales de esta historia
+    (SC-010), sin publicar ningún contrato de API nuevo (FR-032/FR-035)—
+    combinando en el cliente los endpoints ya publicados por `specs/003`
+    (equipos), `specs/005` (partidos) y el propio resumen de `specs/011`.
+    Donde el dominio no tiene el campo que la maqueta da por hecho, la
+    tarjeta se adapta en vez de inventarlo:
+    - No hay "jornada" ni "cancha" en `Match` (`specs/005`): "Goles por
+      jornada" se muestra como **"Goles por fecha"**, agrupando por la fecha
+      real del calendario; el bloque "Próximo partido" no muestra número de
+      jornada ni sede.
+    - "Rendimiento de la temporada" conserva su título, su barra segmentada
+      de tres colores y su grid de cuatro métricas, pero **no** puede rotular
+      "GANADOS / EMPATES / PERDIDOS": ese es el balance de *un* equipo. A
+      nivel de liga cada victoria es a la vez la derrota de alguien, así que
+      "ganados" y "perdidos" serían siempre el mismo número y la barra no
+      significaría nada. El equivalente correcto —y que sí suma el total— es
+      cómo se repartieron los partidos jugados: **Jugados / Gana local /
+      Empates / Gana visitante**, derivado de `home_score` vs `away_score`
+      de los partidos finalizados (`specs/005`, `specs/006`).
+    - Estadísticas navega a la tabla de goleadores de `specs/010`
+      (`/leagues/:id/top-scorers`), entregada en el mismo lote que
+      `specs/011`.
+    El feed "Última actividad" de la maqueta no tiene endpoint que lo sirva
+    en ninguna spec entregada y sigue sin implementarse.
+    `specs/011` sí publicaba, además, dos listas propias —"Últimos
+    resultados" y "Próximos partidos", hasta 5 filas cada una— que la
+    maqueta de referencia **no dibuja**: "Próximo partido" ya resuelve "qué
+    sigue" con la primera fila de `upcoming_matches`. Mantener las tres
+    tarjetas a la vez leía como el mismo dato repetido dos veces seguidas.
+    Se retiraron ambas listas del panel para igualar la maqueta; los datos
+    siguen accesibles desde "Ver calendario" (enlace de la propia tarjeta
+    "Próximo partido", hacia `/leagues/:id/matches`) sin necesidad de una
+    tarjeta de resumen adicional. Cada tarjeta que en la maqueta lleva un
+    enlace de cabecera (`acciones` de `Panel`, ya parte del catálogo) navega
+    a un destino real: "Ver calendario" (`/leagues/:id/matches`), "Ver
+    estadísticas" (`/leagues/:id/top-scorers`, la única pantalla de
+    estadísticas de liga que existe) y "Ver tabla completa"
+    (`/leagues/:id/standings`).
+  - **Números de "Estado de la temporada" en el color de su segmento**: la
+    maqueta pinta "GANADOS"/"EMPATES"/"PERDIDOS" en verde/ámbar/rojo, a
+    juego con la barra. Se conserva ese refuerzo visual sobre las etiquetas
+    ya adaptadas (Jugados/Programados/Cancelados): el texto identifica el
+    dato (FR-028), el color solo lo refuerza. Añade dos pares nuevos a la
+    auditoría de contraste de FR-023 (`exito sobre superficie`, `aviso sobre
+    superficie`, en `styles/tokens.css`), ambos por encima de 7:1.
   - **Fotografía de acción**: la propia maqueta la marca como hueco
     (`foto de acción · 1200×1400`). Se sustituye por el patrón de franjas
     diagonales que la maqueta usa de relleno, generado en CSS.
@@ -538,13 +588,17 @@ definición explícita:
   identidad. El azul sigue siendo el color de acción (botones, enlaces,
   sección activa) y el rojo sigue reservado a error y acción destructiva, para
   no reabrir el contraste ya verificado de formularios y avisos (FR-037).
-- **Secciones aún no construidas**: Dashboard y Estadísticas aparecen en la
-  navegación desde el primer momento, por fidelidad al mockup. Mientras
-  `specs/011` y `specs/010` no estén entregadas, esas secciones muestran un
-  estado explícito de "aún no disponible" en lugar de un destino roto. Ese
-  estado no constituye una pantalla de negocio nueva. Esta asunción aplica a
-  las pantallas **con** liga en contexto; sin liga no hay navegación de
-  secciones que mostrar (FR-006).
+- **Secciones ya construidas**: Dashboard y Estadísticas aparecen en la
+  navegación desde el primer momento, por fidelidad al mockup. Al redactar
+  esta historia, `specs/011-dashboard-liga` y `specs/010-alineaciones-estadisticas`
+  no estaban entregadas y esas secciones mostraban un estado explícito de
+  "aún no disponible" (`PendienteDeEntrega`) en lugar de un destino roto.
+  Ambas specs se entregaron después y esta historia se actualizó para
+  integrarlas: Dashboard navega a `/leagues/:id/dashboard` (`DashboardPage`,
+  `specs/011`) y Estadísticas a `/leagues/:id/top-scorers` (`TopScorersPage`,
+  `specs/010`). El componente `PendienteDeEntrega` se retiró por no tener ya
+  ningún destino que cubrir; las seis secciones del mockup navegan hoy a una
+  pantalla real (FR-006).
 - **Alcance de la sección Jugadores**: los jugadores se consultan por equipo
   según las rutas ya publicadas por `specs/004`. La sección Jugadores conduce
   al camino existente de selección de equipo; no se crea una vista agregada de

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { EstadoCarga, EstadoError, EstadoVacio, Panel, TablaDeDatos } from '../../components';
+import { EstadoCarga, EstadoError, EstadoVacio, Panel, TablaDeDatos, TituloDePantalla } from '../../components';
 import type { ColumnaDeTabla } from '../../components';
 import { mensajeDeError } from '../../lib/mensajesDeError';
 import { useAuth } from '../auth/AuthContext';
@@ -42,7 +42,7 @@ export function LeaguesPage() {
   if (cargando || error) {
     return (
       <section>
-        <h1>Ligas</h1>
+        <TituloDePantalla>Ligas</TituloDePantalla>
         {cargando ? (
           <EstadoCarga recurso="las ligas" />
         ) : (
@@ -55,7 +55,7 @@ export function LeaguesPage() {
   if (ligas.length === 0) {
     return (
       <section>
-        <h1>Ligas</h1>
+        <TituloDePantalla>Ligas</TituloDePantalla>
         <EstadoVacio
           titulo="Aún no hay ligas registradas."
           descripcion={
@@ -71,7 +71,7 @@ export function LeaguesPage() {
 
   return (
     <section>
-      <h1>Ligas</h1>
+      <TituloDePantalla>Ligas</TituloDePantalla>
       <Panel
         titulo="Ligas registradas"
         acciones={esOrganizador ? <Link to="/leagues/new">Crear liga</Link> : undefined}

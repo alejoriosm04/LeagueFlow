@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './features/auth/LoginPage';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
-import { useAuth } from './features/auth/AuthContext';
+import { Portada } from './features/inicio/Portada';
 import { CreateLeagueForm } from './features/leagues/CreateLeagueForm';
 import { LeagueDetailPage } from './features/leagues/LeagueDetailPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
@@ -15,36 +15,19 @@ import { StandingsPage } from './features/standings/StandingsPage';
 import { PlayerStatsPage } from './features/statistics/PlayerStatsPage';
 import { TopScorersPage } from './features/statistics/TopScorersPage';
 import { CreateTeamForm } from './features/teams/CreateTeamForm';
-import { PendienteDeEntrega } from './components/layout/PendienteDeEntrega';
 import { TeamsPage } from './features/teams/TeamsPage';
-
-function Inicio() {
-  const { usuario } = useAuth();
-  return (
-    <section>
-      <h1>LeagueFlow</h1>
-      <p>Gestión y analítica de ligas deportivas amateur.</p>
-      {usuario ? (
-        <p>
-          Sesión iniciada como <strong>{usuario.username}</strong>.
-        </p>
-      ) : (
-        <p>Las consultas son públicas; para registrar información hay que iniciar sesión.</p>
-      )}
-    </section>
-  );
-}
+import { TituloDePantalla } from './components';
 
 function SoloOrganizador() {
-  // FR-027: cada pantalla tiene su propio <h1>; un <h2> suelto dejaba /admin
-  // sin encabezado principal y saltando un nivel de la jerarquía.
-  return <h1>Administración (solo organizador)</h1>;
+  // FR-027: cada pantalla declara su propio título; un <h2> suelto dejaba
+  // /admin sin encabezado principal y saltando un nivel de la jerarquía.
+  return <TituloDePantalla>Administración (solo organizador)</TituloDePantalla>;
 }
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Inicio />} />
+      <Route path="/" element={<Portada />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/leagues" element={<LeaguesPage />} />
       <Route path="/leagues/:id" element={<LeagueDetailPage />} />
@@ -61,15 +44,6 @@ export function AppRoutes() {
       <Route path="/leagues/:id/standings" element={<StandingsPage />} />
       <Route path="/leagues/:id/top-scorers" element={<TopScorersPage />} />
       <Route path="/players/:playerId/statistics" element={<PlayerStatsPage />} />
-      {/* Secciones declaradas en el mockup y aún no entregadas (FR-006). */}
-      <Route
-        path="/leagues/:id/dashboard"
-        element={<PendienteDeEntrega seccion="Dashboard" spec="011-dashboard-liga" />}
-      />
-      <Route
-        path="/leagues/:id/statistics"
-        element={<PendienteDeEntrega seccion="Estadísticas" spec="010-alineaciones-estadisticas" />}
-      />
       <Route path="/leagues/:id/matches" element={<MatchesPage />} />
       <Route path="/matches/:matchId" element={<MatchDetailPage />} />
       <Route

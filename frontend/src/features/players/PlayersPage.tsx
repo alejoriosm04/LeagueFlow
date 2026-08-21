@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { EstadoCarga, EstadoError, EstadoVacio, Panel, TablaDeDatos } from '../../components';
+import { EstadoCarga, EstadoError, EstadoVacio, Panel, TablaDeDatos, TituloDePantalla } from '../../components';
 import type { ColumnaDeTabla } from '../../components';
 import { mensajeDeError } from '../../lib/mensajesDeError';
 import { useAuth } from '../auth/AuthContext';
@@ -45,7 +45,7 @@ export function PlayersPage() {
   if (cargando || error) {
     return (
       <section>
-        <h1>Plantilla</h1>
+        <TituloDePantalla>Plantilla</TituloDePantalla>
         {cargando ? (
           <EstadoCarga recurso="la plantilla" />
         ) : (
@@ -57,7 +57,7 @@ export function PlayersPage() {
 
   return (
     <section>
-      <h1>Plantilla</h1>
+      <TituloDePantalla>Plantilla</TituloDePantalla>
       {/* Con la plantilla vacía, la acción la ofrece el estado vacío (FR-014);
           duplicarla aquí dejaría dos enlaces idénticos en la pantalla. */}
       {esOrganizador && teamId && jugadores.length > 0 && (

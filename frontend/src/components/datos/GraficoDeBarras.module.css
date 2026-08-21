@@ -1,0 +1,52 @@
+.contenedor {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--lf-espacio-2);
+  height: 11rem;
+  padding-top: var(--lf-espacio-4);
+}
+
+.columna {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  min-width: 0;
+}
+
+.valor {
+  font-size: var(--lf-texto-xs);
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto-suave);
+  margin-bottom: var(--lf-espacio-1);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra base en azul claro; la última fecha se destaca en acento, igual que
+   en la maqueta de referencia. El valor va escrito encima en ambos casos,
+   así que el color refuerza pero no informa por sí solo (FR-028). */
+/* `max-width` evita que una liga con pocas fechas convierta su única barra en
+   un bloque del ancho de la tarjeta: mantiene la silueta de gráfico tanto con
+   una fecha como con doce. */
+.barra {
+  width: 100%;
+  max-width: 2.25rem;
+  border-radius: var(--lf-radio-sm) var(--lf-radio-sm) 0 0;
+  background-color: var(--lf-color-primario-tinte);
+}
+
+.destacada {
+  background-color: var(--lf-color-acento);
+}
+
+.etiqueta {
+  margin-top: var(--lf-espacio-2);
+  font-size: var(--lf-texto-xs);
+  color: var(--lf-color-texto-suave);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}

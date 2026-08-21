@@ -127,7 +127,9 @@ describe('tabla de goleadores pública', () => {
   it('muestra un error legible si la liga no existe', async () => {
     vi.stubGlobal('fetch', stubFetch({ error: true }));
     renderTopScorers();
-    expect(await screen.findByRole('alert')).toHaveTextContent(/no se encontró la liga/i);
+    // Mensaje del catálogo compartido (lib/mensajesDeError.ts), no un literal
+    // propio de esta pantalla — mismo criterio que el resto de la app.
+    expect(await screen.findByRole('alert')).toHaveTextContent(/no encontramos la liga/i);
   });
 });
 
@@ -151,6 +153,8 @@ describe('ficha individual pública', () => {
   it('muestra un error legible si el jugador no existe', async () => {
     vi.stubGlobal('fetch', stubFetch());
     renderPlayerStats('inexistente');
-    expect(await screen.findByRole('alert')).toHaveTextContent(/no se encontró el jugador/i);
+    // Mensaje del catálogo compartido (lib/mensajesDeError.ts), no un literal
+    // propio de esta pantalla — mismo criterio que el resto de la app.
+    expect(await screen.findByRole('alert')).toHaveTextContent(/no encontramos al jugador/i);
   });
 });

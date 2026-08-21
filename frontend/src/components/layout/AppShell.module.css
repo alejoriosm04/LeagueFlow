@@ -182,9 +182,39 @@
   padding: var(--lf-espacio-2) var(--lf-espacio-3);
 }
 
-.liga {
+/* Destino del <h1> de la pantalla. Sobre la superficie de marca, así que el
+   color de texto es el propio de esa superficie, nunca el de superficie
+   clara (FR-044). El tamaño lo pone TituloDePantalla.module.css. */
+.tituloDePantalla {
   flex: 1;
   min-width: 0;
+  color: var(--lf-color-superficie);
+}
+
+.filaLiga {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-3);
+  flex-wrap: wrap;
+  padding: 0 var(--lf-espacio-3);
+}
+
+.cambiarLiga {
+  flex: 0 0 auto;
+  padding: var(--lf-espacio-2) var(--lf-espacio-4);
+  border: 1px solid var(--lf-color-marca-borde);
+  border-radius: var(--lf-radio-pastilla);
+  color: var(--lf-color-marca-texto);
+  font-size: var(--lf-texto-sm);
+  font-weight: var(--lf-peso-medio);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--lf-transicion), color var(--lf-transicion);
+}
+
+.cambiarLiga:hover {
+  background-color: var(--lf-color-marca-superponer);
+  color: var(--lf-color-superficie);
 }
 
 .contenido {
@@ -265,6 +295,10 @@
 
   .cabecera {
     padding: var(--lf-espacio-1) var(--lf-espacio-2);
+  }
+
+  .filaLiga {
+    padding: 0 var(--lf-espacio-2);
   }
 
   .contenido {

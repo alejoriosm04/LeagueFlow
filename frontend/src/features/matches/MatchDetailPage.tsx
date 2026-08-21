@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { EstadoCarga, EstadoError, FilaDeMarcador, Panel } from '../../components';
+import { EscudoEquipo, EstadoCarga, EstadoError, FilaDeMarcador, Panel, TituloDePantalla } from '../../components';
 import { formatearFechaHora } from '../../lib/formato';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -105,7 +105,7 @@ export function MatchDetailPage() {
   if (cargando || error || !partido || !matchId) {
     return (
       <section>
-        <h1>Ficha del partido</h1>
+        <TituloDePantalla>Ficha del partido</TituloDePantalla>
         {error ? (
           <EstadoError mensaje={error} onReintentar={() => setIntento((n) => n + 1)} />
         ) : (
@@ -116,24 +116,25 @@ export function MatchDetailPage() {
   }
 
   const autenticado = usuario?.role === 'operador' || usuario?.role === 'organizador';
-  const nombreJugador = (id: string) =>
-    jugadores.find((jugador) => jugador.id === id)?.name ?? id.slice(0, 8);
+  const jugador = (id: string) => jugadores.find((j) => j.id === id) ?? null;
+  const nombreJugador = (id: string) => jugador(id)?.name ?? id.slice(0, 8);
+  const nombreEquipoLocal = equipos.local?.name ?? partido.home_team_id.slice(0, 8);
+  const nombreEquipoVisitante = equipos.visitante?.name ?? partido.away_team_id.slice(0, 8);
+  /** ¿El autor del gol juega en el equipo local? Decide el lado del listado
+      (FR-028: la posición y el escudo identifican el equipo, no solo el
+      color). Un jugador que no se resuelve en ninguna plantilla cae a local
+      para no perder la fila. */
+  const esGolLocal = (playerId: string) => jugador(playerId)?.team_id !== partido.away_team_id;
 
   return (
     <section className={estilos.pagina}>
-      <h1>Ficha del partido</h1>
+      <TituloDePantalla>Ficha del partido</TituloDePantalla>
 
       <Panel>
         <div className={estilos.resumen}>
           <FilaDeMarcador
-            local={{
-              nombre: equipos.local?.name ?? partido.home_team_id.slice(0, 8),
-              crestUrl: equipos.local?.crest_url,
-            }}
-            visitante={{
-              nombre: equipos.visitante?.name ?? partido.away_team_id.slice(0, 8),
-              crestUrl: equipos.visitante?.crest_url,
-            }}
+            local={{ nombre: nombreEquipoLocal, crestUrl: equipos.local?.crest_url }}
+            visitante={{ nombre: nombreEquipoVisitante, crestUrl: equipos.visitante?.crest_url }}
             golesLocal={partido.home_score}
             golesVisitante={partido.away_score}
             estado={partido.status}
@@ -149,78 +150,119 @@ export function MatchDetailPage() {
         <ResultForm matchId={matchId} onSuccess={() => void cargar()} />
       )}
 
-      <p><strong>Estado:</strong> {partido.status}</p>
-      <p><strong>Marcador vigente:</strong> {partido.home_score ?? '—'} – {partido.away_score ?? '—'}</p>
-      {autenticado && partido.status === 'scheduled' && <ResultForm matchId={matchId} onSuccess={() => void cargar()} />}
-      {autenticado && partido.status === 'finished' && <CorrectionRequestForm matchId={matchId} onSuccess={() => void cargar()} />}
-      <section aria-label="Alineación">
-        <h2>Alineación</h2>
-        <p>{alineacion ? etiquetaAlineacion[alineacion.status] : 'Cargando…'}</p>
-        {alineacion?.status === 'registered' && (
-          <div>
-            <div>
-              <h3>Local</h3>
-              <ul>
-                {alineacion.home_players.map((j) => (
-                  <li key={j.player_id}>
-                    <Link to={`/players/${j.player_id}/statistics`}>{j.player_name}</Link>
-                  </li>
-                ))}
-              </ul>
+      <div className={estilos.bloques}>
+        <section aria-label="Alineación" className={estilos.bloque}>
+          <Panel titulo="Alineación">
+            {!alineacion ? (
+              <p className={estilos.textoVacio}>Cargando…</p>
+            ) : alineacion.status === 'missing' ? (
+              <p className={estilos.textoVacio}>{etiquetaAlineacion.missing}.</p>
+            ) : (
+              <div className={estilos.equiposAlineacion}>
+                <div>
+                  <h3 className={estilos.equipoTitulo}>
+                    <EscudoEquipo nombre={nombreEquipoLocal} crestUrl={equipos.local?.crest_url} />
+                    {nombreEquipoLocal}
+                  </h3>
+                  <ul className={estilos.plantilla}>
+                    {alineacion.home_players.map((j) => (
+                      <li key={j.player_id}>
+                        <Link to={`/players/${j.player_id}/statistics`}>
+                          {jugador(j.player_id)?.number != null && (
+                            <span className={estilos.dorsal} aria-hidden="true">
+                              {jugador(j.player_id)?.number}
+                            </span>
+                          )}
+                          {j.player_name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className={estilos.equipoTitulo}>
+                    <EscudoEquipo
+                      nombre={nombreEquipoVisitante}
+                      crestUrl={equipos.visitante?.crest_url}
+                    />
+                    {nombreEquipoVisitante}
+                  </h3>
+                  <ul className={estilos.plantilla}>
+                    {alineacion.away_players.map((j) => (
+                      <li key={j.player_id}>
+                        <Link to={`/players/${j.player_id}/statistics`}>
+                          {jugador(j.player_id)?.number != null && (
+                            <span className={estilos.dorsal} aria-hidden="true">
+                              {jugador(j.player_id)?.number}
+                            </span>
+                          )}
+                          {j.player_name}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </Panel>
+          {autenticado && alineacion && (
+            <div className={estilos.formularioSecundario}>
+              <LineupForm
+                matchId={matchId}
+                jugadoresLocal={jugadores.filter((j) => j.team_id === partido.home_team_id)}
+                jugadoresVisitante={jugadores.filter((j) => j.team_id === partido.away_team_id)}
+                seleccionLocal={alineacion.home_players.map((j) => j.player_id)}
+                seleccionVisitante={alineacion.away_players.map((j) => j.player_id)}
+                onSuccess={() => void cargar()}
+              />
             </div>
-            <div>
-              <h3>Visitante</h3>
-              <ul>
-                {alineacion.away_players.map((j) => (
-                  <li key={j.player_id}>
-                    <Link to={`/players/${j.player_id}/statistics`}>{j.player_name}</Link>
-                  </li>
-                ))}
+          )}
+        </section>
+
+        <section aria-label="Goles" className={estilos.bloque}>
+          <Panel titulo="Goles">
+            {goles && goles.consistency.matches_official === false && (
+              <p role="status" className={estilos.aviso}>
+                Los goles registrados ({goles.consistency.home_goals_recorded}–
+                {goles.consistency.away_goals_recorded}) no coinciden con el marcador oficial (
+                {goles.consistency.home_score}–{goles.consistency.away_score}). El marcador
+                oficial sigue siendo la fuente de la clasificación.
+              </p>
+            )}
+            {goles && goles.items.length === 0 ? (
+              <p className={estilos.textoVacio}>No hay goles registrados.</p>
+            ) : (
+              <ul className={estilos.golesLista}>
+                {goles?.items.map((gol) => {
+                  const local = esGolLocal(gol.player_id);
+                  return (
+                    <li
+                      key={gol.id}
+                      className={`${estilos.golItem} ${local ? estilos.golLocal : estilos.golVisitante}`}
+                    >
+                      <EscudoEquipo
+                        nombre={local ? nombreEquipoLocal : nombreEquipoVisitante}
+                        crestUrl={local ? equipos.local?.crest_url : equipos.visitante?.crest_url}
+                      />
+                      <span className={estilos.golJugador}>
+                        <span aria-hidden="true">⚽</span> {nombreJugador(gol.player_id)}
+                      </span>
+                      <span className={estilos.golMinuto}>{gol.minute}&apos;</span>
+                    </li>
+                  );
+                })}
               </ul>
+            )}
+          </Panel>
+          {/* El formulario vive fuera del panel, justo debajo: es la acción
+              sobre esos datos, no otro dato más dentro de la tarjeta. */}
+          {autenticado && (partido.status === 'finished' || partido.status === 'in_progress') && (
+            <div className={estilos.formularioSecundario}>
+              <GoalForm matchId={matchId} jugadores={jugadores} onSuccess={() => void cargar()} />
             </div>
-          </div>
-        )}
-        {autenticado && alineacion && (
-          <LineupForm
-            matchId={matchId}
-            jugadoresLocal={jugadores.filter((j) => j.team_id === partido.home_team_id)}
-            jugadoresVisitante={jugadores.filter((j) => j.team_id === partido.away_team_id)}
-            seleccionLocal={alineacion.home_players.map((j) => j.player_id)}
-            seleccionVisitante={alineacion.away_players.map((j) => j.player_id)}
-            onSuccess={() => void cargar()}
-          />
-        )}
-      </section>
-      <section aria-label="Goles">
-        <Panel titulo="Goles">
-          {goles && goles.consistency.matches_official === false && (
-            <p role="status" className={estilos.aviso}>
-              Los goles registrados ({goles.consistency.home_goals_recorded}–
-              {goles.consistency.away_goals_recorded}) no coinciden con el marcador oficial (
-              {goles.consistency.home_score}–{goles.consistency.away_score}). El marcador oficial
-              sigue siendo la fuente de la clasificación.
-            </p>
           )}
-          {goles && goles.items.length === 0 ? (
-            <p className={estilos.textoVacio}>No hay goles registrados.</p>
-          ) : (
-            <ul className={estilos.golesLista}>
-              {goles?.items.map((gol) => (
-                <li key={gol.id} className={estilos.golItem}>
-                  <span className={estilos.golMarcador} aria-hidden="true" />
-                  <span className={estilos.golJugador}>{nombreJugador(gol.player_id)}</span>
-                  <span className={estilos.golMinuto}>{gol.minute}&apos;</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-        {/* El formulario vive fuera del panel, justo debajo: es la acción
-            sobre esos datos, no otro dato más dentro de la tarjeta. */}
-        {autenticado && (partido.status === 'finished' || partido.status === 'in_progress') && (
-          <GoalForm matchId={matchId} jugadores={jugadores} onSuccess={() => void cargar()} />
-        )}
-      </section>
+        </section>
+      </div>
 
       {/* Correcciones: solicitud y su historial viven juntas, al final —
           ambas son la misma conversación sobre el resultado ya jugado. */}

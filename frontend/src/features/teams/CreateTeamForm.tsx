@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Boton, CampoDeFormulario, EstadoError } from '../../components';
+import { Boton, CampoDeFormulario, EstadoError, TituloDePantalla } from '../../components';
 import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { teamsApi } from './api';
 
@@ -38,7 +38,7 @@ export function CreateTeamForm() {
 
   return (
     <form onSubmit={onSubmit} className="lf-formulario">
-      <h1>Registrar equipo</h1>
+      <TituloDePantalla>Registrar equipo</TituloDePantalla>
 
       <CampoDeFormulario id="name" etiqueta="Nombre" requerido error={errorDeNombre}>
         <input value={name} onChange={(e) => setName(e.target.value)} required />

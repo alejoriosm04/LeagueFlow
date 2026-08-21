@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { EstadoCarga, EstadoError, EstadoVacio, FilaDeMarcador, Panel } from '../../components';
+import { EstadoCarga, EstadoError, EstadoVacio, FilaDeMarcador, Panel, TituloDePantalla } from '../../components';
 import { formatearFechaHora } from '../../lib/formato';
 import { mensajeDeError } from '../../lib/mensajesDeError';
 import { useAuth } from '../auth/AuthContext';
@@ -93,7 +93,7 @@ export function MatchesPage() {
 
   return (
     <section>
-      <h1>Partidos</h1>
+      <TituloDePantalla>Partidos</TituloDePantalla>
 
       <div className={estilos.acciones}>
         {/* Con la lista vacía, la acción la ofrece el estado vacío (FR-014);

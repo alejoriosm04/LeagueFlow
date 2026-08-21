@@ -184,7 +184,6 @@ export function Portada() {
             <li key={seccion.id} className={estilos.tarjeta}>
               <div className={estilos.tarjetaCabecera}>
                 <h3 className={estilos.tarjetaTitulo}>{seccion.etiqueta}</h3>
-                {seccion.pendiente && <span className={estilos.proximamente}>Próximamente</span>}
               </div>
               <p className={estilos.tarjetaTexto}>{seccion.descripcion}</p>
             </li>

@@ -163,12 +163,12 @@ del mockup de `docs/enunciado.md` §2:
 
 | Sección | Destino (a dónde navega) | Activa en (qué la resalta) | Estado |
 |---|---|---|---|
-| Dashboard | `/leagues/:id/dashboard` | `/leagues/:id/dashboard` | Pendiente (`specs/011`) |
+| Dashboard | `/leagues/:id/dashboard` | `/leagues/:id/dashboard` | Entregada (`specs/011`) |
 | Equipos | `/leagues/:id/teams` | `/leagues/:id/teams`, `/leagues/:id/teams/new` | Entregada (`specs/003`) |
 | Jugadores | `/leagues/:id/teams` (elegir equipo) | `/teams/:teamId/players`, `/teams/:teamId/players/new` | Entregada (`specs/004`) |
 | Partidos | `/leagues/:id/matches` | `/leagues/:id/matches`, `/leagues/:id/matches/new`, `/matches/:matchId` | Entregada (`specs/005`–`007`, `009`) |
 | Tabla | `/leagues/:id/standings` | `/leagues/:id/standings` | Entregada (`specs/008`) |
-| Estadísticas | `/leagues/:id/statistics` | `/leagues/:id/statistics` | Pendiente (`specs/010`) |
+| Estadísticas | `/leagues/:id/top-scorers` (tabla de goleadores) | `/leagues/:id/top-scorers`, `/players/:playerId/statistics` | Entregada (`specs/010`) |
 
 Las seis secciones requieren liga en contexto.
 
@@ -179,24 +179,34 @@ solo en las rutas de jugadores. Si la sección activa se dedujera de la ruta de
 destino, en `/leagues/:id/teams` quedarían dos ítems con `aria-current="page"`
 a la vez, incumpliendo FR-004 y el escenario AS4 de la Historia 1. La
 activación se calcula contra `coincide`, nunca contra `ruta`
-([contracts/ui-contracts.md](./contracts/ui-contracts.md) §1).
+([contracts/ui-contracts.md](./contracts/ui-contracts.md) §1). Estadísticas
+comparte el mismo patrón: **navega** a la tabla de goleadores de la liga
+(`specs/010`), pero también **se resalta** al llegar a la ficha individual de
+un jugador (`/players/:playerId/statistics`), a la que se llega desde un
+enlace de jugador en cualquier otra pantalla — sin ese `coincide` adicional,
+esa ficha quedaría sin ninguna sección activa.
 
-Sin liga en contexto, los seis ítems se muestran deshabilitados con la
-indicación "Selecciona una liga" y un enlace al listado de ligas (FR-006): no
-conducen a una pantalla rota.
+Sin liga en contexto, el shell **no** pinta la lista de secciones (FR-006
+enmendado): en su lugar muestra un único acceso al listado de ligas. Seis
+ítems deshabilitados serían ruido — una lista gris que ocupa el sitio de la
+navegación real sin poder usarse — y ninguno conduciría a una pantalla rota
+de todas formas, pero ese no es el motivo: el motivo es que esa lista no
+sirve para nada sin liga (ver §2.2).
 
 ### 2.2 Liga en contexto (derivada, no persistida)
 
 | Campo | Origen | Notas |
 |---|---|---|
-| `leagueId` | `:id` de la ruta `/leagues/:id/*`; el `league_id` del equipo en `/teams/:teamId/*`; el `league_id` del partido en `/matches/:matchId` | Nunca de `localStorage`. Lo resuelve el shell; ninguna pantalla lo informa |
+| `leagueId` | `:id` de la ruta `/leagues/:id/*`; el `league_id` del equipo en `/teams/:teamId/*`; el `league_id` del partido en `/matches/:matchId`; el `league_id` del equipo del jugador en `/players/:playerId/*` | Nunca de `localStorage`. Lo resuelve el shell; ninguna pantalla lo informa |
 | `nombre` | `GET /leagues/{id}` (contrato de `specs/002`) | Cacheado en memoria por `id` durante la navegación |
 | `estado` | `sin-liga` \| `cargando` \| `resuelta` \| `no-encontrada` | `sin-liga` en `/`, `/login`, `/leagues`, `/leagues/new` |
 
 Resolver la liga también fuera de `/leagues/:id` es lo que mantiene viva la
-navegación en las pantallas de jugadores y de detalle de partido. Sin ello, en
-`/teams/:teamId/players` no habría liga en contexto, la navegación de secciones
-desaparecería por FR-006 y la sección Jugadores nunca podría resaltarse.
+navegación en las pantallas de jugadores, de detalle de partido y de ficha
+individual de estadísticas. Sin ello, en `/teams/:teamId/players` o en
+`/players/:playerId/statistics` no habría liga en contexto, la navegación de
+secciones desaparecería por FR-006 y las secciones Jugadores y Estadísticas
+nunca podrían resaltarse.
 
 Con `estado === 'sin-liga'` el shell **no** pinta la lista de secciones: en su
 lugar muestra un único acceso al listado de ligas (FR-006). Seis ítems

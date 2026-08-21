@@ -288,16 +288,6 @@
   color: var(--lf-color-texto);
 }
 
-.proximamente {
-  padding: var(--lf-espacio-1) var(--lf-espacio-3);
-  border-radius: var(--lf-radio-pastilla);
-  background-color: var(--lf-color-acento-tinte);
-  color: var(--lf-color-acento);
-  font-size: var(--lf-texto-xs);
-  font-weight: var(--lf-peso-fuerte);
-  white-space: nowrap;
-}
-
 .tarjetaTexto {
   font-size: var(--lf-texto-sm);
   color: var(--lf-color-texto-suave);

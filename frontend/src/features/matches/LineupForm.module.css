@@ -1,0 +1,53 @@
+/**
+ * LineupForm no usa CampoDeFormulario (FR-007): esa pieza asume un único
+ * control por campo, con una etiqueta y un mensaje de error propios. Aquí el
+ * "campo" es una lista de casillas por equipo — un fieldset con leyenda es el
+ * marcado correcto (agrupa los controles bajo un nombre accesible), así que
+ * el catálogo no se fuerza a cubrir una forma que no le corresponde.
+ */
+
+.contenedorEquipos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--lf-espacio-5);
+  margin: 0 0 var(--lf-espacio-5);
+}
+
+@media (max-width: 480px) {
+  .contenedorEquipos {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.fieldset legend {
+  font-weight: var(--lf-peso-fuerte);
+  color: var(--lf-color-texto);
+  margin-bottom: var(--lf-espacio-2);
+  padding: 0;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--lf-espacio-1);
+}
+
+.jugador {
+  display: flex;
+  align-items: center;
+  gap: var(--lf-espacio-2);
+  padding: var(--lf-espacio-1) 0;
+  font-size: var(--lf-texto-sm);
+}
+
+.vacio {
+  margin: 0;
+  color: var(--lf-color-texto-suave);
+  font-size: var(--lf-texto-sm);
+}

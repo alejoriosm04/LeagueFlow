@@ -18,6 +18,12 @@ function mockFetch(ligaOk = true) {
     if (ruta === '/matches/m1') {
       return new Response(JSON.stringify({ id: 'm1', league_id: 'l1' }), { status: 200 });
     }
+    if (ruta === '/players/p1') {
+      return new Response(JSON.stringify({ id: 'p1', team_id: 't1' }), { status: 200 });
+    }
+    if (ruta === '/teams/t1') {
+      return new Response(JSON.stringify({ id: 't1', league_id: 'l1' }), { status: 200 });
+    }
     if (ruta.startsWith('/leagues/') && ligaOk) {
       return new Response(JSON.stringify(LIGA), { status: 200 });
     }
@@ -54,6 +60,16 @@ describe('liga en contexto', () => {
     renderEn('/matches/m1');
 
     expect(await screen.findByText('Liga Universitaria')).toBeInTheDocument();
+  });
+
+  it('resuelve la liga del jugador (vía su equipo) en /players/:playerId/statistics', async () => {
+    renderEn('/players/p1/statistics');
+
+    expect(await screen.findByText('Liga Universitaria')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Estadísticas' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 
   it.each(['/', '/login', '/leagues', '/leagues/new'])(

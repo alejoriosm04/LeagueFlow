@@ -17,12 +17,12 @@ const baseMatch = {
   created_at: '2026-08-20T00:00:00Z', updated_at: '2026-08-20T00:00:00Z',
 };
 
-const recentMatches = Array.from({ length: 5 }, (_, i) => ({
+const finishedMatches = Array.from({ length: 3 }, (_, i) => ({
   ...baseMatch,
   id: `f${i}`,
   scheduled_at: `2026-08-0${i + 1}T18:00:00Z`,
   status: 'finished' as const,
-  home_score: i,
+  home_score: i + 1,
   away_score: 0,
 }));
 
@@ -58,16 +58,30 @@ const topStandings = [
 ];
 
 function stubFetch({
-  recientesVacio = false,
   proximosVacio = false,
+  finalizadosVacio = false,
   clasificacionVacia = false,
   error = false,
 } = {}) {
   return vi.fn(async (input: RequestInfo | URL) => {
-    const path = new URL(String(input)).pathname.replace('/api/v1', '');
+    const url = new URL(String(input));
+    const path = url.pathname.replace('/api/v1', '');
     if (path === '/auth/me') return Response.json({ user: null });
     if (path === '/leagues/l1/teams') {
       return Response.json({ items: teams, page: 1, page_size: 20, total: teams.length });
+    }
+    // Conteos y "goles por fecha" (DashboardPage): se derivan de las mismas
+    // listas por estado que ya usa el resto de la suite.
+    if (path === '/leagues/l1/matches') {
+      const estado = url.searchParams.get('status');
+      const items =
+        estado === 'finished' ? (finalizadosVacio ? [] : finishedMatches) :
+        estado === 'scheduled' ? (proximosVacio ? [] : upcomingMatches) :
+        [];
+      return Response.json({ items, page: 1, page_size: 100, total: items.length });
+    }
+    if (path.startsWith('/teams/') && path.endsWith('/players')) {
+      return Response.json({ items: [], page: 1, page_size: 1, total: 2 });
     }
     if (path === '/leagues/l1/dashboard') {
       if (error) {
@@ -78,7 +92,7 @@ function stubFetch({
       }
       return Response.json({
         league_id: 'l1',
-        recent_matches: recientesVacio ? [] : recentMatches,
+        recent_matches: finalizadosVacio ? [] : finishedMatches,
         upcoming_matches: proximosVacio ? [] : upcomingMatches,
         top_standings: clasificacionVacia ? [] : topStandings,
       });
@@ -102,20 +116,22 @@ function renderDashboard() {
 beforeEach(() => vi.restoreAllMocks());
 
 describe('dashboard general de la liga', () => {
-  it('muestra los tres bloques con encabezado en español y hasta 5 filas cada uno', async () => {
+  it('muestra las cuatro tarjetas del panel y la tabla con hasta 5 filas', async () => {
     vi.stubGlobal('fetch', stubFetch());
     renderDashboard();
 
-    expect(await screen.findByRole('heading', { name: 'Últimos resultados' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Próximos partidos' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Próximo partido' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Rendimiento de la temporada' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Tabla de posiciones' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Goles por fecha' })).toBeInTheDocument();
 
-    const recientes = screen.getByRole('heading', { name: 'Últimos resultados' })
-      .closest('section')!;
-    expect(within(recientes).getAllByRole('link', { name: /Tigres/ })).toHaveLength(5);
-    const proximos = screen.getByRole('heading', { name: 'Próximos partidos' })
-      .closest('section')!;
-    expect(within(proximos).getAllByRole('link', { name: /Tigres/ })).toHaveLength(5);
+    // El enfrentamiento es un único enlace al partido, con ambos equipos.
+    const proximo = screen.getByRole('heading', { name: 'Próximo partido' }).closest('section')!;
+    const enlace = within(proximo).getByRole('link', { name: /Tigres/ });
+    expect(enlace).toHaveAttribute('href', '/matches/s0');
+    expect(enlace).toHaveTextContent('Halcones');
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     const filas = screen.getAllByRole('row').slice(1);
@@ -123,50 +139,76 @@ describe('dashboard general de la liga', () => {
     expect(within(filas[0]).getAllByRole('cell')[1]).toHaveTextContent('Tigres');
   });
 
+  it('no repite el próximo partido en una segunda tarjeta (una sola fuente de "qué sigue")', async () => {
+    vi.stubGlobal('fetch', stubFetch());
+    renderDashboard();
+    await screen.findByRole('heading', { name: 'Próximo partido' });
+    expect(screen.queryByRole('heading', { name: 'Próximos partidos' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Últimos resultados' })).not.toBeInTheDocument();
+  });
+
+  it('reparte los partidos jugados en local / empate / visitante, y suman el total', async () => {
+    vi.stubGlobal('fetch', stubFetch());
+    renderDashboard();
+    const tarjeta = await screen.findByRole('heading', { name: 'Rendimiento de la temporada' });
+    const seccion = tarjeta.closest('section')!;
+
+    // Los 3 finalizados del stub tienen home_score 1..3 y away_score 0:
+    // los tres los gana el local.
+    const valor = (etiqueta: string) =>
+      within(seccion).getByText(etiqueta).parentElement!.querySelector('dd')!.textContent;
+    expect(valor('Jugados')).toBe('3');
+    expect(valor('Gana local')).toBe('3');
+    expect(valor('Empates')).toBe('0');
+    expect(valor('Gana visitante')).toBe('0');
+  });
+
   it('muestra un mensaje de estado vacío propio cuando un bloque llega vacío', async () => {
     vi.stubGlobal(
       'fetch',
-      stubFetch({ recientesVacio: true, proximosVacio: true, clasificacionVacia: true }),
+      stubFetch({ proximosVacio: true, finalizadosVacio: true, clasificacionVacia: true }),
     );
     renderDashboard();
 
-    expect(await screen.findByText('Aún no hay partidos jugados.')).toBeInTheDocument();
-    expect(screen.getByText('Aún no hay próximos partidos.')).toBeInTheDocument();
+    expect(await screen.findByText('No hay próximos partidos.')).toBeInTheDocument();
     expect(screen.getByText('Aún no hay equipos.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Aún no hay goles registrados en partidos finalizados.'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Aún no hay partidos jugados en esta liga.')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-  });
-
-  it('cada bloque llega vacío de forma independiente (equipos sin partidos)', async () => {
-    vi.stubGlobal('fetch', stubFetch({ recientesVacio: true, proximosVacio: true }));
-    renderDashboard();
-
-    expect(await screen.findByText('Aún no hay partidos jugados.')).toBeInTheDocument();
-    expect(screen.getByText('Aún no hay próximos partidos.')).toBeInTheDocument();
-    // La clasificación NO está vacía en este caso (Assumption "Bloque de
-    // clasificación 'vacío'" de spec.md): sigue mostrando su tabla.
-    expect(screen.getByRole('table')).toBeInTheDocument();
   });
 
   it('es accesible en sesión anónima sin redirección al login', async () => {
     vi.stubGlobal('fetch', stubFetch());
     renderDashboard();
-    await screen.findByRole('heading', { name: 'Últimos resultados' });
+    await screen.findByRole('heading', { name: 'Próximo partido' });
     expect(screen.queryByText(/iniciar sesión/i)).not.toBeInTheDocument();
   });
 
-  it('ofrece un enlace a la clasificación completa (soporte de SC-001)', async () => {
+  it('cada tarjeta ofrece su propio enlace de acción (soporte de SC-001)', async () => {
     vi.stubGlobal('fetch', stubFetch());
     renderDashboard();
-    const enlace = await screen.findByRole('link', { name: 'Ver clasificación completa' });
-    expect(enlace).toHaveAttribute('href', '/leagues/l1/standings');
-    const calendario = screen.getByRole('link', { name: 'Ver calendario completo' });
-    expect(calendario).toHaveAttribute('href', '/leagues/l1/matches');
+    expect(await screen.findByRole('link', { name: 'Ver calendario' })).toHaveAttribute(
+      'href',
+      '/leagues/l1/matches',
+    );
+    expect(screen.getByRole('link', { name: 'Ver tabla completa' })).toHaveAttribute(
+      'href',
+      '/leagues/l1/standings',
+    );
+    expect(screen.getByRole('link', { name: 'Ver estadísticas' })).toHaveAttribute(
+      'href',
+      '/leagues/l1/top-scorers',
+    );
   });
 
   it('muestra un error legible si la liga no existe', async () => {
     vi.stubGlobal('fetch', stubFetch({ error: true }));
     renderDashboard();
-    expect(await screen.findByRole('alert')).toHaveTextContent(/no se encontró la liga/i);
+    // Mensaje del catálogo compartido (lib/mensajesDeError.ts), no un literal
+    // propio de esta pantalla — mismo criterio que el resto de la app.
+    expect(await screen.findByRole('alert')).toHaveTextContent(/no encontramos la liga/i);
   });
 
   it('se descubre desde el detalle de la liga en una interacción', async () => {
@@ -194,6 +236,6 @@ describe('dashboard general de la liga', () => {
       </MemoryRouter>,
     );
     await userEvent.click(await screen.findByRole('link', { name: 'Ver dashboard' }));
-    expect(await screen.findByRole('heading', { name: 'Últimos resultados' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Próximo partido' })).toBeInTheDocument();
   });
 });

@@ -30,8 +30,6 @@ export interface Seccion {
   /** Qué ofrece la sección. Lo usa la portada para presentarla (FR-034). */
   descripcion: string;
   requiereLiga: true;
-  /** Sección declarada en el mockup pero aún no entregada. */
-  pendiente?: 'specs/010' | 'specs/011';
 }
 
 export const secciones: readonly Seccion[] = [
@@ -43,7 +41,6 @@ export const secciones: readonly Seccion[] = [
     descripcion:
       'El pulso de la liga: resultados recientes, próximos partidos y líderes en una sola pantalla.',
     requiereLiga: true,
-    pendiente: 'specs/011',
   },
   {
     id: 'equipos',
@@ -86,12 +83,16 @@ export const secciones: readonly Seccion[] = [
   {
     id: 'estadisticas',
     etiqueta: 'Estadísticas',
-    ruta: (id) => `/leagues/${id}/statistics`,
-    coincide: ['/leagues/:id/statistics'],
+    // La sección "Estadísticas" del mockup aterriza en la tabla de
+    // goleadores (specs/010): es la vista agregada por liga que existe hoy.
+    // La ficha individual de jugador (/players/:playerId/statistics) no
+    // tiene entrada propia en la navegación, pero se resalta como la misma
+    // sección al llegar a ella desde un enlace de jugador.
+    ruta: (id) => `/leagues/${id}/top-scorers`,
+    coincide: ['/leagues/:id/top-scorers', '/players/:playerId/statistics'],
     descripcion:
       'Goleadores y rendimiento por jugador a partir de los goles registrados.',
     requiereLiga: true,
-    pendiente: 'specs/010',
   },
 ];
 

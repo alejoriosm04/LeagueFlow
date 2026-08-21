@@ -95,12 +95,11 @@ describe('portada (FR-034)', () => {
     }
   });
 
-  it('marca como próximas las secciones aún no entregadas, con texto y no solo con color', async () => {
+  it('no marca ninguna sección como próxima: las seis están entregadas (specs/010, specs/011)', async () => {
     renderPortada();
 
     await screen.findByRole('heading', { level: 1, name: 'LeagueFlow' });
-    const pendientes = secciones.filter((seccion) => seccion.pendiente);
-    expect(screen.getAllByText('Próximamente')).toHaveLength(pendientes.length);
+    expect(screen.queryByText('Próximamente')).not.toBeInTheDocument();
   });
 });
 

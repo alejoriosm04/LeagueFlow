@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Boton, CampoDeFormulario, EstadoCarga, EstadoError } from '../../components';
+import { Boton, CampoDeFormulario, EstadoCarga, EstadoError, TituloDePantalla } from '../../components';
 import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { teamsApi } from '../teams/api';
 import type { Team } from '../teams/api';
@@ -50,7 +50,7 @@ export function CreateMatchForm() {
   if (cargando) {
     return (
       <section className="lf-formulario">
-        <h1>Programar partido</h1>
+        <TituloDePantalla>Programar partido</TituloDePantalla>
         <EstadoCarga recurso="los equipos" />
       </section>
     );
@@ -61,7 +61,7 @@ export function CreateMatchForm() {
 
   return (
     <form onSubmit={onSubmit} className="lf-formulario">
-      <h1>Programar partido</h1>
+      <TituloDePantalla>Programar partido</TituloDePantalla>
 
       <CampoDeFormulario
         id="home"

@@ -29,6 +29,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { EstadoDeSesion } from './EstadoDeSesion';
 import { IconoSeccion } from './IconoSeccion';
 import { IndicadorDeLiga } from './IndicadorDeLiga';
+import { DestinoDelTitulo } from './TituloDePantalla';
 import { secciones, seccionActiva } from './secciones';
 import { useLigaEnContexto } from './useLigaEnContexto';
 import estilos from './AppShell.module.css';
@@ -40,6 +41,9 @@ interface AppShellProps {
 export function AppShell({ children }: AppShellProps) {
   const { pathname } = useLocation();
   const [navAbierta, setNavAbierta] = useState(false);
+  // Ref por estado, no `useRef`: el portal del título necesita que el
+  // destino provoque un re-render en cuanto el nodo existe.
+  const [destinoDelTitulo, setDestinoDelTitulo] = useState<HTMLElement | null>(null);
   const liga = useLigaEnContexto();
   const leagueId = liga.estado === 'resuelta' ? liga.leagueId : null;
   // Mientras se resuelve no se anuncia la ausencia de liga: es un estado
@@ -132,14 +136,29 @@ export function AppShell({ children }: AppShellProps) {
 
         <div className={estilos.columna}>
           <header className={estilos.cabecera}>
-            <div className={estilos.liga}>
-              <IndicadorDeLiga />
-            </div>
+            {/* Destino del <h1> de la pantalla actual (TituloDePantalla):
+                el título vive aquí, a tamaño de titular, en vez de dentro
+                del área de contenido (FR-042). */}
+            <div ref={setDestinoDelTitulo} className={estilos.tituloDePantalla} />
             <EstadoDeSesion />
           </header>
 
+          {/* Selector de liga en contexto: badge + salida para cambiarla
+              (FR-002, FR-006). Vive fuera de la cabecera para quedar junto al
+              título de la pantalla, no en la esquina. */}
+          <div className={estilos.filaLiga}>
+            <IndicadorDeLiga />
+            {pathname !== '/leagues' && (
+              <Link to="/leagues" className={estilos.cambiarLiga}>
+                Cambiar liga
+              </Link>
+            )}
+          </div>
+
           <main id="contenido" className={estilos.contenido}>
-            {children}
+            <DestinoDelTitulo.Provider value={destinoDelTitulo}>
+              {children}
+            </DestinoDelTitulo.Provider>
           </main>
         </div>
       </div>

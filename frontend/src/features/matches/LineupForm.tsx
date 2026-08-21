@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { Boton, EstadoError } from '../../components';
 import { ApiError } from '../../services/apiClient';
 import type { Player } from '../players/api';
 import { matchesApi } from './api';
+import estilos from './LineupForm.module.css';
 
 const mensajes: Record<string, string> = {
   player_not_found: 'Uno de los jugadores seleccionados ya no existe.',
@@ -56,39 +58,57 @@ export function LineupForm({
   }
 
   return (
-    <form onSubmit={(e) => void enviar(e)} aria-label="Editar alineación">
-      <fieldset>
-        <legend>Equipo local</legend>
-        {jugadoresLocal.length === 0 && <p>Este equipo no tiene jugadores registrados.</p>}
-        {jugadoresLocal.map((jugador) => (
-          <label key={jugador.id}>
-            <input
-              type="checkbox"
-              checked={local.includes(jugador.id)}
-              onChange={() => setLocal((valor) => alternar(valor, jugador.id))}
-            />
-            {jugador.name}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset>
-        <legend>Equipo visitante</legend>
-        {jugadoresVisitante.length === 0 && <p>Este equipo no tiene jugadores registrados.</p>}
-        {jugadoresVisitante.map((jugador) => (
-          <label key={jugador.id}>
-            <input
-              type="checkbox"
-              checked={visitante.includes(jugador.id)}
-              onChange={() => setVisitante((valor) => alternar(valor, jugador.id))}
-            />
-            {jugador.name}
-          </label>
-        ))}
-      </fieldset>
-      <button type="submit" disabled={enviando}>
-        {enviando ? 'Guardando…' : 'Guardar alineación'}
-      </button>
-      {error && <p role="alert">{error}</p>}
+    <form onSubmit={(e) => void enviar(e)} aria-label="Editar alineación" className="lf-formulario">
+      <h3>Editar alineación</h3>
+
+      <div className={estilos.contenedorEquipos}>
+        <fieldset className={estilos.fieldset}>
+          <legend>Equipo local</legend>
+          {jugadoresLocal.length === 0 ? (
+            <p className={estilos.vacio}>Este equipo no tiene jugadores registrados.</p>
+          ) : (
+            <div className={estilos.lista}>
+              {jugadoresLocal.map((jugador) => (
+                <label key={jugador.id} className={estilos.jugador}>
+                  <input
+                    type="checkbox"
+                    checked={local.includes(jugador.id)}
+                    onChange={() => setLocal((valor) => alternar(valor, jugador.id))}
+                  />
+                  {jugador.name}
+                </label>
+              ))}
+            </div>
+          )}
+        </fieldset>
+        <fieldset className={estilos.fieldset}>
+          <legend>Equipo visitante</legend>
+          {jugadoresVisitante.length === 0 ? (
+            <p className={estilos.vacio}>Este equipo no tiene jugadores registrados.</p>
+          ) : (
+            <div className={estilos.lista}>
+              {jugadoresVisitante.map((jugador) => (
+                <label key={jugador.id} className={estilos.jugador}>
+                  <input
+                    type="checkbox"
+                    checked={visitante.includes(jugador.id)}
+                    onChange={() => setVisitante((valor) => alternar(valor, jugador.id))}
+                  />
+                  {jugador.name}
+                </label>
+              ))}
+            </div>
+          )}
+        </fieldset>
+      </div>
+
+      {error && <EstadoError mensaje={error} />}
+
+      <div className="lf-acciones-formulario">
+        <Boton type="submit" enviando={enviando}>
+          Guardar alineación
+        </Boton>
+      </div>
     </form>
   );
 }

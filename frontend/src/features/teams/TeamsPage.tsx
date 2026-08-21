@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import {
-  EscudoEquipo,
-  EstadoCarga,
-  EstadoError,
-  EstadoVacio,
-  Panel,
-  TablaDeDatos,
-} from '../../components';
+import { EscudoEquipo, EstadoCarga, EstadoError, EstadoVacio, Panel, TablaDeDatos, TituloDePantalla } from '../../components';
 import type { ColumnaDeTabla } from '../../components';
 import { mensajeDeError } from '../../lib/mensajesDeError';
 import { useAuth } from '../auth/AuthContext';
@@ -55,7 +48,7 @@ export function TeamsPage() {
   if (cargando || error) {
     return (
       <section>
-        <h1>Equipos</h1>
+        <TituloDePantalla>Equipos</TituloDePantalla>
         {cargando ? (
           <EstadoCarga recurso="los equipos" />
         ) : (
@@ -67,7 +60,7 @@ export function TeamsPage() {
 
   return (
     <section>
-      <h1>Equipos</h1>
+      <TituloDePantalla>Equipos</TituloDePantalla>
 
       {equipos.length === 0 ? (
         // FR-014: la acción se ofrece solo a quien puede ejecutarla; a un

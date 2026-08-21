@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Boton, CampoDeFormulario, EstadoError } from '../../components';
+import { Boton, CampoDeFormulario, EstadoError, TituloDePantalla } from '../../components';
 import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { leaguesApi } from './api';
 
@@ -31,7 +31,7 @@ export function CreateLeagueForm() {
 
   return (
     <form onSubmit={onSubmit} className="lf-formulario">
-      <h1>Crear liga</h1>
+      <TituloDePantalla>Crear liga</TituloDePantalla>
 
       <CampoDeFormulario
         id="name"

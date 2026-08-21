@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppShell } from '../layout/AppShell';
+import { TituloDePantalla } from '../layout/TituloDePantalla';
 import { AuthProvider } from '../../features/auth/AuthContext';
 
 const USUARIO = { id: 'u1', username: 'ana.gomez', role: 'organizador', status: 'active' };
@@ -112,6 +113,32 @@ describe('AppShell', () => {
     expect(await screen.findByText('ana.gomez')).toBeInTheDocument();
     expect(screen.getByText('organizador')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toBeInTheDocument();
+  });
+
+  it('pinta el título de la pantalla en la cabecera, no en el contenido', async () => {
+    vi.stubGlobal('fetch', mockFetch(USUARIO));
+    render(
+      <MemoryRouter initialEntries={['/leagues/l1/teams']}>
+        <AuthProvider>
+          <AppShell>
+            <TituloDePantalla>Equipos</TituloDePantalla>
+          </AppShell>
+        </AuthProvider>
+      </MemoryRouter>,
+    );
+
+    const titulo = await screen.findByRole('heading', { level: 1, name: 'Equipos' });
+    // Sigue habiendo exactamente un <h1>: el portal lo mueve, no lo duplica.
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole('banner')).toContainElement(titulo);
+    expect(screen.getByRole('main')).not.toContainElement(titulo);
+  });
+
+  it('ofrece cambiar de liga desde la cabecera (FR-002, FR-006)', async () => {
+    renderEn('/leagues/l1/teams', USUARIO);
+
+    const cambiar = await screen.findByRole('link', { name: 'Cambiar liga' });
+    expect(cambiar).toHaveAttribute('href', '/leagues');
   });
 
   it('ofrece iniciar sesión cuando no hay sesión', async () => {

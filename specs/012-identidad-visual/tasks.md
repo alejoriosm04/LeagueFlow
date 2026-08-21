@@ -444,3 +444,150 @@ pueden adelantarse a la Phase 2 sin cambiar ninguna otra dependencia.
 - Ninguna tarea borra, salta ni debilita una prueba existente (Principio IV)
 - Commit por tarea o por grupo lógico, con `feat(012): …` (`AGENTS.md`)
 - Parar en cualquier checkpoint para validar la historia por separado
+
+---
+
+## Post-cierre: integración con specs/010 y specs/011 (2026-08-21)
+
+T007, T010, T015 y T017 se ejecutaron cuando `specs/010-alineaciones-estadisticas`
+y `specs/011-dashboard-liga` seguían sin entregar: Dashboard y Estadísticas
+apuntaban a `PendienteDeEntrega`. Ambas specs se entregaron y se mezclaron a
+`main` después; al traer `main` de vuelta a esta rama, la resolución de
+conflictos en `frontend/src/routes.tsx` dejó **dos** rutas para
+`/leagues/:id/dashboard` (la real y la de `PendienteDeEntrega`, ganando la
+primera por orden mas dejando la segunda como código muerto) y ninguna ruta
+real para Estadísticas, y además revirtió `/` de `Portada` a un `Inicio`
+inline previo a esta historia. No son tareas nuevas del catálogo original;
+se registran aquí como corrección post-cierre:
+
+- [X] Restaurar `/` → `Portada` en `routes.tsx` (regresión de merge).
+- [X] Eliminar las rutas muertas de `PendienteDeEntrega` para Dashboard y
+  Estadísticas; ambas secciones navegan ya a sus pantallas reales
+  (`DashboardPage`, `specs/011`; `TopScorersPage` vía `/leagues/:id/top-scorers`,
+  `specs/010`).
+- [X] Quitar el campo `pendiente` de `Seccion` (`secciones.ts`,
+  `contracts/ui-contracts.md`) y el componente `PendienteDeEntrega`: sin
+  secciones pendientes, era código sin ningún llamador.
+- [X] Actualizar `spec.md` (Assumptions, Edge Cases) y `data-model.md` §2.1
+  para reflejar que las seis secciones están entregadas.
+- [X] Ajustar `frontend/src/features/inicio/__tests__/portada.test.tsx` (ya
+  no hay `pendiente` que filtrar) — suite en verde.
+- [X] Extender `useLigaEnContexto` para resolver `/players/:playerId/*` (vía
+  el equipo del jugador): al apuntar Estadísticas a la ficha individual, esa
+  ruta pasó a formar parte de un `coincide`, y sin resolución de liga el
+  shell no pintaba ninguna sección en ella (FR-004, FR-006).
+- [X] Restilizar `DashboardPage.tsx`, `TopScorersPage.tsx` y
+  `PlayerStatsPage.tsx` con el catálogo de `specs/012` (`Panel`,
+  `TablaDeDatos`, `FilaDeMarcador`, `DestacadoDePodio`, los tres estados de
+  pantalla y `mensajeDeError`): specs/010 y specs/011 se construyeron antes
+  de que este catálogo existiera formalmente, con HTML sin estilo propio —
+  el mismo estado que tenían specs/001 a 009 antes de esta historia
+  (FR-031 ahora también cubre estas dos pantallas).
+- [X] Diagnóstico de la "ficha del partido" rota reportada tras el `pull`:
+  no era una regresión de código sino la base de datos local, detenida en
+  la rama de migración `020b6dc9a54e` en vez de la cabeza fusionada
+  `919f3bd57721` (`alembic heads`/`alembic current` lo confirman). Un
+  `alembic upgrade head` local lo resuelve; no aplica ningún cambio de
+  código ni de migración nueva.
+
+## Post-cierre: paridad con la maqueta de referencia en Dashboard y ficha del partido (2026-08-21)
+
+Con Dashboard y Estadísticas ya integradas, se pidió acercar su acabado al de
+la maqueta `LeagueFlow Wow` (ver spec.md, Assumptions) en vez de quedarse en
+la versión mínima de la primera integración. FR-032/FR-035 siguen intactos:
+0 contratos de API nuevos, todo compuesto en el cliente a partir de
+`specs/003`, `specs/005`, `specs/008`, `specs/010` y `specs/011`.
+
+- [X] `DashboardPage.tsx`: tarjetas "Próximo partido", "Estado de la
+  temporada" (jugados/programados/cancelados — adaptación honesta de
+  "ganados/empates/perdidos", que es una estadística por equipo, no de
+  liga), "Goles por fecha" (adaptación de "por jornada": `Match` no tiene
+  ese campo), contadores "Equipos"/"Jugadores" y "Temporada completada"
+  (anillo `conic-gradient`, sin librería de gráficos — decisión de stack que
+  esta historia no puede tomar, `AGENTS.md` §5).
+- [X] Nuevo componente de catálogo `GraficoDeBarras` (`components/datos/`):
+  gráfico de barras con el valor siempre visible como texto (FR-028).
+  Documentado en `contracts/ui-contracts.md` §2.
+- [X] `MatchDetailPage.tsx`: dos bugs reales de la resolución de conflictos
+  de merge, no solo estilo — `ResultForm` y `CorrectionRequestForm` se
+  renderizaban **dos veces** cada uno. Se corrige y se añade una prueba de
+  regresión (`events.test.tsx`). Se retiran además las líneas de texto
+  plano "Estado: finished" / "Marcador vigente: …" (raw enum sin traducir,
+  redundante con `FilaDeMarcador`+`DistintivoDeEstado` ya mostrados
+  arriba), y "Alineación"/"Goles" pasan a vivir en `Panel` con
+  `EscudoEquipo` por fila (los goles de visitante se leen en espejo:
+  la posición, no solo el color, distingue el equipo — FR-028).
+- [X] `LineupForm.tsx`: no tenía ningún estilo del catálogo (checkboxes sin
+  marcado, sin `Boton`, sin `.lf-formulario`) — mismo estado en el que
+  estaban Dashboard/Estadísticas antes de esta historia. Se alinea con el
+  resto de formularios de la aplicación.
+- [X] Rejilla del Dashboard: la primera versión de las tarjetas usaba dos
+  columnas iguales (`1fr 1fr`) más bloques a ancho completo apilados. Con
+  contenido de alto muy distinto entre tarjetas de la misma fila (p. ej.
+  "Goles por fecha" corta junto a "Tabla de posiciones" larga), eso dejaba
+  huecos vacíos irregulares al pie de las tarjetas cortas. Se midió el DOM
+  real de la maqueta `LeagueFlow Wow` (`getComputedStyle`/`getBoundingClientRect`
+  sobre el HTML exportado) y resultó ser una rejilla de **12 columnas**:
+  fila 1 en 5/7 (Próximo partido / Estado de la temporada), fila de tabla en
+  7/5 (Tabla de posiciones / columna con Goles por fecha + Equipos +
+  Jugadores). Se adoptó esa proporción con `grid-column: span N` y
+  `align-items: stretch` propagado a la tarjeta interior (`Panel` o
+  `.columnaSecundaria`), así que la tarjeta corta se estira a la altura de
+  la larga en vez de dejar un hueco fuera de cualquier tarjeta. Por debajo de
+  1024px cada tarjeta vuelve a ocupar las 12 columnas (una por fila).
+- [X] Paridad final de tarjetas con la maqueta: aun con la rejilla correcta,
+  el panel seguía mostrando **nueve** tarjetas frente a las **siete** de la
+  maqueta, porque `specs/011` publicaba dos listas propias ("Últimos
+  resultados" y "Próximos partidos") que la maqueta no dibuja. "Próximos
+  partidos" era además el **mismo dato** que "Próximo partido" —ambos leen
+  `upcoming_matches`—, así que el panel enseñaba el próximo encuentro dos
+  veces seguidas. Se retiran ambas listas; el calendario completo sigue a un
+  clic desde el enlace "Ver calendario" de la propia tarjeta. Se añaden los
+  enlaces de cabecera que la maqueta sí dibuja, vía la prop `acciones` de
+  `Panel` (ya en el catálogo, sin componente nuevo): "Ver calendario", "Ver
+  estadísticas" y "Ver tabla completa", en lugar de los dos enlaces sueltos
+  que colgaban bajo el `<h1>`. Los números de "Estado de la temporada" pasan
+  al color de su segmento en la barra, como en la maqueta; eso suma dos
+  pares a la auditoría de contraste (`exito sobre superficie`, `aviso sobre
+  superficie`), ambos verificados por `contraste.test.ts`.
+- [X] Refactor final a la disposición de la maqueta, pieza por pieza:
+  - **Cabecera** (`AppShell`): el **título de la pantalla** a la izquierda a
+    tamaño de titular ("Dashboard de la liga", "Equipos", "Ficha del
+    partido"…), píldora de sesión a la derecha, y el selector de liga movido
+    de la esquina a una fila propia bajo la cabecera, con el badge de
+    iniciales y un botón secundario "Cambiar liga" → `/leagues`. El buscador
+    global y la campana **no** se dibujan: no hay endpoint que los sirva
+    (FR-032/FR-035); dibujar controles inertes es peor que omitirlos.
+  - **`TituloDePantalla`** (componente nuevo del catálogo): mueve el `<h1>`
+    de cada pantalla a la cabecera del marco mediante un portal. Se probó
+    primero con un saludo fijo ("Hola, {usuario} · {rol}") en ese hueco,
+    pero el título de la pantalla es lo que de verdad orienta al usuario y
+    el nombre de usuario ya está en la píldora de sesión, al lado. Las 16
+    pantallas pasan de `<h1>…</h1>` a `<TituloDePantalla>…</TituloDePantalla>`;
+    sigue habiendo exactamente un `<h1>` por pantalla (FR-027) y las pruebas
+    que renderizan una pantalla suelta lo siguen encontrando, porque sin
+    shell el portal no tiene destino y el `<h1>` cae en su sitio natural.
+    La portada (`/`) es la excepción: su `<h1>LeagueFlow</h1>` es el titular
+    del bloque principal, no una etiqueta de sección, y se queda ahí.
+  - **Próximo partido**: deja de ser una fila de marcador y pasa a ser el
+    bloque de la maqueta — fecha arriba, dos badges circulares grandes
+    enfrentados con "VS" al centro y el nombre de cada equipo debajo, todo
+    dentro de un único enlace al partido. Sin "Jornada N" ni sede: `Match`
+    (`specs/005`) no tiene esos campos.
+  - **Rendimiento de la temporada**: barra segmentada de tres colores +
+    grid de 4 métricas, con las etiquetas corregidas a Jugados / Gana local
+    / Empates / Gana visitante (ver spec.md — "ganados/perdidos" a nivel de
+    liga es siempre el mismo número).
+  - **Tabla de posiciones**: columna EQUIPO con badge circular + nombre,
+    columna DG (antes GD) y más alto vertical al ocupar 7/12.
+  - **Goles por fecha**: hasta 12 barras (antes 8), la última destacada en
+    acento —nueva prop `destacarUltima` de `GraficoDeBarras`— y ancho de
+    barra acotado para que una liga con una sola fecha no pinte un bloque
+    del ancho de la tarjeta.
+  - **Equipos / Jugadores**: dos tarjetas compactas con la etiqueta encima
+    del número, como la maqueta.
+  - **Temporada completada**: banner con degradado de acento, porcentaje en
+    texto gigante a la izquierda y anillo tipo *donut* a la derecha
+    (`conic-gradient` + `mask`, sin librería de gráficos).
+  - `EscudoEquipo` gana `tamano: 'lg'` y `circular` para los badges
+    redondos de la maqueta, en el catálogo y no como CSS suelto de pantalla.

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Boton, CampoDeFormulario, EstadoError } from '../../components';
+import { Boton, CampoDeFormulario, EstadoError, TituloDePantalla } from '../../components';
 import { campoDelError, mensajeDeError } from '../../lib/mensajesDeError';
 import { playersApi } from './api';
 
@@ -37,7 +37,7 @@ export function CreatePlayerForm() {
 
   return (
     <form onSubmit={onSubmit} className="lf-formulario">
-      <h1>Registrar jugador</h1>
+      <TituloDePantalla>Registrar jugador</TituloDePantalla>
 
       <CampoDeFormulario
         id="name"

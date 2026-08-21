@@ -123,6 +123,13 @@ describe('goles del partido', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
+  it('no duplica el formulario de solicitud de corrección para un operador', async () => {
+    vi.stubGlobal('fetch', stubFetch({ rol: 'operador' }).fn);
+    renderFicha();
+    await screen.findByRole('region', { name: /goles/i });
+    expect(screen.getAllByRole('heading', { name: 'Solicitar corrección' })).toHaveLength(1);
+  });
+
   it('traduce el rechazo del jugador ajeno a un mensaje legible', async () => {
     vi.stubGlobal('fetch', stubFetch({ rol: 'operador', error: true }).fn);
     renderFicha();

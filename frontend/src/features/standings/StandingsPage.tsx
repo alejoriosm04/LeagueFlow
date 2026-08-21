@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import {
-  DestacadoDePodio,
-  EstadoCarga,
-  EstadoError,
-  EstadoVacio,
-  Panel,
-  TablaDeDatos,
-} from '../../components';
+import { DestacadoDePodio, EstadoCarga, EstadoError, EstadoVacio, Panel, TablaDeDatos, TituloDePantalla } from '../../components';
 import type { ColumnaDeTabla, DestacadoDeFila } from '../../components';
 import { formatearDiferencia } from '../../lib/formato';
 import { mensajeDeError } from '../../lib/mensajesDeError';
@@ -74,7 +67,7 @@ export function StandingsPage() {
 
   return (
     <section>
-      <h1>Clasificación</h1>
+      <TituloDePantalla>Clasificación</TituloDePantalla>
       {cargando && <EstadoCarga recurso="la clasificación" />}
       {error && <EstadoError mensaje={error} onReintentar={() => setIntento((n) => n + 1)} />}
       {!cargando && !error && filas.length === 0 && (
