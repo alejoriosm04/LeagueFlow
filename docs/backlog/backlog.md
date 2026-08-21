@@ -29,13 +29,16 @@
 > | User Story 9 (HU09) | `specs/010-alineaciones-estadisticas/` |
 > | User Story 10 (HU10) | `specs/011-dashboard-liga/` |
 > | User Story 11 (HU11) — Identidad visual | `specs/012-identidad-visual/` |
-> | User Story 11-15 (HU11-15) | Backlog futuro / pool de demo en vivo — sin spec todavía |
+> | User Story 12 (HU12) — Grupos/divisiones | `specs/013-grupos-divisiones/` |
+> | User Story 13 (HU13) — Tarjetas y sanciones | `specs/014-tarjetas-sanciones/` |
+> | User Story 14 (HU14) — Exportación a CSV | `specs/015-exportacion-csv/` |
+> | User Story 15 (HU15) — Auditoría de operaciones | `specs/016-auditoria/` |
+> | User Story 16 (HU16) — Bloqueo de login | `specs/017-bloqueo-login/` |
 >
-> **Nota de renumeración**: `specs/012-identidad-visual` se incorpora como
-> **HU11** (historia transversal de presentación). Las antiguas HU11-HU15
-> (highlights, perfil de equipo, búsqueda, calendario todos-contra-todos y
-> exportación de clasificación) se replantearán y renumerarán en un paso
-> posterior; por ahora permanecen intactas.
+> Las specs `013` a `017` son las cinco historias del **trabajo en paralelo**
+> (Demo Day): cada una vive en su propia zona y no comparte archivo de código
+> con las demás. Los slugs de directorio son provisionales hasta que
+> `/speckit-specify` cree cada carpeta.
 
 ## Clarifications
 
@@ -50,7 +53,7 @@
   participaron) de cada partido, y los partidos jugados se derivan de ella.
 - **Q: ¿Qué nivel de autenticación se implementa para las operaciones de escritura?**
   → A: Autenticación real con usuarios, contraseña y sesión; cada usuario tiene un rol
-  asignado. Esto añade la historia de usuario HU-AUTH (User Story 16), que no estaba en
+  asignado. Esto añade la historia de usuario HU-AUTH (User Story 17), que no estaba en
   el backlog original y es un habilitador P1.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -336,129 +339,173 @@ tres bloques muestran datos coherentes con las vistas de detalle.
 
 ---
 
-### User Story 11 - Asociar video de highlights a un partido (Priority: P2)
+### User Story 11 - Identidad visual y experiencia consistente (Priority: P1)
 
-Como organizador, quiero asociar un link de video de highlights a un partido ya
-finalizado para que los espectadores puedan revisar los mejores momentos.
+Como cualquier usuario (espectador, operador u organizador), quiero que la aplicación
+se vea y se comporte como un producto real, con una estructura de aplicación única
+(cabecera de marca, indicador de liga, estado de sesión y navegación), un catálogo de
+componentes reutilizables y estados explícitos de carga/vacío/error, para navegarla
+con confianza y entender el estado de la liga de un vistazo.
 
-**Why this priority**: Enriquece la ficha del partido sin ser necesaria para ninguna
-regla de negocio.
+**Why this priority**: Es la meta explícita del enunciado ("al entrar, quiero que ya
+parezca un producto real"). Historia **transversal de presentación**: no introduce
+reglas de negocio, contratos de API, entidades ni migraciones.
 
-**Independent Test**: Sobre un partido finalizado, guardar un enlace de YouTube y
-verificar que la ficha pública muestra el reproductor embebido.
+**Independent Test**: Recorrer las pantallas ya implementadas y verificar la misma
+cabecera y navegación, con la sección activa resaltada por medios no cromáticos.
 
-**Acceptance Scenarios**:
-
-1. **Given** un partido finalizado, **When** el organizador asocia un enlace válido de
-   un proveedor permitido, **Then** el enlace queda guardado y la ficha del partido
-   muestra el video embebido.
-2. **Given** un partido programado o cancelado, **When** el organizador intenta asociar
-   un video, **Then** el sistema rechaza la operación porque solo los partidos
-   finalizados admiten highlights.
-3. **Given** un partido finalizado, **When** el organizador guarda un enlace que no
-   corresponde a un proveedor permitido, **Then** el sistema rechaza el enlace.
-4. **Given** un partido con video asociado, **When** el organizador lo reemplaza o lo
-   elimina, **Then** la ficha refleja el cambio.
+**Acceptance Scenarios**: definidos en `specs/012-identidad-visual/spec.md` (seis
+historias internas P1–P6, FR-001 a FR-046, SC-001 a SC-014). El backlog solo registra
+el enlace: la fuente de verdad es esa spec.
 
 ---
 
-### User Story 12 - Consultar el perfil de un equipo (Priority: P2)
+### User Story 12 - Grupos/divisiones de una liga (Priority: P2)
 
-Como espectador, quiero consultar el perfil de un equipo (escudo, colores, plantilla
-completa de jugadores) para conocer más sobre ese equipo.
+Como organizador, quiero agrupar los equipos de una liga en divisiones ("Grupo A",
+"Grupo B") para organizar la competición por fases o categorías, y que cualquier
+persona consulte la composición de cada grupo sin iniciar sesión.
 
-**Why this priority**: Mejora la experiencia pública reutilizando datos ya
-registrados en las HU02 y HU03.
+**Why this priority**: Habilita fases de grupos sobre la liga ya existente; es la
+pieza que abre el producto a competiciones más reales. Es un módulo nuevo
+(`groups/`), sin tocar los dominios existentes.
 
-**Independent Test**: Abrir el perfil de un equipo con plantilla registrada y verificar
-que muestra identidad visual y la lista completa de jugadores.
-
-**Acceptance Scenarios**:
-
-1. **Given** un equipo con escudo, colores y 11 jugadores, **When** el espectador abre
-   su perfil, **Then** ve la identidad visual y los 11 jugadores.
-2. **Given** un equipo sin escudo ni colores definidos, **When** el espectador abre su
-   perfil, **Then** ve una representación por defecto sin errores.
-3. **Given** un equipo con partidos finalizados, **When** el espectador abre su perfil,
-   **Then** ve su resumen de desempeño (partidos jugados, ganados, empatados,
-   perdidos) coherente con la clasificación.
-
----
-
-### User Story 13 - Buscar equipos y jugadores (Priority: P3)
-
-Como espectador, quiero buscar equipos y jugadores por nombre dentro de una liga para
-encontrarlos rápidamente sin navegar por listas completas.
-
-**Why this priority**: Es una mejora de navegación; solo aporta valor cuando la liga
-ya tiene volumen de datos.
-
-**Independent Test**: Con equipos y jugadores registrados, buscar un fragmento de
-nombre y verificar que los resultados relevantes aparecen agrupados por tipo.
+**Independent Test**: Crear dos grupos en una liga, asignar equipos y consultar la
+composición de un grupo sin sesión.
 
 **Acceptance Scenarios**:
 
-1. **Given** una liga con el jugador "Andrés Gómez", **When** el espectador busca
-   "gomez", **Then** el jugador aparece en los resultados (búsqueda insensible a
-   mayúsculas y acentos).
-2. **Given** una búsqueda sin coincidencias, **When** se ejecuta, **Then** el sistema
-   muestra un estado vacío explicativo.
-3. **Given** una búsqueda dentro de la liga 1, **When** existe un equipo con nombre
-   coincidente en la liga 2, **Then** ese equipo no aparece en los resultados.
+1. **Given** una liga con equipos registrados, **When** el organizador crea un grupo
+   con nombre, **Then** el grupo queda registrado en la liga.
+2. **Given** un grupo existente, **When** el organizador asigna un equipo que aún no
+   pertenece a ningún grupo de esa liga, **Then** el equipo queda asociado al grupo.
+3. **Given** un equipo que ya pertenece a un grupo de la liga, **When** el organizador
+   intenta asignarlo a otro grupo de la misma liga, **Then** el sistema rechaza la
+   operación (a lo sumo un grupo por liga).
+4. **Given** un grupo con equipos asignados, **When** un visitante sin sesión consulta
+   su composición, **Then** ve los equipos del grupo.
+5. **Given** un equipo que no es de la liga del grupo, **When** el organizador intenta
+   asignarlo, **Then** el sistema rechaza la operación.
+
+**Nota de diseño (acordada)**: los grupos viven en un módulo nuevo `groups/` con su
+propia tabla de pertenencias (`group_memberships`), sin modificar `teams/models.py`.
+Lee `teams`/`leagues` por su interfaz pública de servicio.
 
 ---
 
-### User Story 14 - Generar calendario todos-contra-todos (Priority: P3)
+### User Story 13 - Tarjetas y sanciones disciplinarias (Priority: P2)
 
-Como organizador, quiero que se genere automáticamente un calendario round-robin a
-partir de los equipos registrados en la liga para no programar cada partido
-manualmente.
+Como operador, quiero registrar tarjetas amarillas y rojas de un partido y que el
+sistema derive si un jugador queda suspendido, para llevar el control disciplinario de
+la liga.
 
-**Why this priority**: Es un acelerador de la HU04, que ya cubre la necesidad de forma
-manual.
+**Why this priority**: Extiende el punto de extensión `MatchEvent` (diseñado en la
+HU08 para admitir tipos nuevos) y es la regla de negocio más demostrable del bloque de
+trabajo paralelo.
 
-**Independent Test**: En una liga con 4 equipos, generar el calendario y verificar que
-se crean 6 partidos y que cada par de equipos se enfrenta exactamente una vez.
+**Independent Test**: Sobre un partido, registrar una roja directa a un jugador
+participante y verificar que queda reportado como suspendido.
 
 **Acceptance Scenarios**:
 
-1. **Given** una liga con 4 equipos y sin partidos, **When** el organizador genera el
-   calendario, **Then** se crean 6 partidos programados y cada par de equipos aparece
-   exactamente una vez.
-2. **Given** una liga con menos de 2 equipos, **When** el organizador intenta generar
-   el calendario, **Then** el sistema rechaza la operación e informa el mínimo
-   requerido.
-3. **Given** una liga que ya tiene partidos, **When** el organizador intenta generar el
-   calendario, **Then** el sistema pide confirmación explícita y nunca duplica
-   enfrentamientos ya existentes.
+1. **Given** un partido, **When** el operador registra una tarjeta amarilla a un
+   jugador participante, **Then** el evento queda registrado como `YELLOW_CARD`.
+2. **Given** un partido, **When** el operador registra una tarjeta roja directa,
+   **Then** el jugador queda reportado como suspendido.
+3. **Given** un jugador con dos amarillas en partidos distintos, **When** se registra
+   la segunda, **Then** el sistema deriva su suspensión automáticamente.
+4. **Given** un partido, **When** el operador intenta registrar una tarjeta a un
+   jugador que no pertenece a ninguno de los dos equipos, **Then** el sistema rechaza
+   el evento.
+
+**Nota de diseño (acordada)**: la tarjeta ES un `MatchEvent` (se amplía el CHECK
+`type` de `matches/models.py`); la derivación de suspensión vive en un módulo nuevo
+`sanctions/` que lee `MatchEvent` por servicio.
 
 ---
 
-### User Story 15 - Exportar la clasificación (Priority: P3)
+### User Story 14 - Exportación de clasificación y calendario a CSV (Priority: P3)
 
-Como organizador, quiero exportar la tabla de posiciones de una liga en PDF o CSV para
-compartirla fuera de la plataforma.
+Como organizador, quiero descargar la clasificación y el calendario de una liga en CSV
+para compartirlos fuera de la plataforma.
 
-**Why this priority**: Es una utilidad de distribución sobre un dato ya calculado en la
-HU07.
+**Why this priority**: Utilidad de distribución sobre datos ya calculados; no persiste
+nada, solo transforma. Es la historia más desacoplada del bloque.
 
-**Independent Test**: Exportar la clasificación de una liga con partidos jugados y
-verificar que el archivo contiene las mismas filas, en el mismo orden, que la vista.
+**Independent Test**: Descargar la clasificación de una liga con partidos y verificar
+que el CSV contiene las mismas filas y columnas que la vista.
 
 **Acceptance Scenarios**:
 
-1. **Given** una clasificación con 6 equipos, **When** el organizador exporta en CSV,
-   **Then** el archivo contiene 6 filas de datos con las mismas columnas y el mismo
-   orden que la vista.
-2. **Given** la misma clasificación, **When** el organizador exporta en PDF, **Then**
-   el documento incluye el nombre de la liga, la fecha de generación y la tabla
-   completa.
-3. **Given** una liga sin partidos finalizados, **When** el organizador exporta,
-   **Then** obtiene un archivo válido con todos los equipos en cero.
+1. **Given** una clasificación con equipos, **When** el organizador descarga el CSV,
+   **Then** el archivo contiene las mismas filas, columnas y orden que la vista, con
+   nombre de liga y fecha de generación.
+2. **Given** un calendario con partidos, **When** el organizador descarga el CSV,
+   **Then** el archivo contiene los partidos con sus equipos, fecha y estado.
+3. **Given** una liga sin partidos finalizados, **When** se descarga la clasificación,
+   **Then** el CSV es válido y lista los equipos en cero.
+
+**Nota de diseño (acordada)**: sin migración; reempaqueta lo que ya exponen
+`standings` y `matches` por sus servicios, sin tocar sus modelos.
 
 ---
 
-### User Story 16 - Autenticación y control de acceso (HU-AUTH) (Priority: P1)
+### User Story 15 - Auditoría de operaciones administrativas (Priority: P2)
+
+Como organizador, quiero que cada operación de escritura quede registrada con quién la
+hizo, qué cambió y cuándo, para poder trazar la actividad de la liga.
+
+**Why this priority**: Es la capacidad transversal/observabilidad del bloque de trabajo
+paralelo; ningún otro spec necesita instrumentar su propio código para quedar
+auditado.
+
+**Independent Test**: Realizar una escritura autenticada y verificar que aparece en el
+registro de auditoría con el actor y la acción correctos.
+
+**Acceptance Scenarios**:
+
+1. **Given** un usuario autenticado, **When** realiza una operación de escritura
+   exitosa, **Then** queda registrada una entrada de auditoría con actor, acción y
+   fecha.
+2. **Given** un organizador, **When** consulta el registro de auditoría, **Then** ve
+   las entradas ordenadas por fecha.
+3. **Given** un usuario sin rol suficiente, **When** intenta consultar la auditoría,
+   **Then** el sistema rechaza el acceso.
+
+**Nota de diseño (acordada)**: middleware genérico que registra las escrituras en una
+tabla `audit_log`, sin instrumentar endpoint por endpoint.
+
+---
+
+### User Story 16 - Bloqueo tras intentos fallidos de inicio de sesión (Priority: P2)
+
+Como sistema, quiero bloquear temporalmente una cuenta tras varios intentos fallidos de
+inicio de sesión, para dificultar ataques de fuerza bruta.
+
+**Why this priority**: Es la capacidad de seguridad del bloque de trabajo paralelo;
+`auth/` es el territorio exclusivo de un solo integrante, así que no compite con
+nadie más.
+
+**Independent Test**: Fallar el login repetidamente y verificar que la cuenta queda
+bloqueada y que un intento válido no la desbloquea antes de tiempo.
+
+**Acceptance Scenarios**:
+
+1. **Given** una cuenta y varios intentos fallidos consecutivos, **When** se supera el
+   umbral, **Then** la cuenta queda bloqueada temporalmente.
+2. **Given** una cuenta bloqueada, **When** el usuario intenta iniciar sesión con la
+   contraseña correcta, **Then** el sistema rechaza el intento mientras dure el bloqueo.
+3. **Given** una cuenta bloqueada, **When** transcurre el periodo de bloqueo, **Then**
+   el usuario puede volver a intentar iniciar sesión.
+4. **Given** un intento fallido, **When** se responde, **Then** el mensaje no revela si
+   la cuenta existe o si está bloqueada.
+
+**Nota de diseño (acordada)**: modifica `auth/` (el único spec que lo toca) y persiste
+los intentos fallidos para sobrevivir a reinicios.
+
+---
+
+### User Story 17 - Autenticación y control de acceso (HU-AUTH) (Priority: P1)
 
 Como organizador, quiero que las operaciones de escritura requieran iniciar sesión con
 un usuario que tenga el rol adecuado, para que solo las personas autorizadas registren
@@ -514,8 +561,10 @@ públicas siguen accesibles.
 - ¿Qué ocurre si un gol está atribuido a un jugador y luego una corrección de alineación
   lo excluye del partido?
 - ¿Qué ocurre si nunca se registra la alineación de un partido finalizado?
-- ¿Qué pasa cuando el proveedor de video elimina el contenido enlazado en la HU11?
-- ¿Qué ocurre si se genera el round-robin con un número impar de equipos?
+- ¿Qué ocurre con un equipo asignado a un grupo si ese grupo se elimina?
+- ¿Qué pasa con las tarjetas acumuladas si el partido se corrige o se cancela?
+- ¿Cuánto dura el bloqueo de login y cómo se desbloquea una cuenta (automático o manual)?
+- ¿Se audita una escritura que falla a mitad de camino, o solo las exitosas?
 - ¿Qué pasa si dos operadores registran el resultado del mismo partido al mismo tiempo?
 - ¿Qué ocurre si la liga se queda sin ningún usuario con rol de organizador activo?
 - ¿Qué ve un espectador al abrir una liga sin equipos ni partidos?
@@ -563,7 +612,7 @@ públicas siguen accesibles.
 - **FR-014**: El sistema MUST soportar los estados de partido: programado, en curso,
   finalizado y cancelado.
 - **FR-015**: El sistema MUST permitir consultar el detalle de un partido, incluyendo
-  equipos, estado, marcador (si existe), alineación, eventos y video (si existe).
+  equipos, estado, marcador (si existe), alineación y eventos.
 
 #### Resultados
 
@@ -668,58 +717,52 @@ públicas siguen accesibles.
 - **FR-051**: Cada bloque del dashboard MUST mostrar un estado vacío legible cuando no
   haya datos.
 
-#### Video de highlights
+#### Grupos y divisiones
 
-- **FR-052**: El organizador MUST poder asociar un enlace de video a un partido
-  únicamente cuando el partido esté en estado finalizado.
-- **FR-053**: El sistema MUST validar que el enlace corresponde a un proveedor de video
-  permitido y rechazarlo en caso contrario.
-- **FR-054**: El sistema MUST almacenar y mostrar el enlace embebido, y MUST NOT alojar,
-  procesar ni transmitir el archivo de video.
-- **FR-055**: El organizador MUST poder reemplazar o eliminar el enlace de video de un
-  partido.
+- **FR-052**: El organizador MUST poder crear un grupo dentro de una liga con nombre
+  obligatorio.
+- **FR-053**: El organizador MUST poder asignar y desasignar equipos de la liga a un
+  grupo.
+- **FR-054**: Un equipo MUST poder pertenecer a lo sumo a un grupo dentro de una liga.
+- **FR-055**: La composición de un grupo MUST ser consultable sin autenticación.
 
-#### Perfil de equipo
+#### Tarjetas y sanciones
 
-- **FR-056**: El espectador MUST poder consultar el perfil de un equipo con su
-  identidad visual (escudo y colores), su plantilla completa y su resumen de
-  desempeño derivado de los partidos finalizados.
-- **FR-057**: El perfil MUST mostrar una representación por defecto cuando el equipo no
-  tenga escudo o colores definidos.
+- **FR-056**: El operador MUST poder registrar una tarjeta amarilla o roja como evento
+  de partido, indicando jugador y minuto.
+- **FR-057**: El sistema MUST rechazar una tarjeta atribuida a un jugador que no
+  pertenezca a ninguno de los dos equipos del partido.
+- **FR-058**: El sistema MUST derivar la suspensión de un jugador a partir de las
+  tarjetas registradas (roja directa o acumulación de amarillas).
+- **FR-059**: Las sanciones MUST derivarse exclusivamente de los eventos registrados y
+  MUST NOT editarse manualmente.
 
-#### Búsqueda
+#### Exportación a CSV
 
-- **FR-058**: El espectador MUST poder buscar equipos y jugadores por nombre dentro de
-  una liga, con coincidencia parcial e insensible a mayúsculas y acentos.
-- **FR-059**: Los resultados de búsqueda MUST limitarse a la liga consultada y MUST
-  distinguir entre equipos y jugadores.
+- **FR-060**: El organizador MUST poder exportar la clasificación y el calendario de
+  una liga en CSV.
+- **FR-061**: El CSV de clasificación MUST contener las mismas filas, columnas y orden
+  que la vista, e incluir nombre de liga y fecha de generación.
+- **FR-062**: El CSV de calendario MUST contener los partidos con sus equipos, fecha y
+  estado.
 
-#### Generación de calendario
+#### Auditoría
 
-- **FR-060**: El organizador MUST poder generar un calendario todos-contra-todos donde
-  cada equipo de la liga se enfrente exactamente una vez a cada uno de los demás.
-- **FR-061**: El sistema MUST rechazar la generación cuando la liga tenga menos de 2
-  equipos.
-- **FR-062**: Cuando la liga ya tenga partidos, el sistema MUST pedir confirmación
-  explícita y MUST NOT crear enfrentamientos duplicados.
-- **FR-063**: Los partidos generados MUST quedar en estado programado.
-
-#### Exportación
-
-- **FR-064**: El organizador MUST poder exportar la clasificación de una liga en CSV y
-  en PDF.
-- **FR-065**: El archivo exportado MUST contener las mismas filas, columnas y orden
-  que la vista de clasificación, e incluir el nombre de la liga y la fecha de
-  generación.
+- **FR-063**: Toda operación de escritura exitosa MUST quedar registrada con actor,
+  acción y fecha.
+- **FR-064**: El registro de auditoría MUST ser consultable por un organizador, en
+  orden cronológico.
+- **FR-065**: La auditoría MUST capturarse de forma genérica (middleware), sin
+  instrumentar cada endpoint individualmente.
 
 #### Autenticación, roles y acceso
 
 - **FR-066**: El sistema MUST distinguir tres roles: organizador (gestiona ligas,
-  equipos, jugadores, partidos, video y aprueba correcciones), operador (registra
+  equipos, jugadores, partidos y aprueba correcciones), operador (registra
   resultados, eventos y alineaciones, y solicita correcciones) y espectador (solo
   consulta).
 - **FR-067**: Toda la información de consulta (calendario, resultados, clasificación,
-  estadísticas, perfiles, búsqueda) MUST ser accesible sin autenticación.
+  estadísticas) MUST ser accesible sin autenticación.
 - **FR-068**: Toda operación de escritura MUST requerir una sesión autenticada con un
   rol suficiente.
 - **FR-069**: Cada usuario MUST tener credenciales propias (identificador y contraseña)
@@ -736,12 +779,16 @@ públicas siguen accesibles.
   mensaje de permisos insuficientes.
 - **FR-075**: Un intento de inicio de sesión fallido MUST responder con un mensaje
   genérico que no revele si el identificador existe.
+- **FR-076**: Tras superar un umbral de intentos fallidos consecutivos, el sistema
+  MUST bloquear temporalmente la cuenta.
+- **FR-077**: El sistema MUST rechazar el inicio de sesión de una cuenta bloqueada
+  mientras dure el bloqueo, y MUST permitirlo de nuevo al transcurrir el periodo.
 
 #### Errores y validación
 
-- **FR-076**: Toda operación rechazada MUST devolver un mensaje comprensible que
+- **FR-078**: Toda operación rechazada MUST devolver un mensaje comprensible que
   indique qué regla se incumplió y qué campo corregir.
-- **FR-077**: El sistema MUST NOT mostrar detalles técnicos internos al usuario cuando
+- **FR-079**: El sistema MUST NOT mostrar detalles técnicos internos al usuario cuando
   ocurra un error inesperado.
 
 ### Key Entities
@@ -754,13 +801,13 @@ públicas siguen accesibles.
   dorsal, posición. Pertenece a un equipo.
 - **Match (Partido)**: enfrentamiento entre dos equipos de la misma liga. Atributos:
   equipo local, equipo visitante, fecha/hora programada, estado, goles del local, goles
-  del visitante, enlace de video opcional. Contiene alineación y eventos.
+  del visitante. Contiene alineación y eventos.
 - **MatchLineup (Alineación)**: conjunto de jugadores que participaron en un partido,
   agrupados por equipo. Pertenece a un partido; es la fuente de los partidos jugados de
   cada jugador.
 - **MatchEvent (Evento de partido)**: hecho ocurrido durante un partido. Atributos:
-  tipo (gol en esta versión; extensible), jugador, equipo, minuto. Pertenece a un
-  partido.
+  tipo (gol; extensible a tarjeta amarilla y roja), jugador, equipo, minuto. Pertenece
+  a un partido.
 - **ResultCorrectionRequest (Solicitud de corrección)**: propuesta de nuevo marcador
   para un partido finalizado. Atributos: marcador propuesto, motivo, estado
   (pendiente/aprobada/rechazada), solicitante, decisor, fechas, marcador anterior.
@@ -773,6 +820,13 @@ públicas siguen accesibles.
 - **PlayerStatistics (Estadísticas de jugador)**: vista derivada, por jugador, con
   goles anotados y partidos jugados. NUNCA se edita: siempre se recalcula desde los
   eventos y las alineaciones.
+- **Group (Grupo)**: división de una liga que agrupa equipos. Atributos: nombre, liga.
+  La pertenencia de un equipo se registra en una tabla aparte
+  (`group_memberships`) dentro del módulo `groups/`.
+- **Sanction (Sanción)**: suspensión derivada de las tarjetas de un jugador. Vista
+  derivada; NUNCA se edita manualmente.
+- **AuditLog (Registro de auditoría)**: entrada que documenta una operación de
+  escritura. Atributos: actor, acción y fecha. Se escribe por un middleware genérico.
 
 ## Success Criteria *(mandatory)*
 
@@ -813,13 +867,9 @@ públicas siguen accesibles.
   goles). No se soportan varios deportes con reglas de puntuación distintas.
 - **Empates permitidos**: no existen prórrogas ni penaltis; un partido puede terminar
   en empate y así se refleja en la clasificación.
-- **Fase única**: la liga es una fase regular todos-contra-todos. No hay grupos,
-  playoffs, eliminatorias ni ascensos/descensos.
-- **Round-robin de una vuelta**: la generación automática (HU14) crea n(n-1)/2
-  partidos, una sola vez por par de equipos, según lo especificado. La condición de
-  local/visitante se asigna de forma determinista al generar.
-- **Fechas del calendario generado**: los partidos generados automáticamente se crean
-  agrupados en jornadas consecutivas; el organizador puede ajustar cada fecha después.
+- **Grupos opcionales**: la liga puede, o no, dividirse en grupos. La presencia de
+  grupos no altera la clasificación (que sigue derivando de los partidos) ni el resto
+  de la operación.
 - **Estados de partido**: los estados son programado, en curso, finalizado y cancelado.
   Solo los finalizados alimentan la clasificación y las estadísticas.
 - **Alineación opcional**: registrar la alineación no es obligatorio para finalizar un
@@ -833,9 +883,8 @@ públicas siguen accesibles.
   público ni registro de espectadores: el espectador es un visitante anónimo.
 - **Recuperación de contraseña**: no se implementa autoservicio de recuperación en esta
   versión; un organizador restablece la credencial de un usuario.
-- **Escudo del equipo y video**: ambos se almacenan como enlaces externos. La
-  plataforma no aloja archivos multimedia.
-- **Proveedores de video permitidos**: YouTube y Vimeo.
+- **Escudo del equipo**: se almacena como enlace externo. La plataforma no aloja
+  archivos multimedia.
 - **Jugador en un solo equipo**: un jugador pertenece a un único equipo dentro de una
   liga; el traspaso a mitad de temporada no está soportado en esta versión.
 - **Eliminación de entidades con historial**: los equipos y jugadores con partidos,
@@ -853,8 +902,7 @@ públicas siguen accesibles.
 Esta versión NO incluye, de forma explícita:
 
 - Apuestas o cualquier funcionalidad de índole económica.
-- Streaming en vivo o alojamiento de video (solo enlaces embebidos a partidos
-  finalizados).
+- Streaming en vivo o alojamiento de video.
 - Chat, comentarios o mensajería entre usuarios.
 - Aplicación móvil nativa.
 - Múltiples deportes simultáneos con reglas de puntuación distintas.
@@ -864,4 +912,6 @@ Esta versión NO incluye, de forma explícita:
 - Predicciones o analítica basada en machine learning.
 - Mapas, sedes geolocalizadas o tracking GPS.
 - Actualizaciones en tiempo real vía WebSockets.
+- Exportación en PDF y generación automática de calendario round-robin (fuera del
+  alcance actual; la exportación se ofrece en CSV).
 - Autorregistro público de usuarios y autoservicio de recuperación de contraseña.
