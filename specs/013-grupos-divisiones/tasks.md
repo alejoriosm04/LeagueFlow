@@ -18,7 +18,7 @@
 
 **Purpose**: Estructura inicial del módulo nuevo.
 
-- [ ] T001 Crear el módulo `backend/src/groups/` con `__init__.py` vacío
+- [x] T001 Crear el módulo `backend/src/groups/` con `__init__.py` vacío
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -26,9 +26,9 @@
 
 **⚠️ CRITICAL**: Ninguna historia puede empezar antes de esta fase.
 
-- [ ] T002 Crear los modelos `LeagueGroup` (tabla `groups`) y `GroupTeamMembership` (tabla `group_memberships`) en `backend/src/groups/models.py`, con FKs, `ON DELETE` e índices únicos según `data-model.md` (`ix_groups_unique_league_name`, `uq_group_memberships_team`, `ix_group_memberships_group`)
-- [ ] T003 Generar la migración Alembic para `groups` + `group_memberships` en `backend/alembic/versions/` y revisar el diff para NO recrear los índices funcionales de `leagues`/`teams` (AGENTS.md, sección de índices funcionales)
-- [ ] T004 [P] Crear los schemas Pydantic en `backend/src/groups/schemas.py`: `CreateGroupRequest`, `RenameGroupRequest`, `AssignTeamRequest`, `Group`, `TeamInGroup`, `GroupWithTeams`, `GroupList`
+- [x] T002 Crear los modelos `LeagueGroup` (tabla `groups`) y `GroupTeamMembership` (tabla `group_memberships`) en `backend/src/groups/models.py`, con FKs, `ON DELETE` e índices únicos según `data-model.md` (`ix_groups_unique_league_name`, `uq_group_memberships_team`, `ix_group_memberships_group`)
+- [x] T003 Generar la migración Alembic para `groups` + `group_memberships` en `backend/alembic/versions/` y revisar el diff para NO recrear los índices funcionales de `leagues`/`teams` (AGENTS.md, sección de índices funcionales)
+- [x] T004 [P] Crear los schemas Pydantic en `backend/src/groups/schemas.py`: `CreateGroupRequest`, `RenameGroupRequest`, `AssignTeamRequest`, `Group`, `TeamInGroup`, `GroupWithTeams`, `GroupList`
 
 **Checkpoint**: modelos + migración + schemas listos; las historias ya pueden implementarse en paralelo.
 
@@ -42,15 +42,15 @@
 
 ### Tests for User Story 1
 
-- [ ] T005 [US1] Test de contrato para `POST /leagues/{leagueId}/groups`, `PATCH /groups/{groupId}` y `DELETE /groups/{groupId}` en `backend/tests/contract/test_groups_contract.py` (códigos 201/200/204/400/401/403/404/409)
-- [ ] T006 [US1] Test de integración de crear/renombrar/eliminar grupo (incl. nombre duplicado normalizado) en `backend/tests/integration/test_groups.py`
+- [x] T005 [US1] Test de contrato para `POST /leagues/{leagueId}/groups`, `PATCH /groups/{groupId}` y `DELETE /groups/{groupId}` en `backend/tests/contract/test_groups_contract.py` (códigos 201/200/204/400/401/403/404/409)
+- [x] T006 [US1] Test de integración de crear/renombrar/eliminar grupo (incl. nombre duplicado normalizado) en `backend/tests/integration/test_groups.py`
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Implementar `crear_grupo`, `renombrar_grupo` y `eliminar_grupo` en `backend/src/groups/service.py` (unicidad por liga vía `LeagueService.obtener_liga`, errores `league_not_found`/`group_not_found`/`group_name_duplicate`)
-- [ ] T008 [US1] Implementar `POST /leagues/{leagueId}/groups`, `PATCH /groups/{groupId}` y `DELETE /groups/{groupId}` en `backend/src/groups/router.py` con `Depends(requiere_rol("organizador"))`
-- [ ] T009 [US1] Registrar el router de groups en `backend/src/main.py` (`include_router`)
-- [ ] T010 [P] [US1] Frontend: `api.ts` (createGroup, renameGroup, deleteGroup) y `GroupForm.tsx` (crear/renombrar, solo organizador) en `frontend/src/features/groups/`
+- [x] T007 [US1] Implementar `crear_grupo`, `renombrar_grupo` y `eliminar_grupo` en `backend/src/groups/service.py` (unicidad por liga vía `LeagueService.obtener_liga`, errores `league_not_found`/`group_not_found`/`group_name_duplicate`)
+- [x] T008 [US1] Implementar `POST /leagues/{leagueId}/groups`, `PATCH /groups/{groupId}` y `DELETE /groups/{groupId}` en `backend/src/groups/router.py` con `Depends(requiere_rol("organizador"))`
+- [x] T009 [US1] Registrar el router de groups en `backend/src/main.py` (`include_router`)
+- [x] T010 [P] [US1] Frontend: `api.ts` (createGroup, renameGroup, deleteGroup) y `GroupForm.tsx` (crear/renombrar, solo organizador) en `frontend/src/features/groups/`
 
 **Checkpoint**: US1 funcional y testeable por sí sola (crear/renombrar/eliminar grupo).
 
@@ -64,14 +64,14 @@
 
 ### Tests for User Story 2
 
-- [ ] T011 [US2] Test de contrato para `POST /groups/{groupId}/teams` y `DELETE /groups/{groupId}/teams` en `backend/tests/contract/test_groups_contract.py` (201/204/401/403/404/409)
-- [ ] T012 [US2] Test de integración de asignar/desasignar y los rechazos (`team_not_found_in_league`, `team_already_in_group`, `team_inactive`) en `backend/tests/integration/test_groups.py`
+- [x] T011 [US2] Test de contrato para `POST /groups/{groupId}/teams` y `DELETE /groups/{groupId}/teams` en `backend/tests/contract/test_groups_contract.py` (201/204/401/403/404/409)
+- [x] T012 [US2] Test de integración de asignar/desasignar y los rechazos (`team_not_found_in_league`, `team_already_in_group`, `team_inactive`) en `backend/tests/integration/test_groups.py`
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Implementar `asignar_equipo` y `desasignar_equipo` en `backend/src/groups/service.py` (validaciones FR-005/006/007/008/011 usando `TeamService.obtener_equipo`)
-- [ ] T014 [US2] Implementar `POST /groups/{groupId}/teams` y `DELETE /groups/{groupId}/teams` en `backend/src/groups/router.py` con `requiere_rol("organizador")`
-- [ ] T015 [P] [US2] Frontend: extender `api.ts` (assignTeam, unassignTeam) y añadir el control de asignar/desasignar en `frontend/src/features/groups/`
+- [x] T013 [US2] Implementar `asignar_equipo` y `desasignar_equipo` en `backend/src/groups/service.py` (validaciones FR-005/006/007/008/011 usando `TeamService.obtener_equipo`)
+- [x] T014 [US2] Implementar `POST /groups/{groupId}/teams` y `DELETE /groups/{groupId}/teams` en `backend/src/groups/router.py` con `requiere_rol("organizador")`
+- [x] T015 [P] [US2] Frontend: extender `api.ts` (assignTeam, unassignTeam) y añadir el control de asignar/desasignar en `frontend/src/features/groups/`
 
 **Checkpoint**: US1 y US2 funcionales e independientes (asignar/desasignar equipo).
 
@@ -85,14 +85,14 @@
 
 ### Tests for User Story 3
 
-- [ ] T016 [US3] Test de contrato para `GET /leagues/{leagueId}/groups` en `backend/tests/contract/test_groups_contract.py` (200 público, 404)
-- [ ] T017 [US3] Test de integración de listar la composición (incl. equipo inactivo miembro y liga sin grupos → lista vacía) en `backend/tests/integration/test_groups.py`
+- [x] T016 [US3] Test de contrato para `GET /leagues/{leagueId}/groups` en `backend/tests/contract/test_groups_contract.py` (200 público, 404)
+- [x] T017 [US3] Test de integración de listar la composición (incl. equipo inactivo miembro y liga sin grupos → lista vacía) en `backend/tests/integration/test_groups.py`
 
 ### Implementation for User Story 3
 
-- [ ] T018 [US3] Implementar `listar_grupos` (con composición por grupo, incl. inactivos miembros) en `backend/src/groups/service.py`
-- [ ] T019 [US3] Implementar `GET /leagues/{leagueId}/groups` público en `backend/src/groups/router.py`
-- [ ] T020 [P] [US3] Frontend: `GroupsPage.tsx` (listado público con composición), `api.ts` (listGroups) y su test en `frontend/src/features/groups/__tests__/`
+- [x] T018 [US3] Implementar `listar_grupos` (con composición por grupo, incl. inactivos miembros) en `backend/src/groups/service.py`
+- [x] T019 [US3] Implementar `GET /leagues/{leagueId}/groups` público en `backend/src/groups/router.py`
+- [x] T020 [P] [US3] Frontend: `GroupsPage.tsx` (listado público con composición), `api.ts` (listGroups) y su test en `frontend/src/features/groups/__tests__/`
 
 **Checkpoint**: Las tres historias funcionales de forma independiente.
 
@@ -102,9 +102,9 @@
 
 **Purpose**: Cierre y validación transversal.
 
-- [ ] T021 [P] Test de frontend para `GroupForm.tsx` en `frontend/src/features/groups/__tests__/`
-- [ ] T022 Ejecutar los escenarios de `quickstart.md` (12) y la suite completa en verde (`pytest tests/contract/test_groups_contract.py tests/integration/test_groups.py` y `npx vitest run src/features/groups`)
-- [ ] T023 Registrar las métricas de la HU en `docs/metricas/013-grupos-divisiones.md` (AGENTS.md §7, antes del PR)
+- [x] T021 [P] Test de frontend para `GroupForm.tsx` en `frontend/src/features/groups/__tests__/`
+- [x] T022 Ejecutar los escenarios de `quickstart.md` (12) y la suite completa en verde (`pytest tests/contract/test_groups_contract.py tests/integration/test_groups.py` y `npx vitest run src/features/groups`)
+- [x] T023 Registrar las métricas de la HU en `docs/metricas/013-grupos-divisiones.md` (AGENTS.md §7, antes del PR)
 
 ---
 
