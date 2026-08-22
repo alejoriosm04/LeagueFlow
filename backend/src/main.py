@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.auth.router import router as auth_router
 from src.core.config import get_settings
 from src.core.errors import registrar_manejadores
+from src.exports.router import router as exports_router
 from src.groups.router import router as groups_router
 from src.leagues.router import router as leagues_router
 from src.matches.router import router as matches_router
@@ -43,6 +44,7 @@ app.include_router(players_router, prefix="/api/v1")
 app.include_router(matches_router, prefix="/api/v1")
 app.include_router(sanctions_router, prefix="/api/v1")
 app.include_router(standings_router, prefix="/api/v1")
+app.include_router(exports_router, prefix="/api/v1")
 app.include_router(groups_router, prefix="/api/v1")
 
 

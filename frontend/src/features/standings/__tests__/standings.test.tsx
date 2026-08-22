@@ -89,7 +89,7 @@ describe('clasificación pública', () => {
     renderStandings();
     await screen.findByRole('table');
     expect(screen.queryByText(/iniciar sesión/i)).not.toBeInTheDocument();
-    expect(screen.queryAllByRole('button')).toHaveLength(0);
+    expect(screen.getByRole('button', { name: /descargar csv/i })).toBeInTheDocument();
     expect(screen.queryAllByRole('textbox')).toHaveLength(0);
     expect(screen.queryAllByRole('spinbutton')).toHaveLength(0);
   });
