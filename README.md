@@ -129,3 +129,4 @@ docs/                Enunciado, flujo de trabajo, caso de negocio
 | Quinn Villa | [@quinnie9](https://github.com/quinnie9) | Jugadores (004) y programación de partidos (005) |
 | Lina Ballesteros | | Resultados y correcciones (006), calendario (007) |
 | Jonathan Sandoval | [@jasgidp](https://github.com/jasgidp) | Clasificación (008), registro de goles (009) e identidad visual (012) |
+| Jose Manuel Carvajal | [@Jcarvajal0810]https://github.com/Jcarvajal0810 | Alineaciones estadísticas (010) y dashboard liga (011) |

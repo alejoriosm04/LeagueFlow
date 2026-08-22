@@ -1,0 +1,139 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Bloqueo del inicio de sesión
+  version: "1.0.0"
+  description: >
+    Delta de contrato de la spec 017-bloqueo-login sobre POST /auth/login, ya
+    definido en specs/001-fundacion-y-autenticacion/contracts/auth.openapi.yaml.
+
+    Este archivo NO redefine el endpoint: documenta exclusivamente lo que la
+    HU 017 AÑADE — la respuesta 429 de bloqueo. El request body, la respuesta
+    200 y la respuesta 401 siguen siendo los de 001, sin cambio alguno.
+
+    Convenciones compartidas (envelope de error, cookie de sesión, base path)
+    en ../../001-fundacion-y-autenticacion/contracts/conventions.md.
+
+    NOTA sobre conventions.md: su tabla de códigos HTTP no contempla 429. Esta
+    spec lo añade SOLO para POST /auth/login. Es una adición aditiva y local:
+    ningún endpoint existente cambia de status ni de forma (Principio III de
+    la constitución).
+servers:
+  - url: /api/v1
+
+paths:
+  /auth/login:
+    post:
+      summary: Iniciar sesión (con bloqueo por intentos fallidos)
+      operationId: login
+      security: []
+      description: >
+        Comportamiento añadido por specs/017-bloqueo-login.
+
+        El sistema cuenta los intentos fallidos consecutivos por identificador
+        NORMALIZADO (username en minúsculas — el mismo criterio con que el
+        login busca al usuario), exista o no ese usuario (FR-001).
+
+        Al superarse LOGIN_MAX_FAILED_ATTEMPTS fallos consecutivos, el
+        identificador queda bloqueado durante LOGIN_LOCKOUT_SECONDS y todo
+        intento posterior responde 429 — TAMBIÉN si la contraseña es correcta
+        (FR-003). El bloqueo caduca solo (FR-004) y un login correcto reinicia
+        el conteo (FR-005).
+
+        Simetría de existencia (FR-006): tanto el 401 como el 429 son idénticos
+        para un identificador registrado y para uno inexistente. Un
+        identificador que no existe también se cuenta y también se bloquea, de
+        modo que ninguna de las dos respuestas permite deducir si la cuenta
+        existe.
+
+        El bloqueo NO se auto-extiende: un intento durante el bloqueo se
+        rechaza antes de contar, y no empuja la fecha de expiración.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                  minLength: 1
+                  maxLength: 60
+                password:
+                  type: string
+                  format: password
+      responses:
+        "200":
+          description: >
+            Sin cambios respecto a 001. Sesión creada; la cookie lf_session
+            viaja en Set-Cookie. Efecto añadido por esta HU: el contador de
+            fallos del identificador se borra (FR-005).
+        "401":
+          description: >
+            Sin cambios respecto a 001. Credenciales inválidas, mensaje
+            genérico, code "invalid_credentials". Es la respuesta MIENTRAS no
+            se supera el umbral. Efecto añadido por esta HU: el intento queda
+            contado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              example:
+                error:
+                  code: invalid_credentials
+                  message: Usuario o contraseña incorrectos.
+                  field: null
+        "429":
+          description: >
+            AÑADIDO POR ESTA HU. El identificador está bloqueado temporalmente
+            por exceso de intentos fallidos (FR-002).
+
+            Se devuelve igual con contraseña correcta que incorrecta (FR-003),
+            e igual para un identificador existente que para uno inexistente
+            (FR-006).
+          headers:
+            Retry-After:
+              description: >
+                Segundos que faltan para que el bloqueo caduque (FR-002).
+                Entero, siempre >= 1.
+              required: true
+              schema:
+                type: integer
+                minimum: 1
+                example: 847
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              example:
+                error:
+                  code: login_locked
+                  message: >-
+                    Demasiados intentos fallidos. Vuelve a intentarlo en 15 minutos.
+                  field: null
+
+components:
+  schemas:
+    # Repetido aquí solo para que este archivo valide por sí solo. La
+    # definición canónica es la de conventions.md §Envelope de error.
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: >
+                Slug estable en snake_case. Códigos relevantes para este
+                endpoint: "invalid_credentials" (001) y "login_locked" (017).
+              enum: [invalid_credentials, login_locked, validation_error]
+            message:
+              type: string
+              description: Texto en español, listo para mostrar.
+            field:
+              type: string
+              nullable: true
+              description: Campo del payload que causó el error, o null.
