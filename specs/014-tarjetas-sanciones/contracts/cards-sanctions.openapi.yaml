@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Tarjetas y sanciones disciplinarias
+  version: "1.0.0"
+  description: >
+    Amplía el contrato de eventos de partido (specs/009) con tipos YELLOW_CARD
+    y RED_CARD, y añade la consulta pública de la ficha disciplinaria de un
+    jugador. La suspensión se deriva en lectura; nunca se almacena como bandera.
+servers:
+  - url: /api/v1
+paths:
+  /matches/{matchId}/events:
+    post:
+      summary: Registrar un evento de partido (gol o tarjeta)
+      operationId: createMatchEvent
+      description: >
+        Requiere sesión con rol operador u organizador. Extiende el POST de
+        specs/009: `type` admite GOAL, YELLOW_CARD y RED_CARD. El equipo se
+        deriva del jugador (FR-006). Las validaciones de estado, pertenencia
+        al partido y alineación aplican a todos los tipos (FR-002–FR-004).
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateEventInput" }
+      responses:
+        "201":
+          description: Evento registrado.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchEvent" }
+        "400":
+          description: Cuerpo inválido (minuto negativo, tipo no soportado). error.code validation_error.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "401":
+          description: Sin sesión. error.code not_authenticated.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: Rol insuficiente. error.code insufficient_role.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: >
+            Partido o jugador inexistente. error.code match_not_found o
+            player_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: >
+            player_not_in_match — el jugador no pertenece a ninguno de los dos
+            equipos (FR-004).
+            player_not_in_lineup — el partido tiene alineación y el jugador no
+            figura en ella (FR-003).
+            match_not_playable — el partido está scheduled o cancelled (FR-002).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    get:
+      summary: Consultar los eventos de un partido
+      operationId: listMatchEvents
+      security: []
+      description: >
+        Consulta pública (heredada de 009). Devuelve goles y tarjetas en orden
+        de minuto. El bloque `consistency` solo considera eventos GOAL.
+      parameters:
+        - name: matchId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Eventos del partido; puede estar vacío.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MatchEvents" }
+        "404":
+          description: Partido inexistente. error.code match_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+  /players/{playerId}/discipline:
+    get:
+      summary: Consultar la ficha disciplinaria de un jugador
+      operationId: getPlayerDiscipline
+      security: []
+      description: >
+        Consulta pública (FR-008). Conteo de amarillas y rojas, y estado de
+        suspensión derivado (FR-007). Sin autenticación.
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Ficha disciplinaria; conteos en cero si no hay tarjetas.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PlayerDiscipline" }
+        "404":
+          description: Jugador inexistente. error.code player_not_found.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+components:
+  schemas:
+    CreateEventInput:
+      type: object
+      required: [player_id, minute, type]
+      properties:
+        player_id:
+          type: string
+          format: uuid
+          description: El equipo se deriva de este jugador; no se envía team_id.
+        minute: { type: integer, minimum: 0 }
+        type:
+          type: string
+          enum: [GOAL, YELLOW_CARD, RED_CARD]
+          description: >
+            GOAL — spec 009. YELLOW_CARD / RED_CARD — esta spec (FR-001).
+    MatchEvent:
+      type: object
+      required: [id, match_id, type, player_id, team_id, minute, created_by, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        match_id: { type: string, format: uuid }
+        type: { type: string, enum: [GOAL, YELLOW_CARD, RED_CARD] }
+        player_id: { type: string, format: uuid }
+        team_id: { type: string, format: uuid }
+        minute: { type: integer, minimum: 0 }
+        created_by: { type: string, format: uuid }
+        created_at: { type: string, format: date-time }
+    MatchEvents:
+      type: object
+      required: [items, consistency]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/MatchEvent" }
+        consistency: { $ref: "#/components/schemas/EventConsistency" }
+    EventConsistency:
+      type: object
+      required:
+        [home_goals_recorded, away_goals_recorded, home_score, away_score, matches_official]
+      description: >
+        Solo cuenta eventos GOAL. Las tarjetas no alteran este bloque ni el
+        marcador oficial.
+      properties:
+        home_goals_recorded: { type: integer, minimum: 0 }
+        away_goals_recorded: { type: integer, minimum: 0 }
+        home_score: { type: integer, nullable: true, minimum: 0 }
+        away_score: { type: integer, nullable: true, minimum: 0 }
+        matches_official: { type: boolean, nullable: true }
+    PlayerDiscipline:
+      type: object
+      required: [player_id, yellow_cards, red_cards, suspended]
+      description: >
+        Vista derivada (FR-007, FR-008). `suspended` es true si hay al menos
+        una roja, o amarillas en al menos dos partidos distintos.
+      properties:
+        player_id: { type: string, format: uuid }
+        yellow_cards: { type: integer, minimum: 0 }
+        red_cards: { type: integer, minimum: 0 }
+        suspended: { type: boolean }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
