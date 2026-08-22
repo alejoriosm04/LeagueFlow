@@ -236,6 +236,25 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
 .scen .a.neg{color:var(--risk)}
 .scen .a.pos{color:var(--accent)}
 .scen div.mark{background:var(--accent-soft)}
+.chain{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;max-width:760px}
+.step{background:var(--surface);display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:baseline;padding:16px 20px}
+.step .i{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--accent);padding-top:3px}
+.step .txt{font-size:15px;line-height:1.5;color:var(--ink-2)}
+.step .txt b{color:var(--ink);font-weight:600}
+.step .v{font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:600;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.step .v.neg{color:var(--risk)}
+.step.total{background:var(--accent-soft)}
+.step.total .v{color:var(--accent);font-size:1.2rem}
+.step.total .txt b{color:var(--ink)}
+.step .note{display:block;font-size:13px;color:var(--ink-3);margin-top:3px}
+.step .sub-tbl{grid-column:2 / -1;margin-top:10px}
+.step .sub-tbl div{display:flex;justify-content:space-between;gap:16px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-3);padding:3px 0}
+.step .sub-tbl div span:last-child{color:var(--ink-2)}
+@media (max-width:640px){
+  .step{grid-template-columns:24px 1fr;gap:10px}
+  .step .v{grid-column:2;margin-top:6px}
+  .step .sub-tbl{grid-column:1 / -1}
+}
 .pull{
   border-left:2px solid var(--accent);padding:2px 0 2px 20px;margin:26px 0;
   font-size:1.1rem;color:var(--ink);max-width:52ch;
@@ -328,7 +347,7 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
           <span class="d" style="font-size:14px;color:var(--ink-2)">Por cada peso invertido vuelven dos.</span>
         </div>
       </div>
-      <p class="gloss" style="max-width:52ch;margin-top:12px">Millones de pesos, ya traídos a valor de hoy <em>(Valor Presente Neto a 3 años, 18 % anual)</em>. Nadie sabe cuál de las cuatro columnas es la real — por eso se muestran las cuatro en vez de elegir una.</p>
+      <p class="gloss" style="max-width:52ch;margin-top:12px">Millones de pesos, ya traídos a valor de hoy <em>(Valor Presente Neto a 3 años, 18 % anual)</em>. Nadie sabe cuál de las cuatro columnas es la real — por eso se muestran las cuatro en vez de elegir una. La cuenta completa está desarmada más abajo.</p>
     </div>
   </div>
 </header>
@@ -446,24 +465,59 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
 </section>
 
 <section>
-  <p class="eyebrow">La letra pequeña</p>
-  <h2>De dónde salen los $22,6 M que cuesta arrancar.</h2>
-  <p class="sub">Horas de un equipo de 3, a $60.000 la hora. Es la parte más débil del cálculo y por eso va completa.</p>
+  <p class="eyebrow">La cuenta</p>
+  <h2>De dónde salen esos tres números.</h2>
+  <p class="sub">Esta es la columna del 20 % desarmada paso a paso. Las otras tres son la misma cuenta cambiando un solo dato: cuántos problemas se habrían escapado.</p>
 
-  <div class="tbl-wrap" style="max-width:620px">
-    <table>
-      <thead><tr><th>Qué hay que hacer</th><th>Horas</th><th>Costo</th></tr></thead>
-      <tbody>
-        <tr><td>Formar al equipo (3 personas × 16 h)</td><td>48</td><td>$2,9 M</td></tr>
-        <tr><td>Escribir las reglas, las plantillas y el pipeline</td><td>40</td><td>$2,4 M</td></tr>
-        <tr><td>Dos meses trabajando 30 % más lento mientras se aprende</td><td>288</td><td>$17,3 M</td></tr>
-      </tbody>
-      <tfoot><tr><td>Inversión total</td><td>376</td><td>$22,6 M</td></tr></tfoot>
-    </table>
+  <div class="chain">
+    <div class="step">
+      <span class="i">1</span>
+      <span class="txt">Un defecto que <b>no</b> llega a producción ahorra 4 horas: lo que cuesta de más arreglarlo allá en vez de en desarrollo.
+        <span class="note">Boehm y Basili, IEEE Computer 2001 — relación 5:1 en proyectos pequeños. 4 h × $60.000.</span></span>
+      <span class="v">$240.000</span>
+    </div>
+    <div class="step">
+      <span class="i">2</span>
+      <span class="txt">Aquí la spec atrapó <b>6 problemas por historia</b>. Si sin ella se hubiera escapado el 20 %, son 1,2 por historia — <b>58 al año</b> con 48 historias.
+        <span class="note">58 × $240.000</span></span>
+      <span class="v">$14,0 M/año</span>
+    </div>
+    <div class="step">
+      <span class="i">3</span>
+      <span class="txt">Más el ahorro de tiempo: <b>18 % menos horas</b> por historia que trabajando con IA sin spec.
+        <span class="note">$145.833 por historia × 48</span></span>
+      <span class="v">$7,0 M/año</span>
+    </div>
+    <div class="step">
+      <span class="i">4</span>
+      <span class="txt">Menos lo que cuesta mantener el método: media hora de spec por historia.</span>
+      <span class="v neg">−$1,4 M/año</span>
+    </div>
+    <div class="step">
+      <span class="i">5</span>
+      <span class="txt"><b>Beneficio anual</b>, del año 2 en adelante. El año 1 rinde el 60 % mientras el equipo aprende: $11,2 M.</span>
+      <span class="v">$19,6 M/año</span>
+    </div>
+    <div class="step">
+      <span class="i">6</span>
+      <span class="txt">Menos <b>lo que cuesta arrancar</b>, una sola vez: horas de un equipo de 3 a $60.000.
+        <span class="sub-tbl">
+          <div><span>Formar al equipo (3 × 16 h)</span><span>48 h · $2,9 M</span></div>
+          <div><span>Escribir reglas, plantillas y pipeline</span><span>40 h · $2,4 M</span></div>
+          <div><span>Dos meses rindiendo 30 % menos mientras se aprende</span><span>288 h · $17,3 M</span></div>
+        </span></span>
+      <span class="v neg">−$22,6 M</span>
+    </div>
+    <div class="step total">
+      <span class="i">=</span>
+      <span class="txt"><b>Los tres años, traídos a valor de hoy.</b> Recupera lo invertido en 19 meses.</span>
+      <span class="v">+$12,9 M</span>
+    </div>
   </div>
 
-  <div class="col" style="margin-top:26px">
-    <p><strong>Lo caro es aprender, no el método.</strong> El 77 % de la inversión es el equipo rindiendo menos los dos primeros meses. Ese número no tiene fuente — es el supuesto más flojo de todo el modelo, y está puesto en su versión pesimista a propósito.</p>
+  <div class="col" style="margin-top:28px">
+    <p><strong>El paso 6 es el más débil de toda la cuenta.</strong> Los $17,3 M de curva de aprendizaje no tienen fuente: es el equipo rindiendo menos dos meses, estimado a ojo. Está puesto en su versión pesimista a propósito — si fuera menor, el caso mejora.</p>
+    <p><strong>Y el paso 2 es el que decide.</strong> Nadie sabe qué fracción de esos 6 problemas por historia se habría escapado sin spec. Con 0 % el resultado es −$12,8 M; el umbral está en 1 de cada 10.</p>
   </div>
 </section>
 
