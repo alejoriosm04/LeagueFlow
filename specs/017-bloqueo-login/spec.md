@@ -14,6 +14,8 @@
 
 - Q: ¿El conteo de intentos fallidos debe usar el identificador normalizado (sin distinguir mayúsculas), o la cadena exacta tal como se envió? → A: Identificador normalizado, sin distinguir mayúsculas (el mismo criterio con que el login busca al usuario), para que el bloqueo no sea esquivables alternando mayúsculas.
 
+- Q: FR-002 pide que el error de bloqueo indique cuánto falta para reintentar, pero FR-006 y SC-005 pedían que la respuesta no revelara *que hay un bloqueo*. Son incompatibles: no se puede devolver un error de bloqueo distinguible y a la vez ocultar que existe. ¿Cuál manda? → A: Manda FR-002. FR-006 y SC-005 se reformulan para proteger lo que de verdad está en juego, la **simetría de existencia**: como el bloqueo se aplica igual a identificadores registrados que a inventados (ver Edge Cases), la respuesta de bloqueo no permite deducir si la cuenta existe. Lo único que revela es que ya hubo fallos contra ese identificador, algo que quien ataca ya sabe.
+
 ## Dependencies
 
 Historia de **seguridad del inicio de sesión**. Es la única del bloque paralelo que
@@ -93,8 +95,11 @@ y verificar que el inicio de sesión vuelve a funcionar.
   para que el bloqueo siga siendo efectivo.
 - ¿Qué ocurre con dos intentos simultáneos sobre el mismo identificador? El
   conteo es consistente y no se salta el bloqueo.
-- ¿Qué ocurre si el umbral o la duración cambian entre intentos? Se aplican los
-  valores configurados en el momento de la verificación.
+- ¿Qué ocurre si el umbral o la duración cambian entre intentos? El umbral se
+  aplica en cada comprobación. La duración, en cambio, se fija en el instante en
+  que se crea el bloqueo: cambiarla después no recalcula los bloqueos ya
+  activos. Cambiar cualquiera de los dos valores exige reiniciar el sistema,
+  porque la configuración se lee al arrancar.
 
 ## Requirements *(mandatory)*
 
@@ -113,8 +118,10 @@ y verificar que el inicio de sesión vuelve a funcionar.
 - **FR-005**: El sistema MUST reiniciar el conteo de fallos tras un inicio de
   sesión exitoso.
 - **FR-006**: El sistema MUST NOT revelar en sus respuestas si un identificador
-  existe o si está bloqueado (la respuesta de "credenciales inválidas" es la
-  misma que la ya existente).
+  existe. La respuesta de "credenciales inválidas" sigue siendo la misma que la
+  ya existente, y la respuesta de bloqueo de FR-002 MUST ser idéntica para un
+  identificador registrado y para uno inexistente, de modo que ninguna de las
+  dos permita deducir si la cuenta existe.
 - **FR-007**: El umbral de intentos y la duración del bloqueo MUST ser
   configurables, sin cambios de código.
 
@@ -137,8 +144,9 @@ y verificar que el inicio de sesión vuelve a funcionar.
   automáticamente al expirar el periodo.
 - **SC-004**: Un bloqueo de un identificador no impide el inicio de sesión de
   ningún otro (0 interferencias).
-- **SC-005**: El 0% de las respuestas de inicio de sesión revela si el
-  identificador existe o está bloqueado.
+- **SC-005**: El 0% de las respuestas de inicio de sesión permite deducir si el
+  identificador existe: tanto la de credenciales inválidas como la de bloqueo
+  son indistinguibles entre un identificador registrado y uno inexistente.
 
 ## Assumptions
 
@@ -150,6 +158,15 @@ y verificar que el inicio de sesión vuelve a funcionar.
   bloqueo sea efectivo.
 - **Sin distinción de error**: "usuario no existe" y "contraseña incorrecta"
   siguen devolviendo la misma respuesta (la simetría ya existente no se rompe).
+- **El bloqueo no se prolonga**: los intentos hechos durante un bloqueo activo
+  se rechazan sin contarse y sin empujar la fecha de expiración. De lo
+  contrario, quien atacara de forma persistente mantendría bloqueado para
+  siempre al usuario legítimo y FR-004 dejaría de cumplirse.
+- **Aviso en la interfaz**: la pantalla de inicio de sesión muestra un mensaje
+  propio cuando el identificador está bloqueado, distinto del de credenciales
+  inválidas, para que el usuario legítimo entienda por qué su contraseña
+  correcta no funciona. El mensaje es cualitativo ("espera unos minutos"), sin
+  el número exacto de minutos.
 
 ## Out of Scope
 
