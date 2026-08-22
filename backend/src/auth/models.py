@@ -6,7 +6,7 @@ Definidos en specs/001-fundacion-y-autenticacion/data-model.md §User y §Sessio
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String, func
+from sqlalchemy import DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.core.models_base import Base, TimestampCreated, UUIDPrimaryKey
@@ -50,4 +50,37 @@ class Sesion(Base, UUIDPrimaryKey, TimestampCreated):
         return self.revoked_at is None and self.expires_at > ahora
 
 
-__all__ = ["Usuario", "Sesion", "func"]
+class IntentoDeLogin(Base, UUIDPrimaryKey, TimestampCreated):
+    """Contador de fallos consecutivos por identificador (specs/017, FR-001).
+
+    No es un log: hay una sola fila por identificador normalizado, se
+    sobrescribe en cada intento fallido y se borra al iniciar sesión bien.
+
+    Sin clave foránea a `users` a propósito: FR-001 obliga a contar intentos
+    contra identificadores que NO existen, y una FK haría imposible registrar
+    justamente ese caso. Es también lo que impide que la fila revele si el
+    identificador está registrado (FR-006). Ver research.md §1.
+    """
+
+    __tablename__ = "login_attempts"
+
+    # Ya normalizado en Python (`username.lower()`), la misma expresión con la
+    # que `AuthService.autenticar` busca al usuario: el bloqueo no se esquiva
+    # alternando mayúsculas. Columna normalizada, NO índice funcional
+    # `lower(trim(...))` — así `alembic --autogenerate` no lo verá cambiar
+    # espuriamente en specs futuras (AGENTS.md). El UNIQUE es además el
+    # `ON CONFLICT target` del UPSERT atómico del conteo (research.md §6).
+    username_normalizado: Mapped[str] = mapped_column(
+        String(60), unique=True, nullable=False, index=True
+    )
+    failed_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+    # Nulo o en el pasado significa "no bloqueado": el desbloqueo es implícito,
+    # por comparación de timestamps, sin job ni scheduler (research.md §8).
+    blocked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_attempt_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+__all__ = ["Usuario", "Sesion", "IntentoDeLogin", "func"]
