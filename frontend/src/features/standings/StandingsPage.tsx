@@ -5,6 +5,7 @@ import type { ColumnaDeTabla, DestacadoDeFila } from '../../components';
 import { formatearDiferencia } from '../../lib/formato';
 import { mensajeDeError } from '../../lib/mensajesDeError';
 import { standingsApi } from './api';
+import { exportsApi } from '../exports/api';
 import type { StandingsRow } from './api';
 
 /** La tabla nunca se edita: se deriva de los partidos finalizados (FR-002). */
@@ -43,6 +44,17 @@ export function StandingsPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [intento, setIntento] = useState(0);
+  const [exportando, setExportando] = useState(false);
+  const [errorExportacion, setErrorExportacion] = useState<string | null>(null);
+
+  async function descargarCsv() {
+    if (!id) return;
+    setExportando(true);
+    setErrorExportacion(null);
+    try { await exportsApi.descargarClasificacion(id); }
+    catch (causa) { setErrorExportacion(mensajeDeError(causa)); }
+    finally { setExportando(false); }
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -68,6 +80,8 @@ export function StandingsPage() {
   return (
     <section>
       <TituloDePantalla>Clasificación</TituloDePantalla>
+      {id && <button type="button" onClick={descargarCsv} disabled={exportando}>{exportando ? 'Preparando CSV…' : 'Descargar CSV'}</button>}
+      <p role="status" aria-live="polite">{errorExportacion ?? ''}</p>
       {cargando && <EstadoCarga recurso="la clasificación" />}
       {error && <EstadoError mensaje={error} onReintentar={() => setIntento((n) => n + 1)} />}
       {!cargando && !error && filas.length === 0 && (

@@ -24,8 +24,8 @@ independientes sobre una infraestructura CSV compartida.
 **Purpose**: crear la frontera transversal de exportacion sin alterar los
 dominios ni agregar dependencias.
 
-- [ ] T001 Crear el paquete y el router compuesto vacio de exportaciones en `backend/src/exports/__init__.py` y `backend/src/exports/router.py`
-- [ ] T002 Registrar el router de exportaciones bajo `/api/v1` en `backend/src/main.py`
+- [X] T001 Crear el paquete y el router compuesto vacio de exportaciones en `backend/src/exports/__init__.py` y `backend/src/exports/router.py`
+- [X] T002 Registrar el router de exportaciones bajo `/api/v1` en `backend/src/main.py`
 
 ---
 
@@ -36,10 +36,10 @@ dos historias.
 
 **CRITICAL**: ninguna historia comienza hasta completar esta fase.
 
-- [ ] T003 [P] Escribir primero pruebas fallidas para BOM UTF-8, CRLF, quoting de comas/comillas/saltos, metadatos, vacios, neutralizacion de formulas y filename seguro en `backend/tests/unit/test_csv_serializer.py`
-- [ ] T004 Implementar `CsvDocument`, reloj inyectable, filename seguro y serializacion con `csv.writer` para satisfacer T003 en `backend/src/exports/csv_serializer.py`
-- [ ] T005 [P] Escribir primero pruebas fallidas del cliente binario para conservar bytes, `Content-Disposition` y errores JSON en `frontend/src/services/__tests__/apiClient.test.ts`
-- [ ] T006 Implementar descarga de `Blob` con acceso a headers y propagacion del envelope de error en `frontend/src/services/apiClient.ts`
+- [X] T003 [P] Escribir primero pruebas fallidas para BOM UTF-8, CRLF, quoting de comas/comillas/saltos, metadatos, vacios, neutralizacion de formulas y filename seguro en `backend/tests/unit/test_csv_serializer.py`
+- [X] T004 Implementar `CsvDocument`, reloj inyectable, filename seguro y serializacion con `csv.writer` para satisfacer T003 en `backend/src/exports/csv_serializer.py`
+- [X] T005 [P] Escribir primero pruebas fallidas del cliente binario para conservar bytes, `Content-Disposition` y errores JSON en `frontend/src/services/__tests__/apiClient.test.ts`
+- [X] T006 Implementar descarga de `Blob` con acceso a headers y propagacion del envelope de error en `frontend/src/services/apiClient.ts`
 
 **Checkpoint**: infraestructura CSV y descarga reutilizable listas; US1 y US2
 pueden desarrollarse sin duplicar transformacion ni manejo HTTP.
@@ -61,16 +61,16 @@ anonimato, filename y apertura UTF-8.
 > Escribir y ejecutar estas pruebas antes de la implementacion; deben fallar
 > exclusivamente porque la exportacion aun no existe.
 
-- [ ] T007 [P] [US1] Escribir prueba de contrato para GET publico, `format=csv`, headers, media type, 400 y 404 de `/standings/export` en `backend/tests/contract/test_exports_contract.py`
-- [ ] T008 [P] [US1] Escribir prueba de integracion que compare cada fila/columna/orden con `StandingsService`, cubra equipos en cero, liga vacia, caracteres especiales y acceso anonimo en `backend/tests/integration/test_exports.py`
-- [ ] T009 [P] [US1] Escribir prueba de interfaz desde el detalle de liga para descarga en <=2 clics/toques, acceso anonimo y presentacion de error en `frontend/src/features/exports/__tests__/exports.test.tsx`
+- [X] T007 [P] [US1] Escribir prueba de contrato para GET publico, `format=csv`, headers, media type, 400 y 404 de `/standings/export` en `backend/tests/contract/test_exports_contract.py`
+- [X] T008 [P] [US1] Escribir prueba de integracion que compare cada fila/columna/orden con `StandingsService`, cubra equipos en cero, liga vacia, caracteres especiales y acceso anonimo en `backend/tests/integration/test_exports.py`
+- [X] T009 [P] [US1] Escribir prueba de interfaz desde el detalle de liga para descarga en <=2 clics/toques, acceso anonimo y presentacion de error en `frontend/src/features/exports/__tests__/exports.test.tsx`
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implementar orquestacion de liga + `StandingsService.obtener_clasificacion` y mapeo exacto de columnas sin recalculo en `backend/src/exports/service.py`
-- [ ] T011 [US1] Implementar GET publico `/leagues/{leagueId}/standings/export`, validacion exclusiva de CSV y respuesta attachment en `backend/src/exports/router.py`
-- [ ] T012 [US1] Implementar `exportsApi.descargarClasificacion` usando el cliente binario y filename del servidor en `frontend/src/features/exports/api.ts`
-- [ ] T013 [US1] Incorporar la accion publica `Descargar CSV`, estados accesibles y manejo de error en `frontend/src/features/standings/StandingsPage.tsx`
+- [X] T010 [US1] Implementar orquestacion de liga + `StandingsService.obtener_clasificacion` y mapeo exacto de columnas sin recalculo en `backend/src/exports/service.py`
+- [X] T011 [US1] Implementar GET publico `/leagues/{leagueId}/standings/export`, validacion exclusiva de CSV y respuesta attachment en `backend/src/exports/router.py`
+- [X] T012 [US1] Implementar `exportsApi.descargarClasificacion` usando el cliente binario y filename del servidor en `frontend/src/features/exports/api.ts`
+- [X] T013 [US1] Incorporar la accion publica `Descargar CSV`, estados accesibles y manejo de error en `frontend/src/features/standings/StandingsPage.tsx`
 
 **Checkpoint**: US1 funciona y se prueba de extremo a extremo sin implementar
 la exportacion del calendario.
@@ -92,16 +92,16 @@ especiales.
 > Escribir y ejecutar estas pruebas antes de la implementacion; deben fallar
 > exclusivamente porque el segundo recurso aun no existe.
 
-- [ ] T014 [P] [US2] Extender pruebas de contrato con GET publico, formato, headers, media type, 400 y 404 de `/matches/export` en `backend/tests/contract/test_exports_contract.py`
-- [ ] T015 [P] [US2] Extender integracion con programados ascendentes, jugados descendentes, marcadores, vacio, caracteres especiales y paginacion completa superior a 100 filas en `backend/tests/integration/test_exports.py`
-- [ ] T016 [P] [US2] Extender la prueba de interfaz desde el detalle de liga con descarga anonima del calendario en <=2 clics/toques y manejo de error en `frontend/src/features/exports/__tests__/exports.test.tsx`
+- [X] T014 [P] [US2] Extender pruebas de contrato con GET publico, formato, headers, media type, 400 y 404 de `/matches/export` en `backend/tests/contract/test_exports_contract.py`
+- [X] T015 [P] [US2] Extender integracion con programados ascendentes, jugados descendentes, marcadores, vacio, caracteres especiales y paginacion completa superior a 100 filas en `backend/tests/integration/test_exports.py`
+- [X] T016 [P] [US2] Extender la prueba de interfaz desde el detalle de liga con descarga anonima del calendario en <=2 clics/toques y manejo de error en `frontend/src/features/exports/__tests__/exports.test.tsx`
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implementar orquestacion de `MatchService`/`TeamService`, recorrido de todas las paginas `scheduled` y `finished` y mapeo sin alterar orden en `backend/src/exports/service.py`
-- [ ] T018 [US2] Implementar GET publico `/leagues/{leagueId}/matches/export`, validacion exclusiva de CSV y respuesta attachment en `backend/src/exports/router.py`
-- [ ] T019 [US2] Implementar `exportsApi.descargarCalendario` usando el cliente binario y filename del servidor en `frontend/src/features/exports/api.ts`
-- [ ] T020 [US2] Incorporar la accion publica `Descargar CSV`, estados accesibles y manejo de error en `frontend/src/features/matches/MatchesPage.tsx`
+- [X] T017 [US2] Implementar orquestacion de `MatchService`/`TeamService`, recorrido de todas las paginas `scheduled` y `finished` y mapeo sin alterar orden en `backend/src/exports/service.py`
+- [X] T018 [US2] Implementar GET publico `/leagues/{leagueId}/matches/export`, validacion exclusiva de CSV y respuesta attachment en `backend/src/exports/router.py`
+- [X] T019 [US2] Implementar `exportsApi.descargarCalendario` usando el cliente binario y filename del servidor en `frontend/src/features/exports/api.ts`
+- [X] T020 [US2] Incorporar la accion publica `Descargar CSV`, estados accesibles y manejo de error en `frontend/src/features/matches/MatchesPage.tsx`
 
 **Checkpoint**: ambas historias funcionan de forma independiente y comparten
 solo la infraestructura transversal prevista.
@@ -114,7 +114,7 @@ solo la infraestructura transversal prevista.
 
 - [ ] T021 Ejecutar todos los escenarios, incluida la matriz de archivo con datos/vacio/caracteres especiales en LibreOffice Calc 24.2+ y Excel para Microsoft 365 de escritorio, y registrar resultados reproducibles en `specs/015-exportacion-csv/quickstart.md`
 - [ ] T022 Ejecutar suites completas, ruff, ESLint, build y auditorias sin omitir ni debilitar pruebas, siguiendo `.github/workflows/ci.yml`
-- [ ] T023 Copiar la plantilla y registrar tareas, tests, ciclos y reprocesos reales sin inventar tiempo ni tokens en `docs/metricas/015-exportacion-csv.md`
+- [X] T023 Copiar la plantilla y registrar tareas, tests, ciclos y reprocesos reales sin inventar tiempo ni tokens en `docs/metricas/015-exportacion-csv.md`
 
 ---
 
