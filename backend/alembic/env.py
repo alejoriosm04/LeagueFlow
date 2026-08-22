@@ -14,6 +14,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 # Importar los modelos registra sus tablas en Base.metadata para autogenerate.
+from src.audit import models as _audit_models  # noqa: F401
 from src.auth import models as _auth_models  # noqa: F401
 from src.core.config import get_settings
 from src.core.models_base import Base

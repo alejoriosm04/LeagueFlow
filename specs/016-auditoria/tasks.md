@@ -28,12 +28,12 @@ historia.
 reutiliza tal cual — `AuthService.obtener_sesion_valida` y `requiere_rol` —
 siguen en verde, y fijar el head de Alembic sobre el que se va a migrar.
 
-- [ ] T001 Ejecutar la regresión base de autenticación con
+- [X] T001 Ejecutar la regresión base de autenticación con
       `backend/tests/contract/test_auth_contract.py` y
       `backend/tests/integration/test_auth.py`, deteniendo la implementación
       si falla una prueba existente — esta historia no toca `src/auth/`, solo
       lo reutiliza (`research.md` §3, §9)
-- [ ] T002 Confirmar el head actual de Alembic corriendo `uv run alembic heads`
+- [X] T002 Confirmar el head actual de Alembic corriendo `uv run alembic heads`
       desde `backend/` y registrar el resultado (esperado: `919f3bd57721`,
       `research.md` §10); si `013-grupos-divisiones` o
       `014-tarjetas-sanciones` ya se mezclaron a `main`, usar el head real en
@@ -50,7 +50,7 @@ puede empezar hasta que exista.
 **⚠️ CRITICAL**: ningún trabajo de US1 o US2 comienza hasta que este bloque
 esté completo.
 
-- [ ] T003 Crear `backend/src/audit/__init__.py` y el modelo `AuditLogEntry`
+- [X] T003 Crear `backend/src/audit/__init__.py` y el modelo `AuditLogEntry`
       en `backend/src/audit/models.py` (`__tablename__ = "audit_logs"`) con
       los campos de `data-model.md` — `method`, `path`, `status_code`,
       `actor_id` (FK nullable a `users.id`, `ondelete="SET NULL"`),
@@ -58,10 +58,10 @@ esté completo.
       `ix_audit_logs_created_at` sobre `created_at`, no único ni funcional
       (`research.md` §11, sin el riesgo de `AGENTS.md` sobre índices
       funcionales)
-- [ ] T004 Importar `src.audit.models` en `backend/alembic/env.py` junto a
+- [X] T004 Importar `src.audit.models` en `backend/alembic/env.py` junto a
       los demás módulos de dominio, para que `autogenerate` detecte
       `audit_logs` — depende de T003
-- [ ] T005 Generar la migración con
+- [X] T005 Generar la migración con
       `uv run alembic revision --autogenerate -m "crear tabla audit_logs"`
       desde `backend/`, con `down_revision` apuntando al head confirmado en
       T002; revisar el diff y confirmar que **solo** crea `audit_logs` y
@@ -69,7 +69,7 @@ esté completo.
       `ix_leagues_unique_name_season`/`ix_teams_unique_league_name` ni
       ningún índice de specs anteriores (`AGENTS.md`, nota de índices
       funcionales) — depende de T004
-- [ ] T006 Aplicar la migración con `uv run alembic upgrade head` desde
+- [X] T006 Aplicar la migración con `uv run alembic upgrade head` desde
       `backend/` contra la base de datos local y confirmar que `audit_logs`
       existe — depende de T005
 
@@ -93,7 +93,7 @@ fecha correctos.
 
 ### Tests for User Story 1 — write first, verify they fail
 
-- [ ] T007 [US1] Crear pruebas de integración en
+- [X] T007 [US1] Crear pruebas de integración en
       `backend/tests/integration/test_audit.py`, consultando `audit_logs`
       directamente vía una sesión de BD (no vía HTTP — el endpoint de
       lectura es US2, esta historia debe ser verificable sin él): una
@@ -113,13 +113,13 @@ fecha correctos.
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implementar `AuditService.registrar(method, path,
+- [X] T008 [US1] Implementar `AuditService.registrar(method, path,
       status_code, actor)` en `backend/src/audit/service.py`: recibe un
       `Usuario | None` ya resuelto (no reresuelve la sesión), guarda
       `actor_id`/`actor_username` como snapshot cuando `actor` no es `None`
       y ambos en `null` en caso contrario, hace `commit()` sobre la sesión
       que recibe por parámetro (no abre la suya) — depende de T003
-- [ ] T009 [US1] Implementar `AuditMiddleware` (ASGI puro, no
+- [X] T009 [US1] Implementar `AuditMiddleware` (ASGI puro, no
       `BaseHTTPMiddleware`) en `backend/src/audit/middleware.py`
       (`research.md` §1–§6): si `scope["method"]` no está en
       `{"POST","PUT","PATCH","DELETE"}`, reenvía a `self.app` sin trabajo
@@ -136,13 +136,13 @@ fecha correctos.
       `commit`, envuelto en `try/except` con `logger.exception` (nunca
       relanza — un fallo de auditoría no debe afectar una respuesta que el
       cliente ya recibió, `research.md` §4) — depende de T008
-- [ ] T010 [US1] Registrar `app.add_middleware(AuditMiddleware)` en
+- [X] T010 [US1] Registrar `app.add_middleware(AuditMiddleware)` en
       `backend/src/main.py`, inmediatamente después del
       `app.add_middleware(CORSMiddleware, ...)` existente — depende de T009
 
 ### Story verification
 
-- [ ] T011 [US1] Ejecutar `backend/tests/integration/test_audit.py`,
+- [X] T011 [US1] Ejecutar `backend/tests/integration/test_audit.py`,
       corrigiendo la implementación sin borrar, saltar ni debilitar pruebas
       — depende de T007–T010
 
@@ -166,7 +166,7 @@ visitante sin sesión son rechazados.
 
 ### Tests for User Story 2 — write first, verify they fail
 
-- [ ] T012 [P] [US2] Crear pruebas de contrato en
+- [X] T012 [P] [US2] Crear pruebas de contrato en
       `backend/tests/contract/test_audit_contract.py` conforme a
       `contracts/audit.openapi.yaml`: `GET /admin/audit-log` como
       organizador responde `200` con la forma
@@ -175,14 +175,14 @@ visitante sin sesión son rechazados.
       responde `401 not_authenticated`; con sesión de rol `operador`
       responde `403 insufficient_role` — ambos con el envelope de error
       compartido
-- [ ] T013 [P] [US2] Crear pruebas de integración en
+- [X] T013 [P] [US2] Crear pruebas de integración en
       `backend/tests/integration/test_audit.py` (mismo archivo de T007,
       añadido a continuación): con varias filas de `audit_logs` insertadas
       con `created_at` escalonados, `GET /admin/audit-log` las devuelve en
       orden `created_at` descendente (AC1 de US2, FR-005); con `audit_logs`
       vacía, responde `200` con `items: []` y `total: 0`, sin error (Edge
       Case de `spec.md`)
-- [ ] T014 [P] [US2] Crear pruebas de UI en
+- [X] T014 [P] [US2] Crear pruebas de UI en
       `frontend/src/features/audit/__tests__/audit.test.tsx`: la página
       renderiza una tabla con las entradas devueltas por
       `auditApi.listar()` (fecha, actor, método, destino, resultado);
@@ -193,38 +193,38 @@ visitante sin sesión son rechazados.
 
 ### Backend implementation for User Story 2
 
-- [ ] T015 [P] [US2] Definir `AuditLogEntry` (Pydantic) y `PaginatedAuditLog`
+- [X] T015 [P] [US2] Definir `AuditLogEntry` (Pydantic) y `PaginatedAuditLog`
       en `backend/src/audit/schemas.py`, con los mismos campos y
       nombres de `contracts/audit.openapi.yaml` — depende de T003
-- [ ] T016 [US2] Implementar `AuditService.listar(page, page_size) ->
+- [X] T016 [US2] Implementar `AuditService.listar(page, page_size) ->
       tuple[list[AuditLogEntry], int]` en `backend/src/audit/service.py`
       (mismo archivo de T008): `SELECT` sobre `audit_logs` ordenado por
       `created_at DESC`, con `offset`/`limit` y conteo total, igual patrón
       que `LeagueService.listar_ligas` — depende de T015
-- [ ] T017 [US2] Exponer `GET /admin/audit-log` en
+- [X] T017 [US2] Exponer `GET /admin/audit-log` en
       `backend/src/audit/router.py`, protegido con
       `Depends(requiere_rol("organizador"))` (la misma dependencia que ya
       usan `POST /leagues` y `POST /users`, sin crear una nueva) y
       parámetros de query `page`/`page_size` (default 1/20, máximo 100,
       convención de `contracts/conventions.md`) — depende de T016
-- [ ] T018 [US2] Registrar `audit_router` en `backend/src/main.py` con
+- [X] T018 [US2] Registrar `audit_router` en `backend/src/main.py` con
       `app.include_router(audit_router, prefix="/api/v1")`, junto a los
       demás routers de dominio — depende de T017
 
 ### Frontend implementation for User Story 2
 
-- [ ] T019 [P] [US2] Crear tipos `AuditLogEntry`/`PaginatedAuditLog` y el
+- [X] T019 [P] [US2] Crear tipos `AuditLogEntry`/`PaginatedAuditLog` y el
       cliente `auditApi.listar(page, pageSize)` derivados del contrato en
       `frontend/src/features/audit/api.ts`, siguiendo el patrón de
       `frontend/src/features/players/api.ts` — puede empezar en cuanto
       exista `contracts/audit.openapi.yaml`, sin esperar al backend real
-- [ ] T020 [US2] Implementar `frontend/src/features/audit/AuditLogPage.tsx`:
+- [X] T020 [US2] Implementar `frontend/src/features/audit/AuditLogPage.tsx`:
       tabla con columnas fecha, actor, método, destino y resultado,
       reutilizando `TituloDePantalla`/`TablaDeDatos`/`EstadoCarga`/
       `EstadoError`/`EstadoVacio` del catálogo compartido, con
       `actor_username` mostrado como texto ("Actor no determinable" cuando
       es `null`, FR-004) — depende de T019
-- [ ] T021 [US2] Registrar la ruta `/admin/audit-log` en
+- [X] T021 [US2] Registrar la ruta `/admin/audit-log` en
       `frontend/src/routes.tsx` dentro de
       `<ProtectedRoute rol="organizador">`, y añadir un enlace hacia ella
       desde la pantalla `/admin` ya existente (`SoloOrganizador` en el mismo
@@ -232,7 +232,7 @@ visitante sin sesión son rechazados.
 
 ### Story verification
 
-- [ ] T022 [US2] Ejecutar `backend/tests/contract/test_audit_contract.py`,
+- [X] T022 [US2] Ejecutar `backend/tests/contract/test_audit_contract.py`,
       `backend/tests/integration/test_audit.py` completo y
       `frontend/src/features/audit/__tests__/audit.test.tsx`, corrigiendo la
       implementación sin borrar, saltar ni debilitar pruebas — depende de
@@ -249,24 +249,24 @@ interacciones o menos (SC-005).
 **Purpose**: cerrar seguridad, alcance real de la migración, validación
 end-to-end y métricas de cierre.
 
-- [ ] T023 [P] Revisar `backend/src/audit/middleware.py` línea por línea
+- [X] T023 [P] Revisar `backend/src/audit/middleware.py` línea por línea
       contra FR-003: confirmar que ningún mensaje `http.response.body` se
       inspecciona ni se guarda, que `receive` nunca se envuelve, y que
       `logger.exception` (no un `raise`) es lo único que ocurre si
       `AuditService.registrar` falla
-- [ ] T024 [P] Verificar con `uv run alembic check` desde `backend/` que la
+- [X] T024 [P] Verificar con `uv run alembic check` desde `backend/` que la
       única migración pendiente de esta HU es la de `audit_logs`, y por
       inspección del archivo generado en T005 confirmar que no reaparecen
       `DROP INDEX`/`CREATE INDEX` espurios sobre índices de specs
       anteriores
-- [ ] T025 Ejecutar los 5 escenarios de `specs/016-auditoria/quickstart.md`
+- [X] T025 Ejecutar los 5 escenarios de `specs/016-auditoria/quickstart.md`
       manualmente (o vía script), confirmando SC-001 a SC-005 sin inventar
       resultados
-- [ ] T026 Ejecutar suites completas y quality gates de
+- [X] T026 Ejecutar suites completas y quality gates de
       `.github/workflows/ci.yml`: pytest, Ruff check/format, Vitest, ESLint,
       build, `pip-audit` y `npm audit`; corregir regresiones sin modificar
       requisitos ni debilitar pruebas
-- [ ] T027 Crear `docs/metricas/016-auditoria.md` desde
+- [X] T027 Crear `docs/metricas/016-auditoria.md` desde
       `docs/metricas/_plantilla.md` y llenar únicamente tareas, tests,
       ciclos y reprocesos reales, dejando tiempo real y costo de IA para la
       persona
