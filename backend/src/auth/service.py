@@ -1,14 +1,20 @@
-"""Reglas de negocio de autenticación (FR-004 a FR-010)."""
+"""Reglas de negocio de autenticación (FR-004 a FR-010).
 
+El bloqueo por intentos fallidos lo añade specs/017-bloqueo-login: un gate
+antes de verificar la contraseña y un contador después de que falle.
+"""
+
+import math
 import secrets
 import uuid
 from datetime import UTC, datetime, timedelta
 
 from fastapi import status
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.auth.models import Sesion, Usuario
+from src.auth.models import IntentoDeLogin, Sesion, Usuario
 from src.auth.security import hashear_password, verificar_password
 from src.core.config import get_settings
 from src.core.errors import ErrorDeNegocio
@@ -69,8 +75,117 @@ class AuthService:
         )
         return list(res.scalars()), total
 
+    # --- bloqueo por intentos fallidos (specs/017) -----------------------
+    @staticmethod
+    def _clave_de_intentos(username: str) -> str:
+        """Identificador normalizado con el que se cuenta y se bloquea.
+
+        Es EXACTAMENTE la misma expresión con la que `autenticar` busca al
+        usuario (`username.lower()`), para que el identificador contado y el
+        buscado sean siempre el mismo y el bloqueo no se esquive alternando
+        mayúsculas (research.md §2). Sin `trim()`: el lookup tampoco lo aplica.
+        """
+        return username.lower()
+
+    async def _leer_intentos(self, clave: str) -> IntentoDeLogin | None:
+        res = await self.db.execute(
+            select(IntentoDeLogin).where(IntentoDeLogin.username_normalizado == clave)
+        )
+        return res.scalar_one_or_none()
+
+    def _error_bloqueado(self, segundos_restantes: float) -> ErrorDeNegocio:
+        """429 con `Retry-After`, según contracts/auth-lockout.openapi.yaml.
+
+        El mensaje habla de la DURACIÓN configurada, no del tiempo restante: es
+        constante, y así el cuerpo del 429 es idéntico para un identificador
+        registrado y para uno inventado (FR-006). El detalle exacto de cuánto
+        falta viaja en `Retry-After`, que es lo que pide FR-002.
+        """
+        minutos = max(1, math.ceil(self.settings.login_lockout_seconds / 60))
+        return ErrorDeNegocio(
+            code="login_locked",
+            message=(
+                "Demasiados intentos fallidos. Vuelve a intentarlo en "
+                f"{minutos} {'minuto' if minutos == 1 else 'minutos'}."
+            ),
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            headers={"Retry-After": str(max(1, math.ceil(segundos_restantes)))},
+        )
+
+    async def _registrar_fallo(self, clave: str) -> None:
+        """Suma un fallo y, si alcanza el umbral, bloquea el identificador.
+
+        El incremento es un UPSERT atómico: un `SELECT`+`UPDATE` en Python
+        dejaría que dos intentos simultáneos leyeran 4 y ambos escribieran 5
+        (*lost update*), y el bloqueo no llegaría a activarse (research.md §6).
+        """
+        ahora = datetime.now(UTC)
+        sentencia = (
+            pg_insert(IntentoDeLogin)
+            .values(
+                id=uuid.uuid4(),
+                username_normalizado=clave,
+                failed_count=1,
+                last_attempt_at=ahora,
+            )
+            .on_conflict_do_update(
+                index_elements=[IntentoDeLogin.username_normalizado],
+                set_={
+                    "failed_count": IntentoDeLogin.__table__.c.failed_count + 1,
+                    "last_attempt_at": ahora,
+                },
+            )
+            .returning(IntentoDeLogin.__table__.c.failed_count)
+        )
+        fallos = await self.db.scalar(sentencia)
+
+        if fallos is not None and fallos >= self.settings.login_max_failed_attempts:
+            # Se reinicia el contador al bloquear: cuando el bloqueo caduque, el
+            # usuario legítimo vuelve a tener el cupo completo de intentos. Si
+            # quedara en el umbral, el siguiente fallo re-bloquearía al instante
+            # y FR-004 ("vuelve a funcionar normalmente") no se cumpliría.
+            await self.db.execute(
+                update(IntentoDeLogin)
+                .where(IntentoDeLogin.username_normalizado == clave)
+                .values(
+                    failed_count=0,
+                    blocked_until=ahora + timedelta(seconds=self.settings.login_lockout_seconds),
+                )
+            )
+
+        # El commit va ANTES del `raise` de credenciales inválidas: si se lanzara
+        # primero, la sesión se descartaría con la petición, el incremento se
+        # perdería y el bloqueo no se activaría nunca (research.md §7).
+        await self.db.commit()
+
+    async def _olvidar_fallos(self, clave: str) -> None:
+        """Borra el contador tras un login correcto (FR-005).
+
+        Cubre los dos escenarios de la Historia 2: fallar y luego acertar
+        reinicia el conteo, y acertar tras el desbloqueo lo deja en cero.
+        """
+        await self.db.execute(
+            delete(IntentoDeLogin).where(IntentoDeLogin.username_normalizado == clave)
+        )
+        await self.db.commit()
+
     # --- sesiones --------------------------------------------------------
     async def autenticar(self, username: str, password: str) -> Usuario:
+        clave = self._clave_de_intentos(username)
+
+        # El gate va ANTES de buscar al usuario y de verificar la contraseña.
+        # Es lo que hace cumplir FR-003: si se verificara primero, un acierto se
+        # colaría durante el bloqueo. Ahorra además un bcrypt por intento
+        # mientras dura un ataque (research.md §5).
+        intentos = await self._leer_intentos(clave)
+        if intentos is not None and intentos.blocked_until is not None:
+            restante = (intentos.blocked_until - datetime.now(UTC)).total_seconds()
+            if restante > 0:
+                # No se cuenta ni se empuja `blocked_until`: el bloqueo no se
+                # auto-extiende, o un atacante persistente dejaría al usuario
+                # legítimo bloqueado para siempre.
+                raise self._error_bloqueado(restante)
+
         res = await self.db.execute(
             select(Usuario).where(func.lower(Usuario.username) == username.lower())
         )
@@ -78,11 +193,14 @@ class AuthService:
 
         if usuario is None or usuario.status != "active":
             verificar_password(password, _HASH_SENUELO)
+            await self._registrar_fallo(clave)
             raise _CREDENCIALES_INVALIDAS
 
         if not verificar_password(password, usuario.password_hash):
+            await self._registrar_fallo(clave)
             raise _CREDENCIALES_INVALIDAS
 
+        await self._olvidar_fallos(clave)
         return usuario
 
     async def crear_sesion(self, usuario: Usuario) -> Sesion:

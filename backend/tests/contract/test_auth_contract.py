@@ -86,3 +86,36 @@ async def test_cookie_de_sesion_tiene_los_atributos_del_contrato(
         assert "path=/" in set_cookie
     finally:
         get_settings.cache_clear()
+
+
+async def test_login_bloqueado_responde_segun_contrato_429(cliente):
+    """specs/017 contracts/auth-lockout.openapi.yaml: 429 + Retry-After + envelope.
+
+    Se usa un identificador INEXISTENTE a propósito: el contrato exige que el
+    bloqueo se aplique igual exista o no la cuenta (FR-006), así que este test
+    afirma de paso esa simetría.
+    """
+    from src.core.config import get_settings
+
+    umbral = get_settings().login_max_failed_attempts
+    for _ in range(umbral):
+        await cliente.post(
+            "/api/v1/auth/login",
+            json={"username": USUARIO_INEXISTENTE, "password": CLAVE_INCORRECTA},
+        )
+
+    r = await cliente.post(
+        "/api/v1/auth/login", json={"username": USUARIO_INEXISTENTE, "password": CLAVE_INCORRECTA}
+    )
+
+    assert r.status_code == 429
+    # Retry-After: entero >= 1 (FR-002). El contrato lo marca `required: true`.
+    retry_after = r.headers.get("retry-after")
+    assert retry_after is not None, "la respuesta 429 debe traer la cabecera Retry-After"
+    assert retry_after.isdigit()
+    assert int(retry_after) >= 1
+
+    # Mismo envelope que el resto de errores: no se inventan campos nuevos.
+    cuerpo = r.json()["error"]
+    assert set(cuerpo) == {"code", "message", "field"}
+    assert cuerpo["code"] == "login_locked"

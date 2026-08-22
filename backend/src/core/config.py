@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     # Ventana de inactividad de la sesión — research.md §10.
     session_ttl_seconds: int = Field(default=8 * 60 * 60, alias="SESSION_TTL_SECONDS")
 
+    # Bloqueo del login tras intentos fallidos — specs/017 research.md §9.
+    # No son secretos, pero van por entorno como toda la configuración (FR-007).
+    login_max_failed_attempts: int = Field(default=5, alias="LOGIN_MAX_FAILED_ATTEMPTS")
+    login_lockout_seconds: int = Field(default=15 * 60, alias="LOGIN_LOCKOUT_SECONDS")
+
     # Organizador semilla. Vacíos por defecto: el script de semilla falla si no
     # se definen, en vez de inventar una credencial (research.md §10).
     seed_admin_username: str = Field(default="", alias="SEED_ADMIN_USERNAME")
