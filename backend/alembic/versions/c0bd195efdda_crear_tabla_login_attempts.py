@@ -1,19 +1,25 @@
 """crear tabla login_attempts
 
 Revision ID: c0bd195efdda
-Revises: a7c8d9e0f1a2
+Revises: 86fce02b116f
 Create Date: 2026-08-22 09:15:52.394606
 
 Única migración de specs/017-bloqueo-login. Tabla nueva y aislada, sin claves
 foráneas (deliberado: hay que contar identificadores inexistentes — FR-001).
 
-Re-punteada al mergear: se generó contra `919f3bd57721`, pero para cuando se
-abrió el PR ya estaban mezcladas la 013 (`8f42179847a1`) y la 014
-(`a7c8d9e0f1a2`), que colgaban de la misma revisión. Dos migraciones con el
-mismo `down_revision` dejan dos cabezas y rompen `alembic upgrade head`, así que
-esta cuelga ahora de la cabeza ya mezclada (`AGENTS.md`, nota de migraciones en
-paralelo). El contenido de la migración no cambia: `login_attempts` es una tabla
-nueva y aislada, sin claves foráneas, que no colisiona con grupos ni tarjetas.
+Re-punteada dos veces al mergear, por el bloque de trabajo paralelo. Se generó
+contra `919f3bd57721`; después se mezclaron la 013 (`8f42179847a1`) y la 014
+(`a7c8d9e0f1a2`), y más tarde la 016, que además de `117e48f74b7c` (audit_logs)
+trajo una migración de FUSIÓN, `86fce02b116f`, que une auditoría con grupos.
+
+Esa fusión convirtió `a7c8d9e0f1a2` en un nodo interno, así que colgar de él
+volvía a dejar dos cabezas. Esta migración cuelga ahora de `86fce02b116f`, la
+cabeza real de `main` (`AGENTS.md`, nota de migraciones en paralelo).
+
+Como 017 es la última del bloque, aquí NO hace falta otra fusión: basta con
+encadenar. El contenido no cambia — `login_attempts` es una tabla nueva y
+aislada, sin claves foráneas, que no colisiona con grupos, tarjetas ni
+auditoría.
 
 `--autogenerate` propuso además recrear `ix_leagues_unique_name_season` y
 `ix_teams_unique_league_name`: es el falso positivo de índices funcionales que
@@ -29,7 +35,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "c0bd195efdda"
-down_revision: Union[str, Sequence[str], None] = "a7c8d9e0f1a2"
+down_revision: Union[str, Sequence[str], None] = "86fce02b116f"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
