@@ -1,0 +1,76 @@
+openapi: 3.1.0
+info:
+  title: LeagueFlow - Exportaciones CSV
+  version: 1.0.0
+servers:
+  - url: /api/v1
+paths:
+  /leagues/{leagueId}/standings/export:
+    get:
+      operationId: exportLeagueStandingsCsv
+      summary: Descargar clasificacion CSV
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/LeagueId'
+        - $ref: '#/components/parameters/Format'
+      responses:
+        '200': { $ref: '#/components/responses/CsvDownload' }
+        '400': { $ref: '#/components/responses/InvalidFormat' }
+        '404': { $ref: '#/components/responses/LeagueNotFound' }
+  /leagues/{leagueId}/matches/export:
+    get:
+      operationId: exportLeagueCalendarCsv
+      summary: Descargar calendario CSV
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/LeagueId'
+        - $ref: '#/components/parameters/Format'
+      responses:
+        '200': { $ref: '#/components/responses/CsvDownload' }
+        '400': { $ref: '#/components/responses/InvalidFormat' }
+        '404': { $ref: '#/components/responses/LeagueNotFound' }
+components:
+  parameters:
+    LeagueId:
+      name: leagueId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    Format:
+      name: format
+      in: query
+      required: false
+      schema: { type: string, enum: [csv], default: csv }
+  responses:
+    CsvDownload:
+      description: CSV UTF-8 con BOM; puede no contener filas de datos.
+      headers:
+        Content-Disposition:
+          required: true
+          schema: { type: string }
+          example: attachment; filename="liga-ejemplo-clasificacion-2026-08-22.csv"
+      content:
+        text/csv:
+          schema: { type: string, contentEncoding: binary }
+    InvalidFormat:
+      description: Formato no CSV; error.code validation_error.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    LeagueNotFound:
+      description: Liga inexistente; error.code league_not_found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: [string, 'null'] }
