@@ -6,13 +6,14 @@ una por un integrante distinto y en una zona independiente del código. Mapa en
 
 ## Cómo se usa esta guía
 
-- **`/speckit.specify` y `/speckit.clarify` se corren de forma central**, en
-  orden `013 → 017`, para fijar los números de spec y partir todos de la misma
-  verdad. No se corren en paralelo: `/speckit.specify` asigna el número según
-  lo que haya en `specs/`, así que es un paso serial por naturaleza.
-- Cada integrante luego ejecuta `/speckit.plan → /speckit.tasks →
+- **`/speckit.specify` y `/speckit.clarify` YA ESTÁN HECHOS** (de forma central,
+  en orden `013 → 017`): las 5 specs existen en `specs/013-*` a `specs/017-*`,
+  con su `spec.md` y su checklist. No los vuelvas a correr.
+- Cada integrante ahora ejecuta `/speckit.plan → /speckit.tasks →
   /speckit.implement` **en su propia rama y máquina**.
-- Cada prompt de abajo es literal: cópialo y pégalo en el comando.
+- Los prompts de abajo quedan como referencia de lo que se corrió y de lo que
+  debe guiar cada `plan.md`. La sección de `/speckit.clarify` de cada HU refleja
+  lo que **ya se resolvió**, no preguntas pendientes.
 
 ## Reglas de oro (todas en `AGENTS.md` y `constitution.md`)
 
@@ -63,10 +64,10 @@ TeamService.obtener_equipo(team_id) y LeagueService.obtener_liga(league_id)
 (mismo patrón que matches/service.py). Frontend en /leagues/:id/groups.
 ```
 
-**`/speckit.clarify`** — preguntas para resolver
+**`/speckit.clarify`** — resuelto en la spec
 
-- ¿Límite de grupos por liga? (sugerido: sin límite duro)
-- ¿Un equipo sin grupo es un estado normal e indefinido? (este spec asume que sí)
+- Equipos inactivos: se muestran en la composición si ya son miembros, pero NO
+  se pueden asignar a un grupo nuevo (FR-011 y FR-012 de la spec).
 
 **`/speckit.tasks`** → **`/speckit.implement`**
 
@@ -76,6 +77,7 @@ TeamService.obtener_equipo(team_id) y LeagueService.obtener_liga(league_id)
 - Eliminar un grupo borra solo sus membresías, nunca los equipos.
 - `404 team_not_found_in_league` si el equipo no es de esa liga.
 - `GET /leagues/{id}/groups` público; `200` con lista vacía si no hay grupos.
+- Equipos inactivos: se muestran si ya son miembros, no se pueden asignar.
 
 **Entidades**
 
@@ -117,7 +119,7 @@ git checkout -b 014-tarjetas-sanciones
 **`/speckit.specify`**
 
 ```text
-Un organizador necesita registrar las tarjetas amarillas y rojas que recibe un
+Un operador necesita registrar las tarjetas amarillas y rojas que recibe un
 jugador durante un partido en curso o finalizado. La tarjeta se registra como
 un evento del partido. El sistema debe derivar automáticamente, en cada
 consulta, si un jugador está suspendido (dos amarillas en partidos distintos o
@@ -139,10 +141,11 @@ backend/src/sanctions/ que deriva la suspensión leyendo MatchEvent por servicio
 pública de ficha disciplinaria.
 ```
 
-**`/speckit.clarify`** — preguntas para resolver
+**`/speckit.clarify`** — resuelto en la spec
 
-- ¿La cuenta de amarillas es por toda la temporada? (este spec asume que sí)
-- ¿Solo el organizador registra tarjetas, o habrá rol "árbitro" a futuro?
+- Suspensión sin expiración: "suspendido" es una marca derivada (una roja, o dos
+  amarillas en partidos distintos) que no se cumple ni se borra (FR-007 de la
+  spec).
 
 **`/speckit.tasks`** → **`/speckit.implement`**
 
@@ -153,7 +156,8 @@ pública de ficha disciplinaria.
   player_not_in_lineup`; si no hay alineación, se permite igual.
 - Se permiten varias tarjetas del mismo jugador en el mismo partido.
 - El equipo del jugador se toma de `jugador.team_id`, nunca del cliente.
-- "Suspendido" se calcula en cada lectura, nunca se guarda como bandera.
+- "Suspendido" se calcula en cada lectura, nunca se guarda como bandera, y no
+  tiene expiración dentro de la temporada.
 
 **Entidades**
 
@@ -216,10 +220,10 @@ paginar en bucle sin tocar ese archivo. Frontend: página /leagues/:id/reportes
 con botones de descarga.
 ```
 
-**`/speckit.clarify`** — preguntas para resolver
+**`/speckit.clarify`** — sin preguntas (diferido a `plan.md`)
 
-- ¿Método nuevo en `matches/service.py` (aditivo) o paginar en bucle?
-- ¿Nombre del CSV con el nombre de la liga o solo el ID?
+- Método nuevo en `matches/service.py` (aditivo) vs paginar en bucle → decisión de plan.
+- Nombre del CSV con nombre de liga vs solo ID → decisión de plan.
 
 **`/speckit.tasks`** → **`/speckit.implement`**
 
@@ -282,15 +286,16 @@ propio de solo lectura, GET /admin/audit-log, restringido a sesión de
 organizador. Frontend: página /admin/audit-log.
 ```
 
-**`/speckit.clarify`** — preguntas para resolver
+**`/speckit.clarify`** — resuelto en la spec
 
-- ¿Se retienen los registros indefinidamente?
-- ¿Se audita también un 401/403 sobre un endpoint de escritura?
+- Solo se auditan escrituras exitosas; los fallos por validación o permisos
+  (401/403/400) NO se registran.
 
 **`/speckit.tasks`** → **`/speckit.implement`**
 
 **Requisitos clave**
 
+- Solo escrituras exitosas (los fallos no se registran).
 - No registrar `GET`.
 - Cada registro guarda método, ruta, código de estado, actor (o `null`) y fecha.
 - Nunca el cuerpo de la petición ni de la respuesta (datos sensibles/stack
@@ -354,17 +359,18 @@ Umbral y duración configurables por variable de entorno. 429 con
 retry_after_seconds si está bloqueado.
 ```
 
-**`/speckit.clarify`** — preguntas para resolver
+**`/speckit.clarify`** — resuelto en la spec
 
-- ¿Umbral y duración por defecto? (sugerido: 5 intentos / 15 min)
-- ¿El frontend muestra aviso especial o basta el `429`?
+- Conteo por identificador normalizado (sin mayúsculas), el mismo criterio con
+  que el login busca al usuario. El umbral/duración por defecto (5 intentos /
+  15 min) queda como *Assumption* en la spec.
 
 **`/speckit.tasks`** → **`/speckit.implement`**
 
 **Requisitos clave**
 
-- Contar fallidos por `username` tal como se envió, exista o no (para no
-  revelar nada).
+- Contar fallidos por `username` normalizado (sin mayúsculas), exista o no (para
+  no revelar nada).
 - `429 login_locked` + `retry_after_seconds` al llegar al umbral.
 - Reset del contador tras login exitoso; desbloqueo automático al expirar.
 - Nunca romper la simetría existente entre "usuario no existe" y "contraseña
