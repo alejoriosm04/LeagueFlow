@@ -85,7 +85,12 @@ organizador y verificar que aparece la entrada en orden cronológico.
 - ¿Qué ocurre con una operación de escritura que falla (por ejemplo, validación o
   permisos)? No queda registrada (solo se registran escrituras exitosas).
 - ¿Qué ocurre si la operación se hace sin sesión? No puede ser una escritura
-  exitosa (las escrituras requieren sesión), por lo que no aplica.
+  exitosa en la gran mayoría de los casos (las escrituras requieren sesión) —
+  la única excepción es `POST /auth/login`: esa petición es en sí misma una
+  escritura exitosa (crea la sesión), pero todavía no trae la cookie que
+  identificaría al actor porque es justo la que la va a crear. Es el caso que
+  cubre FR-004: el registro se guarda igual, indicando explícitamente que el
+  actor no es determinable.
 - ¿Qué ocurre si el historial está vacío? La consulta devuelve una lista vacía,
   sin errores.
 - ¿Qué ocurre si dos escrituras ocurren casi a la vez? Cada una genera su propia

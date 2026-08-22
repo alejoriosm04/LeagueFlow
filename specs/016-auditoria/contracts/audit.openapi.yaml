@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Auditoría (016-auditoria)
+  version: "1.0.0"
+  description: >
+    Endpoint propio de esta spec. Reutiliza el envelope de error y el formato
+    de paginación de
+    specs/001-fundacion-y-autenticacion/contracts/conventions.md sin
+    redefinirlos. La captura transversal (el middleware que escribe cada
+    entrada) no es un contrato de API: ningún cliente la invoca directamente,
+    así que no tiene representación OpenAPI propia — ver plan.md/research.md.
+
+paths:
+  /admin/audit-log:
+    get:
+      operationId: listarAuditLog
+      summary: Consultar el historial de auditoría (FR-005, FR-006)
+      description: >
+        Solo organizador. Orden cronológico inverso (más reciente primero,
+        FR-005). Nunca requiere ni acepta filtros por contenido de body,
+        porque el registro nunca lo contiene (FR-003).
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Historial paginado, orden created_at DESC.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedAuditLog"
+        "401":
+          description: Sin sesión (FR-006).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "403":
+          description: Sesión válida, rol distinto de organizador (FR-006).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: lf_session
+
+  schemas:
+    AuditLogEntry:
+      type: object
+      description: Ver data-model.md — corresponde 1:1 a la fila persistida.
+      required:
+        - id
+        - method
+        - path
+        - status_code
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum: [POST, PUT, PATCH, DELETE]
+        path:
+          type: string
+          description: Ruta exacta de la petición, sin query string (FR-003).
+        status_code:
+          type: integer
+          minimum: 200
+          maximum: 299
+          description: Solo se registran escrituras exitosas (clarificación de spec.md).
+        actor_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: >
+            null cuando el actor no es determinable (FR-004) — p. ej. el
+            propio POST /auth/login.
+        actor_username:
+          type: string
+          nullable: true
+          description: Snapshot del username en el momento del registro (research.md §7).
+        created_at:
+          type: string
+          format: date-time
+
+    PaginatedAuditLog:
+      type: object
+      required: [items, page, page_size, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AuditLogEntry"
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+
+    ErrorEnvelope:
+      type: object
+      description: >
+        Forma fija definida en
+        specs/001-fundacion-y-autenticacion/contracts/conventions.md
+        §Envelope de error. Repetida aquí solo como referencia de schema.
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, field]
+          properties:
+            code:
+              type: string
+              example: insufficient_role
+            message:
+              type: string
+            field:
+              type: string
+              nullable: true
