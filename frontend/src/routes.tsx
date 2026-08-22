@@ -16,6 +16,8 @@ import { PlayerStatsPage } from './features/statistics/PlayerStatsPage';
 import { TopScorersPage } from './features/statistics/TopScorersPage';
 import { CreateTeamForm } from './features/teams/CreateTeamForm';
 import { TeamsPage } from './features/teams/TeamsPage';
+import { GroupsPage } from './features/groups/GroupsPage';
+import { GroupForm } from './features/groups/GroupForm';
 import { TituloDePantalla } from './components';
 
 function SoloOrganizador() {
@@ -38,6 +40,15 @@ export function AppRoutes() {
         element={
           <ProtectedRoute rol="organizador">
             <CreateTeamForm />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/leagues/:id/groups" element={<GroupsPage />} />
+      <Route
+        path="/leagues/:id/groups/new"
+        element={
+          <ProtectedRoute rol="organizador">
+            <GroupForm />
           </ProtectedRoute>
         }
       />

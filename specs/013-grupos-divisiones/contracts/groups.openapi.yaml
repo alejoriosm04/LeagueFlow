@@ -1,0 +1,287 @@
+openapi: 3.0.3
+info:
+  title: LeagueFlow API — Grupos
+  version: "1.0.0"
+  description: >
+    Endpoints de la spec 013-grupos-divisiones. Las convenciones compartidas
+    (envelope de error, códigos HTTP, cookie de sesión) están en
+    ../../001-fundacion-y-autenticacion/contracts/conventions.md.
+servers:
+  - url: /api/v1
+
+paths:
+  /leagues/{leagueId}/groups:
+    post:
+      summary: Crear un grupo en una liga
+      operationId: createGroup
+      description: Requiere sesión con rol organizador (FR-001).
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateGroupRequest"
+      responses:
+        "201":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Group" }
+        "400":
+          description: "Payload inválido — `name` vacío. error.code: `validation_error`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol insuficiente. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: "La liga no existe. error.code: `league_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: "Ya existe un grupo con ese nombre en esta liga (FR-002). error.code: `group_name_duplicate`, field: `name`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    get:
+      summary: Listar los grupos de una liga con su composición
+      operationId: listGroups
+      description: Público (FR-009). Incluye equipos inactivos que ya son miembros (FR-012).
+      security: []
+      parameters:
+        - name: leagueId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GroupList" }
+        "404":
+          description: "La liga no existe. error.code: `league_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /groups/{groupId}:
+    patch:
+      summary: Renombrar un grupo
+      operationId: renameGroup
+      description: Requiere sesión con rol organizador (FR-003).
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenameGroupRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Group" }
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol insuficiente. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: "El grupo no existe. error.code: `group_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: "Ya existe un grupo con ese nombre en la liga (FR-002). error.code: `group_name_duplicate`, field: `name`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    delete:
+      summary: Eliminar un grupo
+      operationId: deleteGroup
+      description: >
+        Requiere sesión con rol organizador (FR-004). Borra las membresías del
+        grupo (CASCADE) y NUNCA los equipos.
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: "Grupo eliminado."
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol insuficiente. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: "El grupo no existe. error.code: `group_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+  /groups/{groupId}/teams:
+    post:
+      summary: Asignar un equipo a un grupo
+      operationId: assignTeamToGroup
+      description: Requiere sesión con rol organizador (FR-005). Solo equipos activos de la liga.
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignTeamRequest"
+      responses:
+        "201":
+          description: "Equipo asignado."
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol insuficiente. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: "El grupo no existe (`group_not_found`), el equipo no existe (`team_not_found`) o el equipo no es de la liga (`team_not_found_in_league`)."
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "409":
+          description: "El equipo ya está en un grupo (`team_already_in_group`, FR-007) o está inactivo (`team_inactive`, FR-011)."
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    delete:
+      summary: Desasignar un equipo de un grupo
+      operationId: unassignTeamFromGroup
+      description: Requiere sesión con rol organizador (FR-006).
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - name: teamId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204":
+          description: "Equipo desasignado."
+        "401":
+          description: "Sin sesión. error.code: `not_authenticated`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "403":
+          description: "Rol insuficiente. error.code: `insufficient_role`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+        "404":
+          description: "El grupo no existe o el equipo no está en él. error.code: `group_not_found`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: lf_session
+  schemas:
+    CreateGroupRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+        position: { type: integer, nullable: true }
+    RenameGroupRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 120 }
+    AssignTeamRequest:
+      type: object
+      required: [team_id]
+      properties:
+        team_id: { type: string, format: uuid }
+    Group:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        league_id: { type: string, format: uuid }
+        name: { type: string }
+        position: { type: integer, nullable: true }
+        created_at: { type: string, format: date-time }
+    TeamInGroup:
+      type: object
+      properties:
+        team_id: { type: string, format: uuid }
+        name: { type: string }
+        status: { type: string, enum: [active, inactive] }
+    GroupWithTeams:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        league_id: { type: string, format: uuid }
+        name: { type: string }
+        position: { type: integer, nullable: true }
+        created_at: { type: string, format: date-time }
+        teams:
+          type: array
+          items: { $ref: "#/components/schemas/TeamInGroup" }
+    GroupList:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/GroupWithTeams" }
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            field: { type: string, nullable: true }
+
+security:
+  - sessionCookie: []
