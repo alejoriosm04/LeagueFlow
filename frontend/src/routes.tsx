@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, Link } from 'react-router-dom';
+import { AuditLogPage } from './features/audit/AuditLogPage';
 import { LoginPage } from './features/auth/LoginPage';
 import { ProtectedRoute } from './features/auth/ProtectedRoute';
 import { Portada } from './features/inicio/Portada';
@@ -24,7 +25,12 @@ import { TituloDePantalla } from './components';
 function SoloOrganizador() {
   // FR-027: cada pantalla declara su propio título; un <h2> suelto dejaba
   // /admin sin encabezado principal y saltando un nivel de la jerarquía.
-  return <TituloDePantalla>Administración (solo organizador)</TituloDePantalla>;
+  return (
+    <>
+      <TituloDePantalla>Administración (solo organizador)</TituloDePantalla>
+      <Link to="/admin/audit-log">Ver historial de auditoría</Link>
+    </>
+  );
 }
 
 export function AppRoutes() {
@@ -89,6 +95,14 @@ export function AppRoutes() {
         element={
           <ProtectedRoute rol="organizador">
             <SoloOrganizador />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/audit-log"
+        element={
+          <ProtectedRoute rol="organizador">
+            <AuditLogPage />
           </ProtectedRoute>
         }
       />
