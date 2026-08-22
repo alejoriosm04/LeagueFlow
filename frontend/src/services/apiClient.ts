@@ -56,10 +56,32 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return datos as T;
 }
 
+export interface DownloadResult {
+  blob: Blob;
+  filename: string;
+}
+
+async function download(path: string): Promise<DownloadResult> {
+  const respuesta = await fetch(`${BASE_URL}/api/v1${path}`, { method: 'GET', credentials: 'include' });
+  if (!respuesta.ok) {
+    const datos = await respuesta.json().catch(() => null);
+    throw new ApiError(respuesta.status, datos?.error ?? {
+      code: 'unknown_error', message: 'No fue posible completar la operación.', field: null,
+    });
+  }
+  const disposition = respuesta.headers.get('Content-Disposition') ?? '';
+  const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1] ?? 'exportacion.csv';
+  return { blob: await respuesta.blob(), filename };
+}
+
 export const apiClient = {
   get: <T>(path: string) => request<T>(path, { method: 'GET' }),
   post: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
   put: <T>(path: string, body: unknown) =>
     request<T>(path, { method: 'PUT', body: JSON.stringify(body) }),
+  download,
+  patch: <T>(path: string, body: unknown) =>
+    request<T>(path, { method: 'PATCH', body: JSON.stringify(body) }),
+  delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 };

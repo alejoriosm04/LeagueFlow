@@ -59,6 +59,13 @@ const mensajes: Record<string, string> = {
   player_not_in_match: 'El jugador no pertenece a ninguno de los dos equipos del partido.',
   player_not_in_lineup: 'El jugador no figura en la alineación registrada del partido.',
 
+  // Grupos (specs/013)
+  group_not_found: 'No encontramos el grupo que buscas.',
+  group_name_duplicate: 'Ya hay un grupo con ese nombre en esta liga.',
+  team_not_found_in_league: 'El equipo no pertenece a la liga del grupo.',
+  team_already_in_group: 'El equipo ya pertenece a un grupo de esta liga.',
+  team_inactive: 'El equipo está inactivo y no puede asignarse a un grupo.',
+
   // Validación genérica
   validation_error: 'Revisa los datos introducidos: hay algún valor que no es válido.',
 };

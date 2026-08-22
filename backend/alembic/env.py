@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from src.auth import models as _auth_models  # noqa: F401
 from src.core.config import get_settings
 from src.core.models_base import Base
+from src.groups import models as _group_models  # noqa: F401
 from src.leagues import models as _league_models  # noqa: F401
 from src.matches import models as _match_models  # noqa: F401
 from src.players import models as _player_models  # noqa: F401

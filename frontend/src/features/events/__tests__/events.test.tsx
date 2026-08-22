@@ -96,10 +96,11 @@ describe('goles del partido', () => {
     const stub = stubFetch({ rol: 'operador' });
     vi.stubGlobal('fetch', stub.fn);
     renderFicha();
-    const boton = await screen.findByRole('button', { name: /registrar gol/i });
-    await userEvent.selectOptions(screen.getByLabelText(/jugador/i), 'p1');
-    await userEvent.clear(screen.getByLabelText(/minuto/i));
-    await userEvent.type(screen.getByLabelText(/minuto/i), '55');
+    const seccion = await screen.findByRole('region', { name: /goles/i });
+    const boton = within(seccion).getByRole('button', { name: /registrar gol/i });
+    await userEvent.selectOptions(within(seccion).getByLabelText(/jugador/i), 'p1');
+    await userEvent.clear(within(seccion).getByLabelText(/minuto/i));
+    await userEvent.type(within(seccion).getByLabelText(/minuto/i), '55');
     await userEvent.click(boton);
     await waitFor(() => expect(stub.registrados).toEqual([{ player_id: 'p1', minute: 55 }]));
   });
@@ -133,11 +134,14 @@ describe('goles del partido', () => {
   it('traduce el rechazo del jugador ajeno a un mensaje legible', async () => {
     vi.stubGlobal('fetch', stubFetch({ rol: 'operador', error: true }).fn);
     renderFicha();
-    const boton = await screen.findByRole('button', { name: /registrar gol/i });
-    await userEvent.selectOptions(screen.getByLabelText(/jugador/i), 'p1');
-    await userEvent.clear(screen.getByLabelText(/minuto/i));
-    await userEvent.type(screen.getByLabelText(/minuto/i), '10');
+    const seccion = await screen.findByRole('region', { name: /goles/i });
+    const boton = within(seccion).getByRole('button', { name: /registrar gol/i });
+    await userEvent.selectOptions(within(seccion).getByLabelText(/jugador/i), 'p1');
+    await userEvent.clear(within(seccion).getByLabelText(/minuto/i));
+    await userEvent.type(within(seccion).getByLabelText(/minuto/i), '10');
     await userEvent.click(boton);
-    expect(await screen.findByRole('alert')).toHaveTextContent(/no pertenece a ninguno de los dos equipos/i);
+    expect(await within(seccion).findByRole('alert')).toHaveTextContent(
+      /no pertenece a ninguno de los dos equipos/i,
+    );
   });
 });

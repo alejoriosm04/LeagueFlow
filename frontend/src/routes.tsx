@@ -13,9 +13,12 @@ import { CreatePlayerForm } from './features/players/CreatePlayerForm';
 import { PlayersPage } from './features/players/PlayersPage';
 import { StandingsPage } from './features/standings/StandingsPage';
 import { PlayerStatsPage } from './features/statistics/PlayerStatsPage';
+import { DisciplinePage } from './features/sanctions/DisciplinePage';
 import { TopScorersPage } from './features/statistics/TopScorersPage';
 import { CreateTeamForm } from './features/teams/CreateTeamForm';
 import { TeamsPage } from './features/teams/TeamsPage';
+import { GroupsPage } from './features/groups/GroupsPage';
+import { GroupForm } from './features/groups/GroupForm';
 import { TituloDePantalla } from './components';
 
 function SoloOrganizador() {
@@ -41,9 +44,19 @@ export function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/leagues/:id/groups" element={<GroupsPage />} />
+      <Route
+        path="/leagues/:id/groups/new"
+        element={
+          <ProtectedRoute rol="organizador">
+            <GroupForm />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/leagues/:id/standings" element={<StandingsPage />} />
       <Route path="/leagues/:id/top-scorers" element={<TopScorersPage />} />
       <Route path="/players/:playerId/statistics" element={<PlayerStatsPage />} />
+      <Route path="/players/:playerId/discipline" element={<DisciplinePage />} />
       <Route path="/leagues/:id/matches" element={<MatchesPage />} />
       <Route path="/matches/:matchId" element={<MatchDetailPage />} />
       <Route

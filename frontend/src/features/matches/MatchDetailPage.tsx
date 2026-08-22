@@ -8,6 +8,7 @@ import type { Team } from '../teams/api';
 import { eventsApi } from '../events/api';
 import type { MatchEvents } from '../events/api';
 import { GoalForm } from '../events/GoalForm';
+import { CardForm } from '../events/CardForm';
 import { playersApi } from '../players/api';
 import type { Player } from '../players/api';
 import { CorrectionDecisionForm } from './CorrectionDecisionForm';
@@ -125,6 +126,12 @@ export function MatchDetailPage() {
       color). Un jugador que no se resuelve en ninguna plantilla cae a local
       para no perder la fila. */
   const esGolLocal = (playerId: string) => jugador(playerId)?.team_id !== partido.away_team_id;
+  const golesRegistrados = goles?.items.filter((evento) => evento.type === 'GOAL') ?? [];
+  const tarjetasRegistradas =
+    goles?.items.filter((evento) => evento.type === 'YELLOW_CARD' || evento.type === 'RED_CARD') ??
+    [];
+  const etiquetaTarjeta = (tipo: string) => (tipo === 'RED_CARD' ? 'Roja' : 'Amarilla');
+  const iconoTarjeta = (tipo: string) => (tipo === 'RED_CARD' ? '🟥' : '🟨');
 
   return (
     <section className={estilos.pagina}>
@@ -229,11 +236,11 @@ export function MatchDetailPage() {
                 oficial sigue siendo la fuente de la clasificación.
               </p>
             )}
-            {goles && goles.items.length === 0 ? (
+            {golesRegistrados.length === 0 ? (
               <p className={estilos.textoVacio}>No hay goles registrados.</p>
             ) : (
               <ul className={estilos.golesLista}>
-                {goles?.items.map((gol) => {
+                {golesRegistrados.map((gol) => {
                   const local = esGolLocal(gol.player_id);
                   return (
                     <li
@@ -245,7 +252,10 @@ export function MatchDetailPage() {
                         crestUrl={local ? equipos.local?.crest_url : equipos.visitante?.crest_url}
                       />
                       <span className={estilos.golJugador}>
-                        <span aria-hidden="true">⚽</span> {nombreJugador(gol.player_id)}
+                        <span aria-hidden="true">⚽</span>{' '}
+                        <Link to={`/players/${gol.player_id}/discipline`}>
+                          {nombreJugador(gol.player_id)}
+                        </Link>
                       </span>
                       <span className={estilos.golMinuto}>{gol.minute}&apos;</span>
                     </li>
@@ -254,11 +264,49 @@ export function MatchDetailPage() {
               </ul>
             )}
           </Panel>
-          {/* El formulario vive fuera del panel, justo debajo: es la acción
-              sobre esos datos, no otro dato más dentro de la tarjeta. */}
           {autenticado && (partido.status === 'finished' || partido.status === 'in_progress') && (
             <div className={estilos.formularioSecundario}>
               <GoalForm matchId={matchId} jugadores={jugadores} onSuccess={() => void cargar()} />
+            </div>
+          )}
+        </section>
+
+        <section aria-label="Tarjetas" className={estilos.bloque}>
+          <Panel titulo="Tarjetas">
+            {tarjetasRegistradas.length === 0 ? (
+              <p className={estilos.textoVacio}>No hay tarjetas registradas.</p>
+            ) : (
+              <ul className={estilos.golesLista}>
+                {tarjetasRegistradas.map((tarjeta) => {
+                  const local = esGolLocal(tarjeta.player_id);
+                  return (
+                    <li
+                      key={tarjeta.id}
+                      className={`${estilos.golItem} ${local ? estilos.golLocal : estilos.golVisitante}`}
+                    >
+                      <EscudoEquipo
+                        nombre={local ? nombreEquipoLocal : nombreEquipoVisitante}
+                        crestUrl={local ? equipos.local?.crest_url : equipos.visitante?.crest_url}
+                      />
+                      <span className={estilos.golJugador}>
+                        <span aria-hidden="true">{iconoTarjeta(tarjeta.type)}</span>{' '}
+                        <Link to={`/players/${tarjeta.player_id}/discipline`}>
+                          {nombreJugador(tarjeta.player_id)}
+                        </Link>
+                        <span className={estilos.etiquetaTarjeta}>
+                          {etiquetaTarjeta(tarjeta.type)}
+                        </span>
+                      </span>
+                      <span className={estilos.golMinuto}>{tarjeta.minute}&apos;</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Panel>
+          {autenticado && (partido.status === 'finished' || partido.status === 'in_progress') && (
+            <div className={estilos.formularioSecundario}>
+              <CardForm matchId={matchId} jugadores={jugadores} onSuccess={() => void cargar()} />
             </div>
           )}
         </section>

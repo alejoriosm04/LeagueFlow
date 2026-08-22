@@ -63,7 +63,8 @@ que el CSV lista los partidos con sus equipos, fecha y estado.
    descarga el calendario, **Then** el CSV contiene todos los partidos con sus
    equipos, fecha y estado.
 2. **Given** una liga sin partidos, **When** el usuario descarga el calendario,
-   **Then** obtiene un CSV con solo los encabezados, sin errores.
+   **Then** obtiene un CSV con los metadatos de liga y generación, los
+   encabezados y ninguna fila de datos, sin errores.
 3. **Given** una liga inexistente, **When** el usuario intenta descargar, **Then**
    recibe el error de "liga no encontrada" ya definido por `specs/007`.
 
@@ -71,8 +72,9 @@ que el CSV lista los partidos con sus equipos, fecha y estado.
 
 ### Edge Cases
 
-- ¿Qué ocurre al exportar una liga sin datos? Se devuelve un CSV con solo los
-  encabezados, nunca un error.
+- ¿Qué ocurre al exportar una liga sin datos? Se devuelve un CSV con los
+  metadatos obligatorios, los encabezados y ninguna fila de datos, nunca un
+  error.
 - ¿Qué ocurre al pedir un formato distinto de CSV? Se rechaza indicando que solo
   se soporta CSV.
 - ¿Qué ocurre al exportar una liga inexistente? Se responde con "liga no
@@ -92,8 +94,9 @@ que el CSV lista los partidos con sus equipos, fecha y estado.
   orden que la vista, e incluir el nombre de la liga y la fecha de generación.
 - **FR-004**: El CSV de calendario MUST contener todos los partidos de la liga
   (programados y jugados) con sus equipos, fecha y estado.
-- **FR-005**: El sistema MUST devolver un CSV con solo los encabezados cuando no
-  haya datos, y NUNCA un error por ausencia de datos.
+- **FR-005**: El sistema MUST devolver un CSV con los metadatos obligatorios y
+  los encabezados, pero sin filas de datos, cuando no haya datos; NUNCA debe
+  responder con error por ausencia de datos.
 - **FR-006**: El sistema MUST rechazar la solicitud de un formato distinto de CSV.
 - **FR-007**: La exportación MUST empaquetar los mismos datos que ya exponen la
   clasificación y el calendario, sin recalcularlos ni alterarlos.
@@ -102,16 +105,21 @@ que el CSV lista los partidos con sus equipos, fecha y estado.
 
 ### Measurable Outcomes
 
-- **SC-001**: Un usuario descarga la clasificación o el calendario en 2
-  interacciones o menos.
+- **SC-001**: Desde la vista de detalle de una liga, un usuario inicia la
+  descarga de la clasificación o del calendario en 2 interacciones o menos.
+  Cuenta como interacción cada clic o toque que navega a una vista o activa la
+  descarga; cargar la vista inicial no cuenta.
 - **SC-002**: El 100% de las filas, columnas y el orden del CSV coinciden con la
   vista de la que parten.
 - **SC-003**: El 100% de las exportaciones de una liga sin datos devuelven un CSV
-  con encabezados (0 errores por ausencia de datos).
-- **SC-004**: Un visitante sin sesión descarga ambos archivos sin ningún paso de
-  autenticación.
-- **SC-005**: El 100% de los archivos descargados se abren en una hoja de cálculo
-  sin corrupción, incluyendo nombres con caracteres especiales.
+  con metadatos y encabezados, sin filas de datos (0 errores por ausencia de
+  datos).
+- **SC-004**: En las pruebas end-to-end de FR-001 y FR-002, un visitante sin
+  sesión inicia ambas descargas sin redirección ni paso de autenticación.
+- **SC-005**: El 100% de los casos de validación definidos (archivo con datos,
+  archivo vacío y nombres con comas, comillas, tildes, saltos de línea o prefijo
+  de fórmula) se abre sin corrupción en LibreOffice Calc 24.2 o superior y en
+  Microsoft Excel para Microsoft 365 de escritorio.
 
 ## Assumptions
 
@@ -120,6 +128,11 @@ que el CSV lista los partidos con sus equipos, fecha y estado.
   jugados), igual que la vista de calendario existente.
 - **Nombre de archivo**: se genera con el nombre de la liga y la fecha de
   generación (para que el archivo descargado sea autoexplicativo).
+- **Metadatos internos**: ambos CSV incluyen el nombre de la liga y la fecha de
+  generación antes de la tabla; una exportación vacía conserva estos metadatos
+  y los encabezados, pero no contiene filas de datos.
+- **Compatibilidad mínima**: la matriz de validación manual usa LibreOffice Calc
+  24.2 o superior y Microsoft Excel para Microsoft 365 de escritorio.
 - **Sin autenticación**: la descarga es pública, igual que las consultas de
   clasificación y calendario de las que parte.
 

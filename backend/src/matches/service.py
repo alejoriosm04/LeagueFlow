@@ -14,7 +14,7 @@ from src.leagues.service import LeagueService
 from src.matches.goal_rules import (
     GolRegistrado,
     calcular_consistencia,
-    validar_registro_de_gol,
+    validar_registro_de_evento,
 )
 from src.matches.lineup_rules import (
     JugadorCandidato,
@@ -296,7 +296,7 @@ class MatchService:
         )
         return dict(res.all())
 
-    async def registrar_gol(
+    async def registrar_evento(
         self,
         match_id: uuid.UUID,
         player_id: uuid.UUID,
@@ -304,7 +304,7 @@ class MatchService:
         tipo: EventType,
         creado_por: uuid.UUID,
     ) -> MatchEvent:
-        """FR-001. El equipo se deriva del jugador (research.md §4)."""
+        """FR-001 (009/014). El equipo se deriva del jugador (research.md §4)."""
         partido = await self._exigir_partido(match_id)
 
         jugador = await PlayerService(self.db).obtener_jugador(player_id)
@@ -315,7 +315,7 @@ class MatchService:
                 status_code=status.HTTP_404_NOT_FOUND,
             )
 
-        validar_registro_de_gol(
+        validar_registro_de_evento(
             match_status=partido.status,
             home_team_id=partido.home_team_id,
             away_team_id=partido.away_team_id,
@@ -336,6 +336,27 @@ class MatchService:
         await self.db.commit()
         await self.db.refresh(evento)
         return evento
+
+    async def registrar_gol(
+        self,
+        match_id: uuid.UUID,
+        player_id: uuid.UUID,
+        minute: int,
+        tipo: EventType,
+        creado_por: uuid.UUID,
+    ) -> MatchEvent:
+        """Alias de `registrar_evento` para la spec 009."""
+        return await self.registrar_evento(match_id, player_id, minute, tipo, creado_por)
+
+    async def tarjetas_por_jugador(self, player_id: uuid.UUID) -> list[tuple[str, uuid.UUID]]:
+        """Puerto de lectura para sanctions/ (spec 014): tipo y partido de cada tarjeta."""
+        res = await self.db.execute(
+            select(MatchEvent.type, MatchEvent.match_id).where(
+                MatchEvent.player_id == player_id,
+                MatchEvent.type.in_(("YELLOW_CARD", "RED_CARD")),
+            )
+        )
+        return [(fila.type, fila.match_id) for fila in res.all()]
 
     async def listar_eventos(
         self, match_id: uuid.UUID

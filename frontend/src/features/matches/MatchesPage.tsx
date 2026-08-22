@@ -7,6 +7,7 @@ import { useAuth } from '../auth/AuthContext';
 import { teamsApi } from '../teams/api';
 import type { Team } from '../teams/api';
 import { matchesApi } from './api';
+import { exportsApi } from '../exports/api';
 import type { Match, MatchStatus } from './api';
 import estilos from './MatchesPage.module.css';
 
@@ -55,6 +56,17 @@ export function MatchesPage() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [intento, setIntento] = useState(0);
+  const [exportando, setExportando] = useState(false);
+  const [errorExportacion, setErrorExportacion] = useState<string | null>(null);
+
+  async function descargarCsv() {
+    if (!id) return;
+    setExportando(true);
+    setErrorExportacion(null);
+    try { await exportsApi.descargarCalendario(id); }
+    catch (causa) { setErrorExportacion(mensajeDeError(causa)); }
+    finally { setExportando(false); }
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -96,6 +108,7 @@ export function MatchesPage() {
       <TituloDePantalla>Partidos</TituloDePantalla>
 
       <div className={estilos.acciones}>
+        {id && <button type="button" onClick={descargarCsv} disabled={exportando}>{exportando ? 'Preparando CSV…' : 'Descargar CSV'}</button>}
         {/* Con la lista vacía, la acción la ofrece el estado vacío (FR-014);
             duplicarla aquí dejaría dos enlaces idénticos en la pantalla. */}
         {usuario?.role === 'organizador' && id && total > 0 && (
@@ -117,6 +130,7 @@ export function MatchesPage() {
           </select>
         </div>
       </div>
+      <p role="status" aria-live="polite">{errorExportacion ?? ''}</p>
 
       {cargando ? (
         <EstadoCarga recurso="los partidos" />

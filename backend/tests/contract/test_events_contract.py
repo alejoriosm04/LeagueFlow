@@ -8,6 +8,10 @@ import yaml
 CONTRATO = (
     Path(__file__).resolve().parents[3] / "specs/009-registrar-goles/contracts/events.openapi.yaml"
 )
+CONTRATO_014 = (
+    Path(__file__).resolve().parents[3]
+    / "specs/014-tarjetas-sanciones/contracts/cards-sanctions.openapi.yaml"
+)
 RUTA = "/matches/{matchId}/events"
 
 CAMPOS_EVENTO = [
@@ -46,7 +50,13 @@ def test_contrato_no_pide_team_id_al_cliente():
     entrada = contrato()["components"]["schemas"]["CreateEventInput"]
     assert entrada["required"] == ["player_id", "minute"]
     assert "team_id" not in entrada["properties"]
-    assert entrada["properties"]["type"]["enum"] == ["GOAL"]
+
+
+def test_contrato_014_admite_goles_y_tarjetas():
+    entrada = yaml.safe_load(CONTRATO_014.read_text(encoding="utf-8"))["components"]["schemas"][
+        "CreateEventInput"
+    ]
+    assert entrada["properties"]["type"]["enum"] == ["GOAL", "YELLOW_CARD", "RED_CARD"]
 
 
 def test_contrato_declara_evento_y_consistencia():

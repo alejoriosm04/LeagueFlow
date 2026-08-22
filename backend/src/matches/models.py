@@ -180,7 +180,11 @@ class MatchEvent(Base, UUIDPrimaryKey, TimestampCreated):
 
     __table_args__ = (
         CheckConstraint("minute >= 0", name="ck_match_events_minute_nonnegative"),
-        CheckConstraint("type IN ('GOAL')", name="ck_match_events_type_supported"),
+        # specs/014-tarjetas-sanciones amplía GOAL → YELLOW_CARD | RED_CARD.
+        CheckConstraint(
+            "type IN ('GOAL', 'YELLOW_CARD', 'RED_CARD')",
+            name="ck_match_events_type_supported",
+        ),
         # Dos goles del mismo jugador en el mismo minuto son legítimos: no hay
         # unicidad. El índice sirve al listado por partido y a la derivación de 010.
         Index("ix_match_events_match_minute", "match_id", "minute"),
