@@ -245,7 +245,9 @@ PRs automáticos por dependencias vulnerables).
 
 Antes de la demo, cinco HU se desarrollan **en paralelo** por integrantes
 distintos, cada una en una zona independiente para minimizar conflictos
-(mapa en `docs/backlog/backlog.md`):
+(mapa en `docs/backlog/backlog.md`). La **guía detallada con los prompts de
+`/speckit.specify`, `/speckit.plan`, los requisitos y el flujo de git de cada
+HU** está en `docs/plan-paralelo-013-017.md`.
 
 | Spec | Zona / rol |
 |---|---|
