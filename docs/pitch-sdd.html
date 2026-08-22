@@ -191,7 +191,8 @@ h2{font-size:clamp(1.5rem,3vw,2rem);line-height:1.08;margin:0 0 10px;font-variat
 .tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th,td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
-th:first-child,td:first-child{text-align:left;white-space:normal;min-width:230px}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:190px}
+th:last-child,td:last-child{text-align:left;white-space:normal;min-width:190px}
 thead th{
   font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
   font-weight:600;background:var(--surface-2);border-bottom:1px solid var(--line-strong);
@@ -226,6 +227,34 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
   border-left:2px solid var(--accent);padding:2px 0 2px 20px;margin:26px 0;
   font-size:1.1rem;color:var(--ink);max-width:52ch;
 }
+/* plain-language gloss under a figure */
+.gloss{
+  font-family:"Source Serif 4",Georgia,serif;font-size:14.5px;line-height:1.5;
+  color:var(--ink-2);max-width:34ch;margin:2px 0 0;
+}
+/* "de dónde sale" source block */
+.src{
+  margin-top:24px;border:1px solid var(--line);border-left:2px solid var(--accent);
+  border-radius:2px;background:var(--surface);padding:18px 20px;
+  display:flex;flex-direction:column;gap:9px;max-width:62ch;
+}
+.src .hd{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--accent);
+}
+.src ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.src li{font-size:14.5px;line-height:1.5;color:var(--ink-2);display:grid;grid-template-columns:96px 1fr;gap:12px}
+.src li b{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.08em;
+  text-transform:uppercase;font-weight:600;color:var(--ink);padding-top:3px;
+}
+.src li b.sup{color:var(--risk)}
+/* worked example under the risk table */
+.example{
+  margin-top:18px;font-size:15px;line-height:1.55;color:var(--ink-2);max-width:60ch;
+  background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:15px 18px;
+}
+.example .eq{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink);display:block;margin-top:7px}
 
 @media (max-width:860px){
   .npv{grid-template-columns:1fr;gap:30px;align-items:start}
@@ -247,45 +276,42 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
     <span>Spec-Driven Development</span>
   </div>
   <h1>Escribir la spec <span class="hl">es la inversión más barata</span> del proyecto.</h1>
-  <p class="lede">17 specs, 12 historias cerradas, 5 días, 6 personas. Lo que sigue no es una opinión sobre metodología: es el flujo de caja de adoptarla, con los supuestos a la vista y el punto donde deja de funcionar.</p>
+  <p class="lede">17 specs, 12 historias, 5 días, 6 personas. Abajo está la cuenta completa: cuánto cuesta trabajar así, cuánto se ahorra, y en qué punto dejaría de convenir.</p>
 
   <div class="npv">
     <div class="npv-figure">
-      <span class="label">VPN a 3 años · 18 % E.A.</span>
+      <span class="label">Lo que gana un equipo al adoptarlo</span>
       <span class="big">$34,3<span class="unit"> M COP</span></span>
       <span class="sub">USD 8.573 · TRM 4.000</span>
+      <p class="gloss">Es el ahorro de tres años traído a plata de hoy, ya restado lo que cuesta arrancar <em>(Valor Presente Neto, al 18 % anual)</em>.</p>
       <div class="rule"></div>
       <div class="trio">
-        <div><span class="v">89 %</span><span class="k">TIR</span></div>
-        <div><span class="v">14 meses</span><span class="k">Payback</span></div>
-        <div><span class="v">2,52</span><span class="k">Índice rent.</span></div>
+        <div><span class="v">$2,52</span><span class="k">Vuelven por cada $1</span></div>
+        <div><span class="v">14 meses</span><span class="k">En recuperar lo invertido</span></div>
+        <div><span class="v">89 %</span><span class="k">Rentabilidad anual (TIR)</span></div>
       </div>
     </div>
 
     <div class="dcf">
-      <svg viewBox="0 0 460 168" role="img" aria-label="Flujo de caja descontado: inversión de 22,56 millones en el año cero, y flujos netos de 16,92 / 32,04 / 32,04 millones en los años 1 a 3, cuyo valor presente es 14,34 / 23,01 / 19,50 millones.">
+      <svg viewBox="0 0 460 168" role="img" aria-label="Se invierten 22,6 millones al arrancar. Los años 1, 2 y 3 devuelven 16,9, 32 y 32 millones, que traídos a plata de hoy valen 14,3, 23 y 19,5 millones.">
         <line x1="0" y1="104" x2="460" y2="104" stroke="var(--line-strong)" stroke-width="1"/>
-        <!-- t0 -->
         <g class="grow" style="animation-delay:.05s;transform-origin:0 104px">
           <rect x="14" y="104" width="72" height="58" fill="var(--risk)" rx="1"/>
         </g>
         <text x="50" y="104" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--risk)">−22,6</text>
-        <text x="50" y="162" text-anchor="middle" dy="14" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">t0</text>
-        <!-- t1 -->
+        <text x="50" y="162" text-anchor="middle" dy="14" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">arranque</text>
         <rect x="126" y="60" width="72" height="44" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
         <g class="grow" style="animation-delay:.18s;transform-origin:0 104px">
           <rect x="126" y="67" width="72" height="37" fill="var(--accent)" rx="1"/>
         </g>
         <text x="162" y="60" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">14,3</text>
         <text x="162" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 1</text>
-        <!-- t2 -->
         <rect x="238" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
         <g class="grow" style="animation-delay:.31s;transform-origin:0 104px">
           <rect x="238" y="44" width="72" height="60" fill="var(--accent)" rx="1"/>
         </g>
         <text x="274" y="21" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">23,0</text>
         <text x="274" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 2</text>
-        <!-- t3 -->
         <rect x="350" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
         <g class="grow" style="animation-delay:.44s;transform-origin:0 104px">
           <rect x="350" y="53" width="72" height="51" fill="var(--accent)" rx="1"/>
@@ -294,24 +320,24 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
         <text x="386" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 3</text>
       </svg>
       <div class="cap">
-        <span><i class="sw neg"></i>Inversión</span>
-        <span><i class="sw ghost"></i>Flujo nominal</span>
-        <span><i class="sw solid"></i>Valor presente</span>
-        <span>Millones COP</span>
+        <span><i class="sw neg"></i>Lo que cuesta arrancar</span>
+        <span><i class="sw ghost"></i>Ahorro del año</span>
+        <span><i class="sw solid"></i>Cuánto vale hoy</span>
       </div>
+      <p class="gloss" style="max-width:46ch;margin-top:10px">La barra punteada es el ahorro de ese año. La llena es cuánto vale hoy: plata que llega en tres años vale menos que la misma plata hoy, y la cuenta lo descuenta.</p>
     </div>
   </div>
 </header>
 
 <section>
   <p class="eyebrow">Lo que está medido</p>
-  <h2>Cuatro números que salen de <code class="mono">git</code>, no de una diapositiva.</h2>
+  <h2>Cuatro números que salen de <code>git</code>, no de una diapositiva.</h2>
   <p class="sub">Cada historia de usuario deja su archivo de métricas en el mismo pull request que su código. Nadie los reconstruyó al final.</p>
 
   <div class="ev">
     <div>
       <span class="n acc">73 → 0</span>
-      <span class="t">Ciclos de corrección</span>
+      <span class="t">Errores corregidos</span>
       <span class="d">73 reprocesos documentados uno por uno, con su causa. Cero llegaron a producción.</span>
     </div>
     <div>
@@ -322,7 +348,7 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
     <div>
       <span class="n">330<span style="color:var(--ink-3)">/342</span></span>
       <span class="t">Tareas cerradas</span>
-      <span class="d">96,5 %. Cada tarea es trazable a un requisito funcional numerado de una spec.</span>
+      <span class="d">96,5 %. Cada tarea es trazable a un requisito numerado de una spec.</span>
     </div>
     <div>
       <span class="n">18.348</span>
@@ -332,35 +358,35 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
   </div>
 
   <div class="pull">
-    <strong>73 reprocesos y 0 en producción</strong> es una sola frase, no dos. SDD no evita el error: lo obliga a ocurrir temprano, con nombre y apellido escrito en el repositorio.
+    <strong>73 errores y 0 en producción</strong> es una sola frase, no dos. SDD no evita equivocarse: obliga a que la equivocación aparezca temprano, cuando arreglarla es barata.
   </div>
 </section>
 
 <section>
   <p class="eyebrow">El dinero</p>
   <h2>Las mismas 12 historias, tres formas de construirlas.</h2>
-  <p class="sub">Tarifa cargada COP 60.000/hora. Un defecto que llega a producción cuesta 8 horas entre diagnóstico, hotfix, despliegue y comunicación.</p>
+  <p class="sub">Lo que cuesta hacer el trabajo, más lo que cuesta arreglar después lo que salió mal.</p>
 
   <div class="bars">
     <div class="bar-row">
-      <div class="bar-name"><span class="nm">Tradicional</span><span class="cost">$26,8 M · USD 6.696</span></div>
-      <div class="bar-track" role="img" aria-label="Tradicional: 21,6 millones de construcción más 5,2 millones de retrabajo, total 26,8 millones">
+      <div class="bar-name"><span class="nm">A la antigüita</span><span class="cost">$26,8 M · USD 6.696</span></div>
+      <div class="bar-track" role="img" aria-label="A la antigüita: 21,6 millones de construcción más 5,2 millones de arreglos, total 26,8 millones">
         <div class="seg build" style="flex:21.6">21,6 construir</div>
         <div class="seg rework" style="flex:5.18">5,2</div>
         <div style="flex:0.02"></div>
       </div>
     </div>
     <div class="bar-row">
-      <div class="bar-name"><span class="nm">Prompts sueltos</span><span class="cost">$23,3 M · USD 5.832</span></div>
-      <div class="bar-track" role="img" aria-label="Prompts sueltos: 13 millones de construcción más 10,4 millones de retrabajo, total 23,3 millones">
+      <div class="bar-name"><span class="nm">IA sin spec</span><span class="cost">$23,3 M · USD 5.832</span></div>
+      <div class="bar-track" role="img" aria-label="IA sin spec: 13 millones de construcción más 10,4 millones de arreglos, total 23,3 millones">
         <div class="seg build" style="flex:12.96">13,0 construir</div>
-        <div class="seg rework" style="flex:10.37">10,4 retrabajo</div>
+        <div class="seg rework" style="flex:10.37">10,4 arreglar</div>
         <div style="flex:3.47"></div>
       </div>
     </div>
     <div class="bar-row win">
-      <div class="bar-name"><span class="nm">SDD (Spec Kit)</span><span class="cost">$9,8 M · USD 2.457</span></div>
-      <div class="bar-track" role="img" aria-label="SDD: 8,1 millones de construcción más 1,7 millones de retrabajo, total 9,8 millones">
+      <div class="bar-name"><span class="nm">Con spec (SDD)</span><span class="cost">$9,8 M · USD 2.457</span></div>
+      <div class="bar-track" role="img" aria-label="Con spec: 8,1 millones de construcción más 1,7 millones de arreglos, total 9,8 millones">
         <div class="seg build" style="flex:8.1">8,1</div>
         <div class="seg rework" style="flex:1.73">1,7</div>
         <div style="flex:16.97"></div>
@@ -368,75 +394,100 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
     </div>
   </div>
   <div class="legend">
-    <span><i class="sw solid"></i>Construcción</span>
-    <span><i class="sw" style="background:var(--risk-soft);border:1px solid var(--risk)"></i>Retrabajo en producción</span>
-    <span>Millones COP · 12 HU</span>
+    <span><i class="sw solid"></i>Construir</span>
+    <span><i class="sw" style="background:var(--risk-soft);border:1px solid var(--risk)"></i>Arreglar en producción</span>
+    <span>Millones COP · 12 historias</span>
   </div>
 
-  <div class="col" style="margin-top:28px">
-    <p><strong>Prompts sueltos es la alternativa peligrosa, no la barata.</strong> Construye rápido —13 M contra 21,6 M— y luego devuelve casi todo el ahorro en la barra de al lado. La IA sin spec produce código verosímil sin dejar rastro de qué se pidió, así que el defecto no aparece hasta que lo encuentra un usuario.</p>
-    <p>La comparación que alimenta el VPN es la conservadora: <strong>COP 1.125.000 de ahorro por historia</strong> frente a prompts sueltos. Contra desarrollo tradicional serían 1.413.000.</p>
+  <div class="col" style="margin-top:26px">
+    <p><strong>Pedirle código a la IA sin spec es la opción peligrosa, no la barata.</strong> Construye rápido —13 M contra 21,6 M— y devuelve casi todo ese ahorro en la barra de al lado. Sale código que parece correcto y no queda rastro de qué se pidió, así que la falla la encuentra un usuario, no el equipo.</p>
+  </div>
+
+  <div class="src">
+    <span class="hd">De dónde sale cada número</span>
+    <ul>
+      <li><b>Medido</b>La barra verde-azul de SDD: 12 historias en <code>specs/</code>, 342 tareas y 73 correcciones registradas en <code>docs/metricas/</code>, 5 días de <code>git log</code>.</li>
+      <li><b>Medido</b>Esfuerzo de 135 horas-persona, contrastado por dos vías: capacidad de calendario (6 personas × 5 días × 4 h ≈ 120 h) y suma de tareas (342 × 0,4 h ≈ 137 h).</li>
+      <li><b class="sup">Supuesto</b>Las otras dos barras. Nadie construyó LeagueFlow tres veces: son escenarios de comparación a 30 h y 18 h por historia, contra las 11,25 h que sí se midieron.</li>
+      <li><b class="sup">Supuesto</b>Tarifa cargada de COP 60.000 la hora (USD 15) y COP 480.000 por cada falla que llega a producción — 8 horas entre diagnosticar, corregir, desplegar y avisar.</li>
+    </ul>
   </div>
 </section>
 
 <section>
   <p class="eyebrow">El riesgo</p>
-  <h2>Exposición operativa anual, antes y después.</h2>
-  <p class="sub">Probabilidad × impacto, por riesgo. Este capítulo <em>no</em> está dentro del VPN de arriba: se excluyó a propósito para no inflarlo.</p>
+  <h2>Cuánta plata se espera perder al año, antes y después.</h2>
+  <p class="sub">Cada cifra es una pérdida esperada: qué tan seguido pasa el problema, por lo que cuesta cada vez que pasa. En millones de pesos al año.</p>
 
   <div class="tbl-wrap">
     <table>
       <thead>
-        <tr><th>Riesgo</th><th>Sin SDD</th><th>Con SDD</th><th>Control que lo baja</th></tr>
+        <tr><th>Qué puede salir mal</th><th>Sin spec</th><th>Con spec</th><th>Qué lo evita</th></tr>
       </thead>
       <tbody>
-        <tr><td>Requisito mal entendido llega a producción</td><td class="was">2,88</td><td class="now">0,96</td><td class="delta"><code>/speckit-clarify</code> antes de codificar</td></tr>
-        <tr><td>Dependencia de una sola persona</td><td class="was">3,84</td><td class="now">0,96</td><td class="delta">17 specs versionadas y legibles</td></tr>
-        <tr><td>Regresión en lo ya entregado</td><td class="was">1,20</td><td class="now">0,24</td><td class="delta">414 pruebas como compuerta de PR</td></tr>
-        <tr><td>Secreto filtrado al repositorio</td><td class="was">1,80</td><td class="now">0,36</td><td class="delta">Push protection + GitGuardian</td></tr>
-        <tr><td>Colisión de trabajo paralelo</td><td class="was">0,84</td><td class="now">0,24</td><td class="delta">Orden de merge pactado 013→014→016→017</td></tr>
+        <tr><td>Se construye algo que nadie pidió así</td><td class="was">2,88</td><td class="now">0,96</td><td class="delta">Las preguntas se hacen antes de codificar</td></tr>
+        <tr><td>Solo una persona entiende esa parte</td><td class="was">3,84</td><td class="now">0,96</td><td class="delta">17 specs que cualquiera puede leer</td></tr>
+        <tr><td>Se daña algo que ya funcionaba</td><td class="was">1,20</td><td class="now">0,24</td><td class="delta">414 pruebas que frenan el merge</td></tr>
+        <tr><td>Se sube una contraseña al repositorio</td><td class="was">1,80</td><td class="now">0,36</td><td class="delta">Bloqueo automático en GitHub</td></tr>
+        <tr><td>Dos personas se pisan el trabajo</td><td class="was">0,84</td><td class="now">0,24</td><td class="delta">Orden de integración pactado por escrito</td></tr>
       </tbody>
       <tfoot>
-        <tr><td>Exposición esperada anual</td><td class="was">10,56</td><td class="now">2,76</td><td class="delta">−74 % · $7,8 M / año</td></tr>
+        <tr><td>Pérdida esperada al año</td><td class="was">10,56</td><td class="now">2,76</td><td class="delta">−74 % · $7,8 M menos</td></tr>
       </tfoot>
     </table>
   </div>
 
+  <p class="example">
+    <strong>Cómo leer el 2,88:</strong> construir algo que nadie pidió así pasa unas 6 de cada 10 veces, y rehacerlo cuesta COP 4,8 M. Con spec pasa 2 de cada 10.
+    <span class="eq">60 % × $4,8 M = <strong>$2,88 M al año</strong>  →  20 % × $4,8 M = <strong>$0,96 M</strong></span>
+  </p>
+
   <div class="col" style="margin-top:26px">
-    <p>El caso más caro se detectó en la primera historia: el <code class="mono">logout</code> borraba la cookie pero <strong>no revocaba la sesión en base de datos</strong>. Habría dejado tokens vivos en el servidor, en silencio. No lo encontró una prueba de humo — lo encontró un criterio de aceptación escrito en la spec.</p>
-    <p>Sumando este capítulo al flujo, con el mismo factor de atribución, el <strong>VPN ampliado llega a COP 44,3 M (USD 11.078)</strong>.</p>
+    <p>El caso más caro se detectó en la primera historia: el <code>logout</code> borraba la cookie pero <strong>no revocaba la sesión en base de datos</strong>. Habría dejado tokens vivos en el servidor, en silencio. No lo encontró una prueba de humo — lo encontró un criterio de aceptación escrito en la spec.</p>
+    <p>Estos $7,8 M al año <strong>no están contados</strong> en la cifra de arriba. Si se cuentan, los $34,3 M pasan a <strong>$44,3 M</strong>.</p>
   </div>
 </section>
 
 <section>
-  <p class="eyebrow">Por qué creerle</p>
-  <h2>El método puede incumplir dos tercios de su promesa y la decisión sigue sin destruir valor.</h2>
-  <p class="sub">Todo caso de negocio se apoya en un supuesto discutible. Aquí es el <strong>factor de atribución</strong>: cuánto del ahorro observado es del método y cuánto de usar IA en general. Le acreditamos el 70 %.</p>
+  <p class="eyebrow">La objeción</p>
+  <h2>«Ese ahorro no es del método, es de usar IA.»</h2>
+  <p class="sub">Es la crítica justa, y la respuesta no es discutirla: es calcular cuánto tendría que ser cierta para tumbar el caso.</p>
 
-  <div class="ev" style="grid-template-columns:repeat(auto-fit,minmax(155px,1fr))">
-    <div><span class="n acc">35,4 %</span><span class="t">Punto de equilibrio</span><span class="d">Atribución mínima para VPN = 0. Supusimos el doble.</span></div>
-    <div><span class="n">$40,9 M</span><span class="t">VPN @ 12 %</span><span class="d">Tasa optimista</span></div>
-    <div><span class="n">$34,3 M</span><span class="t">VPN @ 18 %</span><span class="d">Caso base</span></div>
-    <div><span class="n">$27,9 M</span><span class="t">VPN @ 25 %</span><span class="d">Tasa exigente</span></div>
+  <div class="ev" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr))">
+    <div>
+      <span class="n">70 %</span>
+      <span class="t">Lo que le acreditamos</span>
+      <span class="d">Del ahorro medido, solo el 70 % se le atribuye al método. El otro 30 % se le regala a la IA.</span>
+    </div>
+    <div>
+      <span class="n acc">35,4 %</span>
+      <span class="t">El piso</span>
+      <span class="d">Si el método solo explicara el 35,4 % del ahorro, la inversión apenas se pagaría sola. Por debajo, no convendría.</span>
+    </div>
+    <div>
+      <span class="n">2×</span>
+      <span class="t">El margen</span>
+      <span class="d">Estamos al doble de ese piso. El método puede fallar en dos tercios de lo que promete y aún así conviene.</span>
+    </div>
   </div>
 
   <div class="col" style="margin-top:28px">
-    <p><strong>La inversión no está maquillada.</strong> De los COP 22,6 M de adopción, el 77 % es curva de aprendizaje: dos meses a un 30 % de sobrecosto mientras el equipo aprende. Es la objeción real de cualquier equipo y está dentro del modelo, no fuera.</p>
-    <p><strong>Y hay dos casillas en blanco a propósito.</strong> El tiempo real de trabajo y el costo en tokens por historia los llena cada persona desde su panel de uso. El agente no tiene acceso a su propio consumo; cualquier cifra que reportara sería inventada, y un caso de negocio con un número inventado no vale nada.</p>
+    <p><strong>Y la inversión no está maquillada.</strong> De los $22,6 M que cuesta arrancar, el 77 % es curva de aprendizaje: dos meses trabajando un 30 % más lento mientras el equipo se acostumbra. Es la objeción real de cualquier equipo y está dentro de la cuenta, no fuera.</p>
+    <p>El resultado tampoco depende de qué tan exigente sea el evaluador: a una tasa suave da <strong>$40,9 M</strong>, en el caso base <strong>$34,3 M</strong>, y a una tasa dura <strong>$27,9 M</strong>. Nunca se vuelve negativo.</p>
   </div>
 </section>
 
 <section style="border-bottom:0;padding-bottom:0">
   <div class="closer">
     <p class="eyebrow" style="color:inherit;opacity:.6">La decisión</p>
-    <h2>La spec no es documentación. Es el activo que produce el retorno.</h2>
-    <p>El código de LeagueFlow se deprecia; las 17 specs son lo que permite que otra persona retome una historia en horas, que un cambio de alcance se negocie editando un archivo, y que 73 defectos se hayan pagado a precio de desarrollo y no a precio de producción.</p>
-    <p class="ask">Adoptar SDD en un equipo de 3 · Inversión COP 22,6 M · VPN COP 34,3 M · TIR 89 % · recuperación en 14 meses.</p>
+    <h2>La spec no es papeleo. Es lo que produce el ahorro.</h2>
+    <p>73 errores pagados a precio de desarrollo y no a precio de producción.</p>
+    <p class="ask">Invertir $22,6 M · recuperarlos en 14 meses · ganar $34,3 M en tres años.</p>
   </div>
 
   <p class="foot">
-    Modelo completo, flujos y tabla de supuestos: <code>docs/caso-de-negocio.md</code>. Métricas por historia: <code>docs/metricas/</code>.<br>
-    Caso sintético con supuestos explícitos. Medido: tareas, ciclos de corrección, pruebas, commits, LOC. Supuesto: tarifa COP 60.000/h, TRM 4.000, esfuerzo 135 h-persona (triangulado), contrafactuales de 30 y 18 h por historia, tasa de descuento 18 % E.A.
+    Cuenta completa, flujos y supuestos: <code>docs/caso-de-negocio.md</code>. Métricas por historia: <code>docs/metricas/</code>.<br>
+    Medido: tareas, correcciones, pruebas, commits, líneas de código, días. Supuesto: tarifa COP 60.000/h, TRM 4.000, esfuerzo 135 horas-persona, escenarios de comparación de 30 h y 18 h por historia, tasa de descuento 18 % anual.
   </p>
 </section>
 
