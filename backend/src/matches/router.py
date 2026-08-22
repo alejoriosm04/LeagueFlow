@@ -145,18 +145,18 @@ async def decidir_correccion(
 
 
 @router.post("/matches/{partido_id}/events", status_code=status.HTTP_201_CREATED)
-async def registrar_gol(
+async def registrar_evento(
     partido_id: uuid.UUID,
     datos: CreateEventInput,
     actor: Usuario = Depends(requiere_rol("operador", "organizador")),
     db: AsyncSession = Depends(get_db),
 ) -> MatchEvent:
-    """FR-001 y FR-006: solo operador u organizador; el autor sale de la sesión.
+    """FR-001 y FR-006: goles (009) y tarjetas (014). El autor sale de la sesión.
 
     Nunca falla por descuadre con el marcador: FR-005 advierte, no bloquea, y
     la advertencia se consulta en el GET.
     """
-    evento = await MatchService(db).registrar_gol(
+    evento = await MatchService(db).registrar_evento(
         partido_id, datos.player_id, datos.minute, datos.type, actor.id
     )
     return MatchEvent.model_validate(evento)

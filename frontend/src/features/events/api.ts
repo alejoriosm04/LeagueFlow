@@ -7,7 +7,7 @@
 
 import { apiClient } from '../../services/apiClient';
 
-export type EventType = 'GOAL';
+export type EventType = 'GOAL' | 'YELLOW_CARD' | 'RED_CARD';
 
 export interface MatchEvent {
   id: string;
@@ -38,6 +38,7 @@ export interface MatchEvents {
 export interface CreateEventInput {
   player_id: string;
   minute: number;
+  type?: EventType;
 }
 
 export const eventsApi = {

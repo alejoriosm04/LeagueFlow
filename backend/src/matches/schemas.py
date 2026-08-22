@@ -97,7 +97,7 @@ class PaginatedCorrections(BaseModel):
 
 # --- Eventos de partido (spec 009) ----------------------------------------
 
-EventType = Literal["GOAL"]
+EventType = Literal["GOAL", "YELLOW_CARD", "RED_CARD"]
 
 
 class CreateEventInput(BaseModel):
