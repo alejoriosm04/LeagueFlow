@@ -86,13 +86,13 @@ async def test_minuto_negativo_es_rechazado(cliente_operador, partido_con_planti
 
 
 async def test_tipo_no_soportado_es_rechazado(cliente_operador, partido_con_plantillas):
-    """FR-004: hoy solo GOAL; ampliar el enum será una migración, no un rediseño."""
+    """FR-004: tipos fuera del CHECK se rechazan con validation_error."""
     respuesta = await registrar(
         cliente_operador,
         partido_con_plantillas,
         partido_con_plantillas["home_player_id"],
         10,
-        type="RED_CARD",
+        type="SUBSTITUTION",
     )
     assert respuesta.status_code == 400
     assert respuesta.json()["error"]["code"] == "validation_error"

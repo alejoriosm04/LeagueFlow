@@ -147,9 +147,17 @@
 }
 
 .golJugador {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   flex: 1;
   font-weight: var(--lf-peso-medio);
   color: var(--lf-color-texto);
+}
+
+.etiquetaTarjeta {
+  font-size: var(--lf-texto-xs);
+  color: var(--lf-color-texto-suave);
 }
 
 .golMinuto {

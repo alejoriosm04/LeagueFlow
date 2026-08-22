@@ -24,7 +24,7 @@ class GolRegistrado:
     team_id: uuid.UUID
 
 
-def validar_registro_de_gol(
+def validar_registro_de_evento(
     *,
     match_status: str,
     home_team_id: uuid.UUID,
@@ -33,16 +33,16 @@ def validar_registro_de_gol(
     player_team_id: uuid.UUID,
     alineados: set[uuid.UUID] | None,
 ) -> None:
-    """Lanza `ErrorDeNegocio` si el gol no puede atribuirse.
+    """Lanza `ErrorDeNegocio` si el evento no puede atribuirse.
 
-    `alineados` es `None` cuando el partido no tiene alineación registrada, y
-    entonces FR-003 no aplica. Un conjunto vacío significa lo contrario:
-    alineación registrada y sin jugadores, así que rechaza a todos.
+    Compartida por goles (009) y tarjetas (014). `alineados` es `None` cuando el
+    partido no tiene alineación registrada, y entonces FR-003 no aplica. Un
+    conjunto vacío significa lo contrario: alineación registrada y sin jugadores.
     """
     if match_status not in ESTADOS_CON_JUEGO:
         raise ErrorDeNegocio(
             code="match_not_playable",
-            message="Solo un partido en curso o finalizado admite goles.",
+            message="Solo un partido en curso o finalizado admite eventos.",
             status_code=status.HTTP_409_CONFLICT,
         )
 
@@ -93,4 +93,29 @@ def calcular_consistencia(
     )
 
 
-__all__ = ["GolRegistrado", "calcular_consistencia", "validar_registro_de_gol"]
+def validar_registro_de_gol(
+    *,
+    match_status: str,
+    home_team_id: uuid.UUID,
+    away_team_id: uuid.UUID,
+    player_id: uuid.UUID,
+    player_team_id: uuid.UUID,
+    alineados: set[uuid.UUID] | None,
+) -> None:
+    """Alias de `validar_registro_de_evento` para la spec 009."""
+    return validar_registro_de_evento(
+        match_status=match_status,
+        home_team_id=home_team_id,
+        away_team_id=away_team_id,
+        player_id=player_id,
+        player_team_id=player_team_id,
+        alineados=alineados,
+    )
+
+
+__all__ = [
+    "GolRegistrado",
+    "calcular_consistencia",
+    "validar_registro_de_evento",
+    "validar_registro_de_gol",
+]
