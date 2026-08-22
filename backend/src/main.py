@@ -3,6 +3,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.audit.middleware import AuditMiddleware
+from src.audit.router import router as audit_router
 from src.auth.router import router as auth_router
 from src.core.config import get_settings
 from src.core.errors import registrar_manejadores
@@ -35,6 +37,10 @@ app.add_middleware(
     allow_headers=["Content-Type"],
 )
 
+# Captura transversal de escrituras exitosas (FR-001 a FR-004, FR-007) —
+# research.md §8: junto al CORSMiddleware, sin instrumentar routers.
+app.add_middleware(AuditMiddleware)
+
 registrar_manejadores(app)
 
 app.include_router(auth_router, prefix="/api/v1")
@@ -46,6 +52,7 @@ app.include_router(sanctions_router, prefix="/api/v1")
 app.include_router(standings_router, prefix="/api/v1")
 app.include_router(exports_router, prefix="/api/v1")
 app.include_router(groups_router, prefix="/api/v1")
+app.include_router(audit_router, prefix="/api/v1")
 
 
 @app.get("/api/health", tags=["infra"])
