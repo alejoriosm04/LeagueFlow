@@ -126,57 +126,79 @@ Las columnas `Costo IA` de la tabla de §1 quedan en `<pendiente>` a propósito.
    la `001` vuelve a correr `/speckit-plan` para re-decidir stack o modelo de
    dominio. Se evitan 16 replanteos completos de arquitectura.
 
-## 4. Comparativa: SDD vs. tradicional vs. prompts sueltos
+## 4. Comparativa: sin IA, IA sin spec, IA con spec
 
-### 4.1 Cualitativa
+### 4.1 De dónde salen los contrafactuales
 
-| Criterio | Tradicional (sin IA) | Prompts sueltos (IA sin spec) | **SDD (Spec Kit)** |
+La versión anterior de este documento inventaba las horas de las alternativas
+(«30 h por HU a la antigüita, 18 h con prompts sueltos»). No tenían fuente. Se
+reemplazaron por cifras publicadas, y el resultado **cambió a la baja**: el
+ahorro atribuible al método es mucho menor de lo que decía la primera versión.
+
+| # | Ancla | Qué mide | Cifra usada |
 |---|---|---|---|
-| Tiempo por HU | ~30 h | ~18 h | **11,25 h** |
-| Retrabajo por requisito mal entendido | Alto — se descubre en pruebas de aceptación | **El más alto** — el modelo rellena los huecos con supuestos plausibles y nadie los revisa | Bajo — `/speckit-clarify` fuerza las preguntas *antes* de escribir código |
-| Trazabilidad requisito → código | Manual, se degrada | Nula — el prompt se pierde en el chat | **Total** — FR-NNN → tarea → commit → prueba |
-| Consistencia entre integrantes | Depende de convenciones y revisión | Baja — cada quien negocia su propia arquitectura con el modelo | **Alta** — constitución + plan `001` congelado son vinculantes |
-| Onboarding de un integrante nuevo | Días leyendo código | Días, y sin fuente de verdad que leer | **Horas** — lee `spec.md` y `tasks.md` de la HU |
-| Costo de un cambio de alcance tardío | Muy alto | Muy alto y silencioso | Moderado — se edita la spec y se regeneran las tareas |
-| Evidencia para auditar la decisión | Actas dispersas | Ninguna | `specs/` y `docs/metricas/` versionados en el mismo PR |
+| A1 | Peng, Kalliamvakou, Cihon y Demirer (2023), ensayo controlado, n = 70 | Tarea **bien especificada** de antemano (servidor HTTP), con y sin Copilot: 71 min vs. 161 min | **55,8 % más rápido** con IA |
+| A2 | METR (2025), ensayo controlado, n = 16, 246 tareas reales | Trabajo **ambiguo** en repositorios que los devs ya conocían | **19 % más lento** con IA — y los mismos devs creían haber sido 20 % más rápidos |
+| A3 | DORA / Google Cloud (2025), ~5.000 profesionales | Adopción de IA vs. desempeño de entrega | Relación **positiva con throughput**, **negativa con estabilidad**: más fallos de cambio y más retrabajo. 30 % desconfía del código generado |
+| A4 | Boehm y Basili (2001), *IEEE Computer* | Retrabajo evitable como fracción del esfuerzo; costo de corregir tras la entrega | **40–50 % del esfuerzo**; corregir tras entregar cuesta ~100×, y **5:1 en proyectos pequeños no críticos** |
+| A5 | Leffingwell (1997) | Origen del retrabajo | **70–85 %** del costo de retrabajo viene de defectos de requisitos |
+| A6 | Tassey / NIST (2002) | Costo de una infraestructura de pruebas inadecuada en EE. UU. | USD 59,5 mil millones/año, de los cuales **USD 22,2 mil millones son evitables** |
 
-La fila que decide el caso no es la del tiempo, es la de la trazabilidad.
-"Prompts sueltos" es más rápido que lo tradicional y **más peligroso que
-ambos**: produce código verosímil sin dejar rastro de qué se pidió, así que el
-defecto no se detecta hasta que un usuario lo encuentra.
+De cada rango se toma **el extremo que perjudica al caso**: 40 % de retrabajo y
+no 50 %, 5:1 y no 100:1, 70 % de origen en requisitos y no 85 %.
 
-### 4.2 Cuantitativa — costo total de las mismas 12 HU
+### 4.2 El costo de las mismas 12 HU
 
-Tarifa cargada de referencia: **COP 60.000/hora (USD 15/h)**; TRM fija
-**COP 4.000/USD**. Costo de un defecto que llega a producción: **8 h**
-(diagnóstico + hotfix + despliegue + comunicación) = **COP 480.000**.
+Punto de partida medido: **135 horas-persona** (triangulado, §7) con **73 ciclos
+de corrección** registrados. A media hora por ciclo, el retrabajo de este
+proyecto fue de ~37 h — el **27 % del esfuerzo**, contra el 40 % que A4 da como
+línea base de la industria.
 
-| Concepto | Tradicional | Prompts sueltos | **SDD** |
+Las dos alternativas se derivan de ahí, no se inventan:
+
+- **IA sin spec** hace el mismo trabajo nuevo (98 h). Por A3, la IA sube el
+  throughput con spec o sin ella: **se le concede la misma velocidad de
+  construcción**. Lo que cambia es el retrabajo, que vuelve al 40 % de A4.
+- **Sin IA** hace el mismo trabajo nuevo pero sin el 55,8 % de A1, y también
+  con el 40 % de retrabajo de A4.
+
+| | Trabajo nuevo | Retrabajo | Total | Costo (COP) | Costo (USD) |
+|---|---|---|---|---|---|
+| Sin IA | 223 h | 149 h (40 %) | **371 h** | **22,3 M** | 5.571 |
+| IA sin spec | 98 h | 66 h (40 %) | **164 h** | **9,85 M** | 2.463 |
+| **IA con spec (medido)** | 98 h | 37 h (**27 %**) | **135 h** | **8,10 M** | 2.025 |
+
+**Lo que hay que decir en voz alta:** el salto grande —de 371 h a 164 h— es
+mérito de la IA, no del método. Nadie debería venderlo como propio. Lo que
+aporta la spec es el tramo de 164 h a 135 h: **18 % menos, COP 145.833 por
+historia**. Modesto, y por eso creíble.
+
+### 4.3 Comparativa cualitativa
+
+| Criterio | Sin IA | IA sin spec | **IA con spec** |
 |---|---|---|---|
-| Horas por HU | 30 | 18 | **11,25** |
-| Horas, 12 HU | 360 | 216 | **135** |
-| Costo de construcción (COP) | 21.600.000 | 12.960.000 | **8.100.000** |
-| Defectos escapados a producción por HU | 0,9 | 1,8 | **0,3** |
-| Costo del retrabajo en producción (COP) | 5.184.000 | 10.368.000 | **1.728.000** |
-| **Costo total del alcance (COP)** | **26.784.000** | **23.328.000** | **9.828.000** |
-| **Costo total del alcance (USD)** | **6.696** | **5.832** | **2.457** |
-| Ahorro de SDD frente a esta alternativa | −63 % | −58 % | — |
-
-**Ahorro por HU frente a prompts sueltos: COP 1.125.000 (USD 281).** Es la
-cifra que alimenta el flujo de caja de §5, y es la comparación *conservadora*:
-frente al desarrollo tradicional el ahorro por HU sería COP 1.413.000.
+| Velocidad de construcción | Base | Alta (A1, A3) | Alta (A1, A3) |
+| Estabilidad de la entrega | Base | **Peor** (A3: más fallos de cambio y retrabajo) | Base o mejor |
+| Trazabilidad requisito → código | Manual, se degrada | Nula — el prompt se pierde en el chat | Total: FR-NNN → tarea → commit → prueba |
+| Onboarding de un integrante | Días leyendo código | Días, y sin fuente de verdad que leer | Horas: lee `spec.md` y `tasks.md` |
+| Evidencia para auditar | Actas dispersas | Ninguna | `specs/` y `docs/metricas/` en el mismo PR |
 
 ## 5. Valor Presente Neto de adoptar SDD
 
-### 5.1 Qué se está valorando
+### 5.1 El hallazgo incómodo
 
-No se valora el producto —LeagueFlow opera a COP 0 y su VPN es trivialmente
-positivo— sino **la decisión de método**: ¿cuánto vale, hoy, que un equipo
-adopte Spec-Driven Development en vez de seguir con prompts sueltos?
+Con las cifras ancladas, **la productividad sola no paga la adopción**. Equipo
+de 3, 48 HU/año, 3 años, 18 % E. A.:
 
-El flujo de caja es diferencial: *inversión en adoptar el método* contra
-*ahorro recurrente por HU*. Equipo modelado: **3 desarrolladores, 4 HU/mes
-(48 HU/año), horizonte 3 años, tasa de descuento 18 % E. A.**
+- Ahorro de productividad: COP 145.833/HU × 48 = **COP 7,00 M/año**
+- Mantenimiento del método (0,5 h/HU × 48 h): **COP 1,44 M/año**
+- Inversión de adopción (§5.2): **COP 22,56 M**
+
+VPN solo con productividad: **−COP 12,84 M**. Negativo.
+
+Nótese que aquí **ya no hace falta el «factor de atribución» de la versión
+anterior**: la comparación es IA contra IA, así que el efecto de la herramienta
+está neteado por construcción. Ese supuesto desapareció del modelo.
 
 ### 5.2 Inversión inicial (t = 0)
 
@@ -187,124 +209,128 @@ El flujo de caja es diferencial: *inversión en adoptar el método* contra
 | Curva de aprendizaje: 30 % de sobrecosto los 2 primeros meses | 288 | 17.280.000 |
 | **Inversión total** | **376** | **22.560.000 (USD 5.640)** |
 
-La curva de aprendizaje es el 77 % de la inversión y es la objeción real de
-cualquier equipo. Está adentro del modelo, no maquillada.
+El 77 % es curva de aprendizaje. Sigue siendo un supuesto (§7), pero es el
+supuesto que perjudica al caso, no el que lo ayuda.
 
-### 5.3 Flujo de caja
+### 5.3 Dónde sí está el retorno: los defectos que no se escapan
 
-Dos ajustes conservadores, deliberados:
+Dato medido: **73 problemas detectados, 0 escapados a producción** — 6,08 por
+historia. Dato de A4: en un proyecto pequeño no crítico, corregir después de
+entregar cuesta **5×** lo que cuesta corregirlo durante el desarrollo. Con 1 h
+por corrección en desarrollo, cada defecto que **no** se escapa ahorra 4 h:
+**COP 240.000**.
 
-- **Factor de atribución 70 %.** No todo el ahorro medido es de SDD; parte es
-  de usar IA en general. Se le acredita al método solo el 70 %.
-- **Rampa año 1 al 60 %.** El equipo todavía está aprendiendo.
+Lo que nadie sabe es qué fracción de esos 73 se habría escapado sin la spec. En
+vez de inventarla, se calcula **cuánta haría falta**:
 
-| Año | Ahorro bruto (COP) | × 70 % atribución | OPEX del método¹ | **Flujo neto (COP)** |
-|---|---|---|---|---|
-| 0 | — | — | 22.560.000 (inversión) | **−22.560.000** |
-| 1 | 54.000.000 × 60 % = 32.400.000 | 22.680.000 | 5.760.000 | **+16.920.000** |
-| 2 | 54.000.000 | 37.800.000 | 5.760.000 | **+32.040.000** |
-| 3 | 54.000.000 | 37.800.000 | 5.760.000 | **+32.040.000** |
-
-¹ Mantenimiento del método (0,5 h/HU × 48 HU = COP 1.440.000) + licencias IA a
-precio de lista para 3 desarrolladores (COP 4.320.000).
-
-### 5.4 Resultado
-
-| Indicador | Valor (COP) | Valor (USD) |
+| Si sin spec se hubiera escapado… | Defectos evitados/año | **VPN (COP)** |
 |---|---|---|
-| **VPN @ 18 % E. A.** | **34.290.000** | **8.573** |
-| TIR | **≈ 89 % E. A.** | — |
-| Periodo de recuperación | **14 meses** | — |
-| Índice de rentabilidad (VP beneficios / inversión) | **2,52** | — |
+| 0 % (la spec no evita ninguno) | 0 | **−12,84 M** |
+| **10 % — punto de equilibrio** | 29 | **≈ 0** |
+| 20 % | 58 | **+12,88 M** |
+| 30 % | 88 | **+25,74 M** |
 
-**Sensibilidad a la tasa de descuento** — el VPN nunca cambia de signo:
+> **El caso completo se reduce a una sola pregunta:** ¿la spec evita que **1 de
+> cada 10** de los problemas que detecta llegue a producción? Son **0,61
+> defectos por historia**. Por encima de eso, adoptarla crea valor; por debajo,
+> no.
 
-| Tasa de descuento | 12 % | 18 % | 25 % |
-|---|---|---|---|
-| VPN (COP) | 40.900.000 | 34.290.000 | 27.900.000 |
-| VPN (USD) | 10.225 | 8.573 | 6.975 |
+Escenario central (20 %): **VPN COP 12,88 M (USD 3.220)**, con recuperación de
+la inversión a los **19 meses**. A 12 % de tasa el VPN sube a COP 16,95 M; a
+25 % baja a COP 8,93 M, y sigue positivo.
 
-**Punto de equilibrio del supuesto más discutible.** El factor de atribución
-puede caer de 70 % a **35,4 %** antes de que el VPN llegue a cero. Dicho de
-otra forma: **el método puede incumplir dos tercios de lo que promete y la
-decisión sigue sin destruir valor.** Ese margen, y no el VPN puntual, es el
-argumento.
+### 5.4 CAPEX / OPEX
 
-### 5.5 ROI y encuadre CAPEX / OPEX
-
-| | CAPEX (una vez) | OPEX (anual, en régimen) |
+| | CAPEX (una vez) | OPEX (anual) |
 |---|---|---|
-| **Método SDD** | COP 22.560.000 — formación, plantillas, curva | COP 5.760.000 — mantenimiento de specs + licencias IA |
-| **Producto LeagueFlow** | COP 8.100.000 — 135 h × COP 60.000 (costo de bolsillo real: COP 0) | COP 0 hoy; COP 7.440.000 en modo pagado (§2.2) |
+| **Método SDD** | COP 22,56 M — formación, plantillas, curva | COP 1,44 M — mantenimiento de specs |
+| **Producto LeagueFlow** | COP 8,10 M — 135 h × COP 60.000 (costo de bolsillo real: COP 0) | COP 0 hoy; COP 7,44 M en modo pagado (§2.2) |
 
-- **ROI a 3 años (no descontado)** = (81.000.000 − 22.560.000) / 22.560.000 =
-  **259 %**, donde 81.000.000 es la suma de los flujos netos de los años 1 a 3
-  (ya descontado el OPEX del método).
-- **ROI descontado** = VPN / Inversión = 34.290.000 / 22.560.000 = **152 %**.
+Las licencias de IA salieron del cálculo diferencial: ambos escenarios comparados
+las usan, así que no distinguen entre ellos. Siguen contabilizadas en §3 como
+OPEX del proyecto.
 
-## 6. Reducción de riesgo operativo
+## 6. Riesgo operativo
 
-El VPN de §5 **no incluye** este capítulo. Es upside deliberadamente excluido
-para no inflar el número.
+La versión anterior traía una tabla de cinco riesgos con probabilidades
+inventadas (60 %, 40 %, 50 %…). Se eliminó: no había forma de sostener ninguna
+de esas cifras. Lo que queda es lo que sí tiene respaldo.
 
-### 6.1 Exposición esperada anual (probabilidad × impacto)
+### 6.1 Lo que dicen las fuentes
 
-| Riesgo | Impacto (COP) | P sin SDD | P con SDD | Exposición sin | Exposición con | Control que lo baja |
-|---|---|---|---|---|---|---|
-| Requisito mal entendido llega a producción | 4.800.000 | 60 % | 20 % | 2.880.000 | 960.000 | `/speckit-clarify` + criterios de aceptación en la spec |
-| Dependencia de una sola persona (bus factor) | 9.600.000 | 40 % | 10 % | 3.840.000 | 960.000 | 17 specs versionadas; cualquiera retoma leyendo `spec.md` |
-| Regresión en funcionalidad ya entregada | 2.400.000 | 50 % | 10 % | 1.200.000 | 240.000 | 414 pruebas en CI como gate de cada PR |
-| Secreto filtrado al repositorio | 12.000.000 | 15 % | 3 % | 1.800.000 | 360.000 | Push protection + GitGuardian + `AGENTS.md` §3 |
-| Colisión de trabajo paralelo (dos cabezas de Alembic) | 1.200.000 | 70 % | 20 % | 840.000 | 240.000 | Orden de merge pactado `013 → 014 → 016 → 017` |
-| **Total exposición anual** | | | | **10.560.000** | **2.760.000** | |
+- **La IA acelera y desestabiliza al mismo tiempo.** A3 (DORA 2025, ~5.000
+  profesionales) encuentra relación positiva con throughput y **negativa con
+  estabilidad de entrega**: más fallos de cambio, más retrabajo. Es exactamente
+  el perfil de «IA sin spec».
+- **La percepción no sirve como métrica.** A2 (METR): con IA los devs tardaron
+  19 % más y creyeron haber ido 20 % más rápido. A3: más del 80 % cree que la
+  IA lo hace más productivo. El sesgo va siempre en la misma dirección, y es la
+  razón por la que este documento se apoya en `git` y no en impresiones.
+- **El requisito es el punto caro.** A5: 70–85 % del costo de retrabajo nace de
+  defectos de requisitos. Es justamente la clase de defecto que `/speckit-clarify`
+  y los criterios de aceptación atacan antes de que exista una línea de código.
 
-**Reducción de exposición: COP 7.800.000/año (USD 1.950), un 74 %.**
+### 6.2 Lo que se midió aquí
 
-### 6.2 Evidencia, no promesa
+- **73 problemas, 0 escapados.** Cada uno está descrito con su causa en
+  `docs/metricas/*.md`.
+- **414 pruebas** como compuerta obligatoria de cada PR.
+- **El caso más caro fue de requisitos, no de código:** el primer `logout`
+  borraba la cookie pero **no revocaba la sesión en base de datos**. Habría
+  dejado tokens vivos en el servidor, en silencio. No lo detectó una prueba de
+  humo: lo detectó un criterio de aceptación escrito en la spec. Es A5 ocurriendo
+  en este repositorio.
 
-Cada control de la tabla tiene una huella verificable en este repositorio:
-
-- **73 ciclos de corrección documentados, 0 escapados a producción.** Están
-  escritos uno por uno en `docs/metricas/*.md` con su causa.
-- **El caso más caro se detectó en la HU `001`**: el primer `logout` borraba la
-  cookie pero **no revocaba la sesión en base de datos**. Habría dejado tokens
-  vivos en el servidor rompiendo el AS6 en silencio — un fallo de seguridad
-  que ninguna prueba de humo encuentra. Lo encontró el criterio de aceptación
-  escrito en la spec.
-- **La HU `012` acumuló 25 ciclos** contra 1 de la `005`. La dispersión es
-  información: el trabajo visual y de accesibilidad es donde la spec rinde
-  menos y la ejecución real de la app rinde más. Está anotado, no escondido.
-
-### 6.3 VPN ampliado
-
-Incluyendo la reducción de exposición al riesgo con el mismo factor de
-atribución del 70 % y la misma rampa:
-
-| | VPN base | + riesgo evitado | **VPN ampliado** |
-|---|---|---|---|
-| COP | 34.290.000 | 10.020.000 | **44.310.000** |
-| USD | 8.573 | 2.505 | **11.078** |
-
-## 7. Supuestos y honestidad del modelo
-
-Lo que sigue separa qué está medido de qué está supuesto. Es la sección que
-hace auditable el caso.
+## 7. Supuestos: qué está medido y qué no
 
 | Parámetro | Valor | Naturaleza |
 |---|---|---|
-| Tareas, ciclos de corrección, pruebas, commits, LOC, personas | Tabla §1 y §1.1 | **Medido** — `git` y `docs/metricas/` |
-| Esfuerzo del proyecto: 135 h-persona | 12 HU × 11,25 h | **Supuesto triangulado** — (a) capacidad de calendario: 6 personas × 5 días × ~4 h efectivas ≈ 120 h; (b) bottom-up: 342 tareas × ~0,4 h ≈ 137 h. Se toma el punto medio |
-| Tarifa cargada COP 60.000/h (USD 15/h) | Junior–semi senior en Medellín, con prestaciones y overhead | **Supuesto de mercado** |
-| TRM COP 4.000/USD | Fija para todo el documento | **Convención** |
-| 30 h/HU tradicional, 18 h/HU prompts sueltos | Contrafactuales | **Supuestos** — 2,7× y 1,6× sobre lo medido |
-| Costo de un defecto en producción: 8 h | Diagnóstico + hotfix + despliegue + comunicación | **Supuesto**, conservador frente a la curva clásica de costo del defecto (10–15× respecto a detectarlo en desarrollo) |
-| Tasa de escape de defectos: 0,3 / 1,8 / 0,9 por HU | SDD / prompts / tradicional | **Supuesto**, anclado en los 73 reprocesos observados |
-| Tasa de descuento 18 % E. A. | Proyecto de software temprano en Colombia | **Supuesto**, sensibilizado a 12 % y 25 % |
-| Factor de atribución 70 % | Parte del ahorro es de la IA, no del método | **Supuesto conservador**, con punto de equilibrio calculado en 35,4 % |
-| **Tiempo real de trabajo y costo/tokens de IA por HU** | `<pendiente>` | **No se estima.** Los llena cada persona; inventarlos invalidaría el resto |
+| Tareas, ciclos de corrección, pruebas, commits, LOC, personas, días | §1 y §1.1 | **Medido** — `git` y `docs/metricas/` |
+| Costo de infraestructura | USD 0 | **Medido** — servicios en capa gratuita |
+| Ventaja de la IA: 55,8 % | A1 | **Publicado** — ensayo controlado, n = 70 |
+| Retrabajo evitable: 40 % del esfuerzo | A4 | **Publicado** — extremo bajo del rango 40–50 % |
+| Costo de corregir tras entregar: 5× | A4 | **Publicado** — cifra para proyectos pequeños, no el 100× de proyectos grandes |
+| Esfuerzo: 135 h-persona | 12 HU × 11,25 h | **Supuesto triangulado** — (a) capacidad de calendario: 6 personas × 5 días × ~4 h ≈ 120 h; (b) bottom-up: 342 tareas × ~0,4 h ≈ 137 h |
+| Media hora por ciclo de corrección | 73 ciclos → 37 h | **Supuesto** |
+| Tarifa cargada COP 60.000/h (USD 15/h) | Junior–semi en Medellín | **Supuesto de mercado** |
+| TRM COP 4.000/USD | Fija en todo el documento | **Convención** |
+| Inversión de adopción: 376 h | §5.2 | **Supuesto** — el componente más grande (288 h de curva de aprendizaje) no tiene fuente |
+| Equipo de 3, 48 HU/año, horizonte 3 años | Modelo | **Supuesto de escenario** |
+| Tasa de descuento 18 % E. A. | Software temprano en Colombia | **Supuesto**, sensibilizado a 12 % y 25 % |
+| **Fracción de defectos que se escaparía sin spec** | No se estima | **Deliberadamente no supuesta** — se calcula el punto de equilibrio (10 %) y se deja la decisión al lector |
+| **Tiempo real de trabajo y costo/tokens de IA por HU** | `<pendiente>` | **No se estima.** Los llena cada persona (`AGENTS.md` §7) |
 
-**Qué invalidaría este caso.** Si el esfuerzo real resultara ser el doble de
-135 h, el costo de construcción de SDD subiría a COP 16,2 M y el ahorro por HU
-caería a ~COP 560.000 — el VPN seguiría siendo positivo (≈ COP 6 M), pero el
-margen desaparecería. Por eso las dos columnas pendientes de §1 importan: son
-las que convierten este caso sintético en uno medido.
+### Qué invalidaría este caso
+
+1. **Si la spec no evita ni 1 de cada 10 escapes**, el VPN es negativo y no hay
+   caso. Es el supuesto del que cuelga todo.
+2. **Si el esfuerzo real fue el doble de 135 h**, el ahorro de productividad se
+   desvanece y el caso depende por completo del punto anterior.
+3. **A2 (METR) es evidencia en contra** de la premisa de que la IA acelera: con
+   trabajo ambiguo, la frenó. Este documento la usa como argumento a favor de la
+   spec —la diferencia entre A1 y A2 es precisamente si la tarea estaba
+   especificada— pero es una interpretación, no un resultado de esos estudios.
+
+## 8. Fuentes
+
+- **A1** — Peng, S., Kalliamvakou, E., Cihon, P. y Demirer, M. (2023). *The
+  Impact of AI on Developer Productivity: Evidence from GitHub Copilot*.
+  arXiv:2302.06590. <https://arxiv.org/abs/2302.06590>
+- **A2** — Becker, J., Rush, N., Barnes, E. y Rein, D. (2025). *Measuring the
+  Impact of Early-2025 AI on Experienced Open-Source Developer Productivity*.
+  METR. arXiv:2507.09089. <https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/>
+- **A3** — DORA / Google Cloud (2025). *State of DevOps Report 2025*.
+  <https://cloud.google.com/blog/products/ai-machine-learning/announcing-the-2025-dora-report>
+- **A4** — Boehm, B. y Basili, V. (2001). *Software Defect Reduction Top 10
+  List*. IEEE Computer, 34(1), 135–137. <https://dl.acm.org/doi/10.1109/2.962984>
+- **A5** — Leffingwell, D. (1997). *Calculating the return on investment from
+  more effective requirements management*. American Programmer, 10(4).
+- **A6** — Tassey, G. (2002). *The Economic Impacts of Inadequate Infrastructure
+  for Software Testing*. NIST Planning Report 02-3.
+  <https://www.nist.gov/document/report02-3pdf>
+
+**Una cita que este documento NO usa:** el famoso «100× del IBM Systems Sciences
+Institute», que circula en casi toda la literatura de calidad de software. No
+existe un estudio original localizable detrás de esa cifra. El escalamiento de
+costo que sí se usa aquí viene de A4, que es un artículo revisado por pares, y
+se toma su valor para proyectos pequeños (5:1), no el titular de 100:1.

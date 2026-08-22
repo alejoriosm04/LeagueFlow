@@ -149,6 +149,9 @@ h1 .hl{color:var(--accent)}
 .sw.solid{background:var(--accent)}
 .sw.ghost{border:1px dashed var(--line-strong)}
 .sw.neg{background:var(--risk)}
+.inbar{fill:#fff}
+:root[data-theme="dark"] .inbar{fill:#0A101E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .inbar{fill:#0A101E}}
 
 /* ---------- sections ---------- */
 section{padding:56px 0;border-bottom:1px solid var(--line)}
@@ -223,6 +226,16 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
   margin-top:26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
   color:var(--ink-3);line-height:1.7;
 }
+.cite{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.04em;color:var(--ink-3);display:block;margin-top:6px}
+.sources{margin-top:26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;line-height:1.75;color:var(--ink-3)}
+.sources a{color:var(--ink-2)}
+.scen{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.scen > div{background:var(--surface);padding:18px;display:flex;flex-direction:column;gap:4px}
+.scen .q{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.scen .a{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:1.6rem;letter-spacing:-.03em;line-height:1}
+.scen .a.neg{color:var(--risk)}
+.scen .a.pos{color:var(--accent)}
+.scen div.mark{background:var(--accent-soft)}
 .pull{
   border-left:2px solid var(--accent);padding:2px 0 2px 20px;margin:26px 0;
   font-size:1.1rem;color:var(--ink);max-width:52ch;
@@ -276,59 +289,46 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
     <span>Caso de negocio</span><span class="dot"></span>
     <span>Spec-Driven Development</span>
   </div>
-  <h1>Escribir la spec <span class="hl">es la inversión más barata</span> del proyecto.</h1>
-  <p class="lede">17 specs, 12 historias, 5 días, 6 personas. Abajo está la cuenta completa: cuánto cuesta trabajar así, cuánto se ahorra, y en qué punto dejaría de convenir.</p>
+  <h1>La IA te da la velocidad. <span class="hl">La spec evita que la pagues de vuelta.</span></h1>
+  <p class="lede">Todo el caso se reduce a una pregunta que se puede responder con un número: ¿cuántos errores evita que lleguen a producción?</p>
 
   <div class="npv">
     <div class="npv-figure">
-      <span class="label">Lo que gana un equipo en tres años</span>
-      <span class="big">$34,3<span class="unit"> M COP</span></span>
-      <span class="sub">USD 8.573 · TRM 4.000</span>
-      <p class="gloss">Es el total de los tres años sumado, traído a plata de hoy y ya restado lo que cuesta arrancar <em>(Valor Presente Neto)</em>. No es una cifra anual.</p>
+      <span class="label">El punto de equilibrio</span>
+      <span class="big">1<span class="unit"> de cada 10</span></span>
+      <p class="gloss">Si la spec evita que uno de cada diez problemas que detecta llegue a producción, la inversión de adoptarla se paga sola. Todo lo que esté por encima es ganancia.</p>
       <div class="rule"></div>
       <div class="trio">
-        <div><span class="v">$2,52</span><span class="k">Vuelven por cada $1</span></div>
-        <div><span class="v">14 meses</span><span class="k">En recuperar lo invertido</span></div>
-        <div><span class="v">89 %</span><span class="k">Rentabilidad anual (TIR)</span></div>
+        <div><span class="v">73 → 0</span><span class="k">Detectados / escapados</span></div>
+        <div><span class="v">6 por historia</span><span class="k">Lo que la spec atrapó</span></div>
       </div>
     </div>
 
     <div class="dcf">
-      <svg viewBox="0 0 460 168" role="img" aria-label="Se invierten 22,6 millones al arrancar. Los años 1, 2 y 3 devuelven 16,9, 32 y 32 millones, que traídos a plata de hoy valen 14,3, 23 y 19,5 millones.">
-        <line x1="0" y1="104" x2="460" y2="104" stroke="var(--line-strong)" stroke-width="1"/>
-        <g class="grow" style="animation-delay:.05s;transform-origin:0 104px">
-          <rect x="14" y="104" width="72" height="58" fill="var(--risk)" rx="1"/>
-        </g>
-        <text x="50" y="104" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--risk)">−22,6</text>
-        <text x="50" y="162" text-anchor="middle" dy="14" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">arranque</text>
-        <rect x="126" y="60" width="72" height="44" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
-        <g class="grow" style="animation-delay:.18s;transform-origin:0 104px">
-          <rect x="126" y="67" width="72" height="37" fill="var(--accent)" rx="1"/>
-        </g>
-        <text x="162" y="60" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">14,3</text>
-        <text x="162" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 1</text>
-        <text x="162" y="131" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="var(--ink-3)">aprendiendo</text>
-        <rect x="238" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
-        <g class="grow" style="animation-delay:.31s;transform-origin:0 104px">
-          <rect x="238" y="44" width="72" height="60" fill="var(--accent)" rx="1"/>
-        </g>
-        <text x="274" y="21" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">23,0</text>
-        <text x="274" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 2</text>
-        <text x="274" y="131" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="var(--ink-3)">ritmo pleno</text>
-        <rect x="350" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
-        <g class="grow" style="animation-delay:.44s;transform-origin:0 104px">
-          <rect x="350" y="53" width="72" height="51" fill="var(--accent)" rx="1"/>
-        </g>
-        <text x="386" y="21" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">19,5</text>
-        <text x="386" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 3</text>
-        <text x="386" y="131" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="var(--ink-3)">ritmo pleno</text>
-      </svg>
-      <div class="cap">
-        <span><i class="sw neg"></i>Cuesta arrancar</span>
-        <span><i class="sw ghost"></i>Ahorra ese año</span>
-        <span><i class="sw solid"></i>Vale hoy</span>
+      <p class="label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px">Qué gana el equipo en 3 años</p>
+      <div class="scen">
+        <div>
+          <span class="q">Si evita 0 %</span>
+          <span class="a neg">−$12,8 M</span>
+          <span class="d" style="font-size:14px;color:var(--ink-2)">No conviene. La velocidad sola no paga la adopción.</span>
+        </div>
+        <div class="mark">
+          <span class="q">Si evita 10 %</span>
+          <span class="a">$0</span>
+          <span class="d" style="font-size:14px;color:var(--ink-2)">Se paga exacto. Es el umbral.</span>
+        </div>
+        <div>
+          <span class="q">Si evita 20 %</span>
+          <span class="a pos">+$12,9 M</span>
+          <span class="d" style="font-size:14px;color:var(--ink-2)">Recupera lo invertido en 19 meses.</span>
+        </div>
+        <div>
+          <span class="q">Si evita 30 %</span>
+          <span class="a pos">+$25,7 M</span>
+          <span class="d" style="font-size:14px;color:var(--ink-2)">Por cada peso invertido vuelven dos.</span>
+        </div>
       </div>
-      <p class="gloss" style="max-width:48ch;margin-top:10px">El año 1 ahorra menos porque el equipo apenas está aprendiendo; del año 2 en adelante va a ritmo pleno. Y cada barra llena queda por debajo de su punteada porque plata que llega en tres años vale menos que la misma plata hoy.</p>
+      <p class="gloss" style="max-width:52ch;margin-top:12px">Millones de pesos, ya traídos a valor de hoy <em>(Valor Presente Neto a 3 años, 18 % anual)</em>. Nadie sabe cuál de las cuatro columnas es la real — por eso se muestran las cuatro en vez de elegir una.</p>
     </div>
   </div>
 </header>
@@ -342,7 +342,7 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
     <div>
       <span class="n acc">73 → 0</span>
       <span class="t">Errores corregidos</span>
-      <span class="d">73 reprocesos documentados uno por uno, con su causa. Cero llegaron a producción.</span>
+      <span class="d">73 problemas documentados uno por uno, con su causa. Ninguno llegó a producción.</span>
     </div>
     <div>
       <span class="n">414</span>
@@ -355,9 +355,9 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
       <span class="d">96,5 %. Cada tarea es trazable a un requisito numerado de una spec.</span>
     </div>
     <div>
-      <span class="n">18.348</span>
-      <span class="t">Líneas de código</span>
-      <span class="d">En 5 días de calendario, con 6 personas trabajando en ramas paralelas.</span>
+      <span class="n">$0</span>
+      <span class="t">Costo de infraestructura</span>
+      <span class="d">La aplicación está en línea. Capa gratuita y licencias de estudiante.</span>
     </div>
   </div>
 
@@ -369,105 +369,122 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
 <section>
   <p class="eyebrow">El dinero</p>
   <h2>Las mismas 12 historias, tres formas de construirlas.</h2>
-  <p class="sub">Lo que cuesta hacer el trabajo, más lo que cuesta arreglar después lo que salió mal.</p>
+  <p class="sub">Lo que cuesta hacer el trabajo, más lo que cuesta rehacer lo que salió mal.</p>
 
   <div class="bars">
     <div class="bar-row">
-      <div class="bar-name"><span class="nm">A la antigüita</span><span class="cost">$26,8 M · USD 6.696</span></div>
-      <div class="bar-track" role="img" aria-label="A la antigüita: 21,6 millones de construcción más 5,2 millones de arreglos, total 26,8 millones">
-        <div class="seg build" style="flex:21.6">21,6 construir</div>
-        <div class="seg rework" style="flex:5.18">5,2</div>
-        <div style="flex:0.02"></div>
+      <div class="bar-name"><span class="nm">Sin IA</span><span class="cost">371 h · $22,3 M</span></div>
+      <div class="bar-track" role="img" aria-label="Sin IA: 223 horas de trabajo nuevo más 149 de retrabajo, total 371 horas">
+        <div class="seg build" style="flex:223">223 h construir</div>
+        <div class="seg rework" style="flex:149">149 h rehacer</div>
       </div>
     </div>
     <div class="bar-row">
-      <div class="bar-name"><span class="nm">IA sin spec</span><span class="cost">$23,3 M · USD 5.832</span></div>
-      <div class="bar-track" role="img" aria-label="IA sin spec: 13 millones de construcción más 10,4 millones de arreglos, total 23,3 millones">
-        <div class="seg build" style="flex:12.96">13,0 construir</div>
-        <div class="seg rework" style="flex:10.37">10,4 arreglar</div>
-        <div style="flex:3.47"></div>
+      <div class="bar-name"><span class="nm">IA sin spec</span><span class="cost">164 h · $9,9 M</span></div>
+      <div class="bar-track" role="img" aria-label="IA sin spec: 98 horas de trabajo nuevo más 66 de retrabajo, total 164 horas">
+        <div class="seg build" style="flex:98">98 h</div>
+        <div class="seg rework" style="flex:66">66 h</div>
+        <div style="flex:207"></div>
       </div>
     </div>
     <div class="bar-row win">
-      <div class="bar-name"><span class="nm">Con spec (SDD)</span><span class="cost">$9,8 M · USD 2.457</span></div>
-      <div class="bar-track" role="img" aria-label="Con spec: 8,1 millones de construcción más 1,7 millones de arreglos, total 9,8 millones">
-        <div class="seg build" style="flex:8.1">8,1</div>
-        <div class="seg rework" style="flex:1.73">1,7</div>
-        <div style="flex:16.97"></div>
+      <div class="bar-name"><span class="nm">IA con spec</span><span class="cost">135 h · $8,1 M</span></div>
+      <div class="bar-track" role="img" aria-label="IA con spec: 98 horas de trabajo nuevo más 37 de retrabajo, total 135 horas">
+        <div class="seg build" style="flex:98">98 h</div>
+        <div class="seg rework" style="flex:37">37 h</div>
+        <div style="flex:236"></div>
       </div>
     </div>
   </div>
   <div class="legend">
     <span><i class="sw solid"></i>Construir</span>
-    <span><i class="sw" style="background:var(--risk-soft);border:1px solid var(--risk)"></i>Arreglar en producción</span>
-    <span>Millones COP · 12 historias</span>
+    <span><i class="sw" style="background:var(--risk-soft);border:1px solid var(--risk)"></i>Rehacer</span>
+    <span>12 historias · $60.000 la hora</span>
   </div>
 
   <div class="col" style="margin-top:26px">
-    <p><strong>Pedirle código a la IA sin spec es la opción peligrosa, no la barata.</strong> Construye rápido —13 M contra 21,6 M— y devuelve casi todo ese ahorro en la barra de al lado. Sale código que parece correcto y no queda rastro de qué se pidió, así que la falla la encuentra un usuario, no el equipo.</p>
+    <p><strong>El salto grande no es mérito del método, y hay que decirlo.</strong> De 371 h a 164 h lo hace la IA, con spec o sin ella. Lo que aporta la spec es el último tramo: de 164 h a 135 h, <strong>18 % menos</strong>. Modesto — y por eso creíble.</p>
+    <p>La diferencia está toda en la barra roja. Ambos caminos con IA construyen igual de rápido; uno rehace el doble que el otro.</p>
   </div>
 
-  <p class="srcline"><strong>De dónde salen:</strong> la barra de abajo es real — 12 historias en <code>specs/</code>, 342 tareas y 73 correcciones registradas, 5 días de <code>git log</code>. Las otras dos son escenarios de comparación: nadie construyó LeagueFlow tres veces.</p>
+  <p class="srcline"><strong>De dónde salen:</strong> la barra de abajo se midió aquí — 135 h para 12 historias, con 73 correcciones registradas en <code>docs/metricas/</code>. Las otras dos se derivan de estudios publicados, no de estimaciones nuestras: el 55,8 % que aporta la IA sale de un ensayo controlado con 70 desarrolladores; el 40 % de retrabajo es el piso del rango que reporta Boehm en <em>IEEE Computer</em>. De cada rango se tomó el extremo que <em>perjudica</em> a la spec.</p>
 </section>
 
 <section>
-  <p class="eyebrow">El riesgo</p>
-  <h2>Cuánta plata se espera perder al año, antes y después.</h2>
-  <p class="sub">Cada cifra son millones de pesos al año: qué tan seguido pasa el problema, por lo que cuesta arreglarlo. Si algo pasa 6 de cada 10 años y cuesta $4,8 M, la línea dice 2,88.</p>
+  <p class="eyebrow">Lo que dice la evidencia</p>
+  <h2>La IA acelera y desestabiliza al mismo tiempo.</h2>
+  <p class="sub">Tres estudios que un evaluador puede verificar. Dos de ellos, en principio, juegan en contra.</p>
 
-  <div class="tbl-wrap">
-    <table>
-      <thead>
-        <tr><th>Qué puede salir mal</th><th>Sin spec</th><th>Con spec</th><th>Qué lo evita</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Se construye algo que nadie pidió así</td><td class="was">2,88</td><td class="now">0,96</td><td class="delta">Las preguntas se hacen antes de codificar</td></tr>
-        <tr><td>Solo una persona entiende esa parte</td><td class="was">3,84</td><td class="now">0,96</td><td class="delta">17 specs que cualquiera puede leer</td></tr>
-        <tr><td>Se daña algo que ya funcionaba</td><td class="was">1,20</td><td class="now">0,24</td><td class="delta">414 pruebas que frenan el merge</td></tr>
-        <tr><td>Se sube una contraseña al repositorio</td><td class="was">1,80</td><td class="now">0,36</td><td class="delta">Bloqueo automático en GitHub</td></tr>
-        <tr><td>Dos personas se pisan el trabajo</td><td class="was">0,84</td><td class="now">0,24</td><td class="delta">Orden de integración pactado por escrito</td></tr>
-      </tbody>
-      <tfoot>
-        <tr><td>Pérdida esperada al año</td><td class="was">10,56</td><td class="now">2,76</td><td class="delta">−74 % · $7,8 M menos</td></tr>
-      </tfoot>
-    </table>
+  <div class="ev" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">
+    <div>
+      <span class="n">55,8 %</span>
+      <span class="t">Más rápido con IA</span>
+      <span class="d">Ensayo controlado, 70 desarrolladores, tarea <strong>bien especificada</strong> de antemano: 71 minutos contra 161.</span>
+      <span class="cite">Peng et al., 2023 · arXiv 2302.06590</span>
+    </div>
+    <div>
+      <span class="n" style="color:var(--risk)">19 %</span>
+      <span class="t">Más lento con IA</span>
+      <span class="d">Ensayo controlado, 246 tareas reales, trabajo <strong>ambiguo</strong> en código que ya conocían. Ellos creían haber ido 20 % más rápido.</span>
+      <span class="cite">METR, 2025 · arXiv 2507.09089</span>
+    </div>
+    <div>
+      <span class="n" style="color:var(--risk)">−</span>
+      <span class="t">Estabilidad de entrega</span>
+      <span class="d">Con ~5.000 profesionales: la IA sube el ritmo y <strong>empeora la estabilidad</strong> — más fallos y más retrabajo.</span>
+      <span class="cite">DORA / Google Cloud, 2025</span>
+    </div>
   </div>
 
-  <div class="col" style="margin-top:26px">
-    <p>El caso más caro se detectó en la primera historia: el <code>logout</code> borraba la cookie pero <strong>no revocaba la sesión en base de datos</strong>. Habría dejado tokens vivos en el servidor, en silencio. No lo encontró una prueba de humo — lo encontró un criterio de aceptación escrito en la spec.</p>
-    <p>Estos $7,8 M al año <strong>no están contados</strong> en la cifra de arriba. Si se cuentan, los $34,3 M pasan a <strong>$44,3 M</strong>.</p>
+  <div class="pull" style="margin-top:30px">
+    Los dos ensayos miden lo mismo y dan resultados opuestos. La diferencia entre ellos es <strong>si la tarea estaba especificada o no</strong>. Eso es el producto.
+  </div>
+
+  <div class="col">
+    <p><strong>Y hay un dato que debería incomodar a todos.</strong> En el estudio de METR los desarrolladores tardaron 19 % más y salieron convencidos de haber sido 20 % más rápidos. En el de DORA, más del 80 % cree que la IA lo hace más productivo. La percepción siempre apunta al mismo lado — por eso este caso se apoya en <code>git</code> y no en impresiones.</p>
   </div>
 </section>
 
 <section>
   <p class="eyebrow">La letra pequeña</p>
-  <h2>Dos cosas que un evaluador va a buscar. Ya están adentro.</h2>
+  <h2>De dónde salen los $22,6 M que cuesta arrancar.</h2>
+  <p class="sub">Horas de un equipo de 3, a $60.000 la hora. Es la parte más débil del cálculo y por eso va completa.</p>
 
-  <div class="ev" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
-    <div>
-      <span class="n">77 %</span>
-      <span class="t">De la inversión es aprender</span>
-      <span class="d">De los $22,6 M que cuesta arrancar, casi todo es el equipo trabajando más lento los dos primeros meses. Está contado, no escondido.</span>
-    </div>
-    <div>
-      <span class="n acc">70 %</span>
-      <span class="t">Del ahorro, no el 100 %</span>
-      <span class="d">Parte del ahorro es de usar IA, no del método. Al método se le acredita solo el 70 % — y aun así la cuenta cierra con holgura.</span>
-    </div>
+  <div class="tbl-wrap" style="max-width:620px">
+    <table>
+      <thead><tr><th>Qué hay que hacer</th><th>Horas</th><th>Costo</th></tr></thead>
+      <tbody>
+        <tr><td>Formar al equipo (3 personas × 16 h)</td><td>48</td><td>$2,9 M</td></tr>
+        <tr><td>Escribir las reglas, las plantillas y el pipeline</td><td>40</td><td>$2,4 M</td></tr>
+        <tr><td>Dos meses trabajando 30 % más lento mientras se aprende</td><td>288</td><td>$17,3 M</td></tr>
+      </tbody>
+      <tfoot><tr><td>Inversión total</td><td>376</td><td>$22,6 M</td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="col" style="margin-top:26px">
+    <p><strong>Lo caro es aprender, no el método.</strong> El 77 % de la inversión es el equipo rindiendo menos los dos primeros meses. Ese número no tiene fuente — es el supuesto más flojo de todo el modelo, y está puesto en su versión pesimista a propósito.</p>
   </div>
 </section>
 
 <section style="border-bottom:0;padding-bottom:0">
   <div class="closer">
     <p class="eyebrow" style="color:inherit;opacity:.6">La decisión</p>
-    <h2>La spec no es papeleo. Es lo que produce el ahorro.</h2>
-    <p>73 errores pagados a precio de desarrollo y no a precio de producción.</p>
-    <p class="ask">Invertir $22,6 M · recuperarlos en 14 meses · ganar $34,3 M en tres años.</p>
+    <h2>Una pregunta, no una hoja de cálculo.</h2>
+    <p>¿La spec evita que uno de cada diez problemas llegue a producción? Aquí detectó seis por historia y no se escapó ninguno.</p>
+    <p class="ask">Invertir $22,6 M · el umbral está en 1 de cada 10 · a 2 de cada 10 son $12,9 M en tres años.</p>
   </div>
 
-  <p class="foot">
-    Cuenta completa, flujos y supuestos: <code>docs/caso-de-negocio.md</code>. Métricas por historia: <code>docs/metricas/</code>.<br>
-    Medido: tareas, correcciones, pruebas, commits, líneas de código, días. Supuesto: tarifa COP 60.000/h, TRM 4.000, esfuerzo 135 horas-persona, escenarios de comparación de 30 h y 18 h por historia, tasa de descuento 18 % anual.
+  <p class="sources">
+    <strong style="color:var(--ink-2)">Fuentes.</strong>
+    Peng, Kalliamvakou, Cihon y Demirer (2023), <a href="https://arxiv.org/abs/2302.06590">arXiv:2302.06590</a> ·
+    METR (2025), <a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/">arXiv:2507.09089</a> ·
+    DORA / Google Cloud, <a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-the-2025-dora-report">State of DevOps 2025</a> ·
+    Boehm y Basili (2001), <a href="https://dl.acm.org/doi/10.1109/2.962984">Software Defect Reduction Top 10 List</a>, IEEE Computer ·
+    Leffingwell (1997) ·
+    Tassey / <a href="https://www.nist.gov/document/report02-3pdf">NIST (2002)</a>.<br>
+    Este caso <em>no</em> usa el «100× del IBM Systems Sciences Institute»: no existe estudio original detrás de esa cifra. El escalamiento que sí se usa es el 5:1 de Boehm para proyectos pequeños.<br>
+    Cuenta completa y supuestos: <code>docs/caso-de-negocio.md</code>. Métricas por historia: <code>docs/metricas/</code>.
   </p>
 </section>
 
