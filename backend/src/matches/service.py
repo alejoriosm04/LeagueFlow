@@ -348,9 +348,7 @@ class MatchService:
         """Alias de `registrar_evento` para la spec 009."""
         return await self.registrar_evento(match_id, player_id, minute, tipo, creado_por)
 
-    async def tarjetas_por_jugador(
-        self, player_id: uuid.UUID
-    ) -> list[tuple[str, uuid.UUID]]:
+    async def tarjetas_por_jugador(self, player_id: uuid.UUID) -> list[tuple[str, uuid.UUID]]:
         """Puerto de lectura para sanctions/ (spec 014): tipo y partido de cada tarjeta."""
         res = await self.db.execute(
             select(MatchEvent.type, MatchEvent.match_id).where(
