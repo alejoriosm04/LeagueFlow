@@ -1,0 +1,443 @@
+<title>La spec como activo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#EDF0F6;
+  --surface:#FFFFFF;
+  --surface-2:#E3E8F1;
+  --ink:#0E1626;
+  --ink-2:#56617A;
+  --ink-3:#828CA3;
+  --line:#D0D8E6;
+  --line-strong:#AEB9CD;
+  --accent:#1D3FAE;
+  --accent-ink:#16307F;
+  --accent-soft:#DBE2F7;
+  --risk:#9C4221;
+  --risk-soft:#F2E0D5;
+  --shadow:0 1px 2px rgba(14,22,38,.05),0 12px 32px -20px rgba(14,22,38,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A101E;
+    --surface:#121B2C;
+    --surface-2:#1A2438;
+    --ink:#E7EBF3;
+    --ink-2:#98A3B9;
+    --ink-3:#6E7A92;
+    --line:#25314A;
+    --line-strong:#3A4762;
+    --accent:#8CA6FF;
+    --accent-ink:#B3C4FF;
+    --accent-soft:#1C2847;
+    --risk:#E18B60;
+    --risk-soft:#33221A;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 40px -24px rgba(0,0,0,.9);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A101E;
+  --surface:#121B2C;
+  --surface-2:#1A2438;
+  --ink:#E7EBF3;
+  --ink-2:#98A3B9;
+  --ink-3:#6E7A92;
+  --line:#25314A;
+  --line-strong:#3A4762;
+  --accent:#8CA6FF;
+  --accent-ink:#B3C4FF;
+  --accent-soft:#1C2847;
+  --risk:#E18B60;
+  --risk-soft:#33221A;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 40px -24px rgba(0,0,0,.9);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:62ch}
+
+h1,h2,h3,.disp{
+  font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  font-weight:700;
+  text-wrap:balance;
+  letter-spacing:-.02em;
+  margin:0;
+}
+.mono,.eyebrow,.fig,table,.tag{
+  font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-variant-numeric:tabular-nums;
+}
+.eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 14px;
+}
+p{margin:0 0 1.05em}
+code{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-size:.88em;background:var(--surface-2);padding:1px 5px;border-radius:2px;color:var(--ink-2)}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+strong{font-weight:600;color:var(--ink)}
+em{font-style:italic}
+
+/* ---------- hero ---------- */
+header{
+  border-bottom:1px solid var(--line);
+  padding:64px 0 52px;
+  display:flex;flex-direction:column;gap:34px;
+}
+.kicker{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3);
+}
+.kicker .dot{width:4px;height:4px;border-radius:50%;background:var(--line-strong)}
+h1{
+  font-size:clamp(2.5rem,6.4vw,4.4rem);
+  line-height:.98;
+  font-variation-settings:"wdth" 88;
+}
+h1 .hl{color:var(--accent)}
+.lede{
+  font-size:clamp(1.06rem,2.1vw,1.28rem);
+  color:var(--ink-2);
+  max-width:56ch;
+  margin:0;
+}
+
+/* ---------- headline figure + dcf ---------- */
+.npv{
+  display:grid;grid-template-columns:minmax(230px,300px) 1fr;gap:40px;align-items:end;
+  background:var(--surface);border:1px solid var(--line);border-radius:3px;
+  padding:30px 32px 26px;box-shadow:var(--shadow);
+}
+.npv-figure{display:flex;flex-direction:column;gap:6px}
+.npv-figure .label{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-3);
+}
+.npv-figure .big{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
+  font-size:clamp(2.6rem,5.6vw,3.7rem);line-height:.92;letter-spacing:-.035em;
+  color:var(--accent);font-variant-numeric:tabular-nums;
+}
+.npv-figure .unit{font-size:.44em;font-weight:600;letter-spacing:-.01em;color:var(--ink-2)}
+.npv-figure .sub{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+.npv-figure .rule{height:1px;background:var(--line);margin:12px 0 2px}
+.trio{display:flex;gap:22px;flex-wrap:wrap}
+.trio div{display:flex;flex-direction:column}
+.trio .v{font-family:"Bricolage Grotesque",sans-serif;font-weight:700;font-size:1.22rem;color:var(--ink)}
+.trio .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+
+.dcf{min-width:0}
+.dcf svg{display:block;width:100%;height:auto;overflow:visible}
+.dcf .cap{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);
+  margin-top:12px;display:flex;gap:18px;flex-wrap:wrap;
+}
+.dcf .cap span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:15px;height:9px;border-radius:1px;display:inline-block}
+.sw.solid{background:var(--accent)}
+.sw.ghost{border:1px dashed var(--line-strong)}
+.sw.neg{background:var(--risk)}
+
+/* ---------- sections ---------- */
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+section:last-of-type{border-bottom:0}
+h2{font-size:clamp(1.5rem,3vw,2rem);line-height:1.08;margin:0 0 10px;font-variation-settings:"wdth" 92}
+.sub{color:var(--ink-2);margin:0 0 26px;max-width:58ch}
+
+/* evidence grid */
+.ev{
+  display:grid;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+}
+.ev > div{background:var(--surface);padding:20px 20px 18px;display:flex;flex-direction:column;gap:5px}
+.ev .n{
+  font-family:"Bricolage Grotesque",sans-serif;font-weight:700;
+  font-size:1.95rem;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;
+}
+.ev .n.acc{color:var(--accent)}
+.ev .t{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.ev .d{font-size:14.5px;color:var(--ink-2);line-height:1.45}
+
+/* cost bars */
+.bars{display:flex;flex-direction:column;gap:20px;margin:0 0 22px}
+.bar-row{display:grid;grid-template-columns:170px 1fr;gap:18px;align-items:center}
+.bar-name{display:flex;flex-direction:column;gap:2px}
+.bar-name .nm{font-family:"Bricolage Grotesque",sans-serif;font-weight:600;font-size:15px}
+.bar-name .cost{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-2)}
+.bar-track{display:flex;height:38px;border-radius:2px;overflow:hidden;background:var(--surface-2);min-width:0}
+.seg{display:flex;align-items:center;padding:0 10px;font-family:"IBM Plex Mono",monospace;font-size:11px;white-space:nowrap;overflow:hidden}
+.seg.build{background:var(--accent);color:#fff}
+.seg.rework{background:var(--risk-soft);color:var(--risk);border-right:1px solid var(--risk)}
+:root[data-theme="dark"] .seg.build{color:#0A101E}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .seg.build{color:#0A101E}}
+.bar-row.win .bar-name .nm{color:var(--accent)}
+.legend{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);display:flex;gap:18px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:230px}
+thead th{
+  font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;background:var(--surface-2);border-bottom:1px solid var(--line-strong);
+}
+tbody tr:last-child td{border-bottom:0}
+tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--line-strong)}
+.was{color:var(--risk)}
+.now{color:var(--accent);font-weight:600}
+.delta{color:var(--ink-2)}
+
+/* closer */
+.closer{
+  background:var(--ink);color:var(--ground);border-radius:3px;
+  padding:40px 38px;display:flex;flex-direction:column;gap:20px;
+}
+:root[data-theme="dark"] .closer{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .closer{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink)}}
+.closer h2{color:inherit;max-width:22ch}
+.closer p{color:inherit;opacity:.82;max-width:58ch;margin:0}
+.closer .ask{
+  font-family:"IBM Plex Mono",monospace;font-size:13px;letter-spacing:.02em;
+  border-top:1px solid rgba(255,255,255,.18);padding-top:20px;opacity:.95;
+}
+:root[data-theme="dark"] .closer .ask{border-top-color:var(--line)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .closer .ask{border-top-color:var(--line)}}
+
+.foot{
+  margin-top:26px;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  color:var(--ink-3);line-height:1.7;
+}
+.pull{
+  border-left:2px solid var(--accent);padding:2px 0 2px 20px;margin:26px 0;
+  font-size:1.1rem;color:var(--ink);max-width:52ch;
+}
+
+@media (max-width:860px){
+  .npv{grid-template-columns:1fr;gap:30px;align-items:start}
+  .bar-row{grid-template-columns:1fr;gap:8px}
+}
+*:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@keyframes g{from{transform:scaleY(0);opacity:0}to{transform:scaleY(1);opacity:1}}
+@media (prefers-reduced-motion:no-preference){
+  .grow{animation:g .7s cubic-bezier(.2,.8,.3,1) both}
+}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">
+    <span>LeagueFlow</span><span class="dot"></span>
+    <span>Caso de negocio</span><span class="dot"></span>
+    <span>Spec-Driven Development</span>
+  </div>
+  <h1>Escribir la spec <span class="hl">es la inversión más barata</span> del proyecto.</h1>
+  <p class="lede">17 specs, 12 historias cerradas, 5 días, 6 personas. Lo que sigue no es una opinión sobre metodología: es el flujo de caja de adoptarla, con los supuestos a la vista y el punto donde deja de funcionar.</p>
+
+  <div class="npv">
+    <div class="npv-figure">
+      <span class="label">VPN a 3 años · 18 % E.A.</span>
+      <span class="big">$34,3<span class="unit"> M COP</span></span>
+      <span class="sub">USD 8.573 · TRM 4.000</span>
+      <div class="rule"></div>
+      <div class="trio">
+        <div><span class="v">89 %</span><span class="k">TIR</span></div>
+        <div><span class="v">14 meses</span><span class="k">Payback</span></div>
+        <div><span class="v">2,52</span><span class="k">Índice rent.</span></div>
+      </div>
+    </div>
+
+    <div class="dcf">
+      <svg viewBox="0 0 460 168" role="img" aria-label="Flujo de caja descontado: inversión de 22,56 millones en el año cero, y flujos netos de 16,92 / 32,04 / 32,04 millones en los años 1 a 3, cuyo valor presente es 14,34 / 23,01 / 19,50 millones.">
+        <line x1="0" y1="104" x2="460" y2="104" stroke="var(--line-strong)" stroke-width="1"/>
+        <!-- t0 -->
+        <g class="grow" style="animation-delay:.05s;transform-origin:0 104px">
+          <rect x="14" y="104" width="72" height="58" fill="var(--risk)" rx="1"/>
+        </g>
+        <text x="50" y="104" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--risk)">−22,6</text>
+        <text x="50" y="162" text-anchor="middle" dy="14" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">t0</text>
+        <!-- t1 -->
+        <rect x="126" y="60" width="72" height="44" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
+        <g class="grow" style="animation-delay:.18s;transform-origin:0 104px">
+          <rect x="126" y="67" width="72" height="37" fill="var(--accent)" rx="1"/>
+        </g>
+        <text x="162" y="60" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">14,3</text>
+        <text x="162" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 1</text>
+        <!-- t2 -->
+        <rect x="238" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
+        <g class="grow" style="animation-delay:.31s;transform-origin:0 104px">
+          <rect x="238" y="44" width="72" height="60" fill="var(--accent)" rx="1"/>
+        </g>
+        <text x="274" y="21" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">23,0</text>
+        <text x="274" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 2</text>
+        <!-- t3 -->
+        <rect x="350" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
+        <g class="grow" style="animation-delay:.44s;transform-origin:0 104px">
+          <rect x="350" y="53" width="72" height="51" fill="var(--accent)" rx="1"/>
+        </g>
+        <text x="386" y="21" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">19,5</text>
+        <text x="386" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 3</text>
+      </svg>
+      <div class="cap">
+        <span><i class="sw neg"></i>Inversión</span>
+        <span><i class="sw ghost"></i>Flujo nominal</span>
+        <span><i class="sw solid"></i>Valor presente</span>
+        <span>Millones COP</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <p class="eyebrow">Lo que está medido</p>
+  <h2>Cuatro números que salen de <code class="mono">git</code>, no de una diapositiva.</h2>
+  <p class="sub">Cada historia de usuario deja su archivo de métricas en el mismo pull request que su código. Nadie los reconstruyó al final.</p>
+
+  <div class="ev">
+    <div>
+      <span class="n acc">73 → 0</span>
+      <span class="t">Ciclos de corrección</span>
+      <span class="d">73 reprocesos documentados uno por uno, con su causa. Cero llegaron a producción.</span>
+    </div>
+    <div>
+      <span class="n">414</span>
+      <span class="t">Pruebas en verde</span>
+      <span class="d">217 backend y 197 frontend, como compuerta obligatoria de cada PR.</span>
+    </div>
+    <div>
+      <span class="n">330<span style="color:var(--ink-3)">/342</span></span>
+      <span class="t">Tareas cerradas</span>
+      <span class="d">96,5 %. Cada tarea es trazable a un requisito funcional numerado de una spec.</span>
+    </div>
+    <div>
+      <span class="n">18.348</span>
+      <span class="t">Líneas de código</span>
+      <span class="d">En 5 días de calendario, con 6 personas trabajando en ramas paralelas.</span>
+    </div>
+  </div>
+
+  <div class="pull">
+    <strong>73 reprocesos y 0 en producción</strong> es una sola frase, no dos. SDD no evita el error: lo obliga a ocurrir temprano, con nombre y apellido escrito en el repositorio.
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">El dinero</p>
+  <h2>Las mismas 12 historias, tres formas de construirlas.</h2>
+  <p class="sub">Tarifa cargada COP 60.000/hora. Un defecto que llega a producción cuesta 8 horas entre diagnóstico, hotfix, despliegue y comunicación.</p>
+
+  <div class="bars">
+    <div class="bar-row">
+      <div class="bar-name"><span class="nm">Tradicional</span><span class="cost">$26,8 M · USD 6.696</span></div>
+      <div class="bar-track" role="img" aria-label="Tradicional: 21,6 millones de construcción más 5,2 millones de retrabajo, total 26,8 millones">
+        <div class="seg build" style="flex:21.6">21,6 construir</div>
+        <div class="seg rework" style="flex:5.18">5,2</div>
+        <div style="flex:0.02"></div>
+      </div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-name"><span class="nm">Prompts sueltos</span><span class="cost">$23,3 M · USD 5.832</span></div>
+      <div class="bar-track" role="img" aria-label="Prompts sueltos: 13 millones de construcción más 10,4 millones de retrabajo, total 23,3 millones">
+        <div class="seg build" style="flex:12.96">13,0 construir</div>
+        <div class="seg rework" style="flex:10.37">10,4 retrabajo</div>
+        <div style="flex:3.47"></div>
+      </div>
+    </div>
+    <div class="bar-row win">
+      <div class="bar-name"><span class="nm">SDD (Spec Kit)</span><span class="cost">$9,8 M · USD 2.457</span></div>
+      <div class="bar-track" role="img" aria-label="SDD: 8,1 millones de construcción más 1,7 millones de retrabajo, total 9,8 millones">
+        <div class="seg build" style="flex:8.1">8,1</div>
+        <div class="seg rework" style="flex:1.73">1,7</div>
+        <div style="flex:16.97"></div>
+      </div>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i class="sw solid"></i>Construcción</span>
+    <span><i class="sw" style="background:var(--risk-soft);border:1px solid var(--risk)"></i>Retrabajo en producción</span>
+    <span>Millones COP · 12 HU</span>
+  </div>
+
+  <div class="col" style="margin-top:28px">
+    <p><strong>Prompts sueltos es la alternativa peligrosa, no la barata.</strong> Construye rápido —13 M contra 21,6 M— y luego devuelve casi todo el ahorro en la barra de al lado. La IA sin spec produce código verosímil sin dejar rastro de qué se pidió, así que el defecto no aparece hasta que lo encuentra un usuario.</p>
+    <p>La comparación que alimenta el VPN es la conservadora: <strong>COP 1.125.000 de ahorro por historia</strong> frente a prompts sueltos. Contra desarrollo tradicional serían 1.413.000.</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">El riesgo</p>
+  <h2>Exposición operativa anual, antes y después.</h2>
+  <p class="sub">Probabilidad × impacto, por riesgo. Este capítulo <em>no</em> está dentro del VPN de arriba: se excluyó a propósito para no inflarlo.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead>
+        <tr><th>Riesgo</th><th>Sin SDD</th><th>Con SDD</th><th>Control que lo baja</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Requisito mal entendido llega a producción</td><td class="was">2,88</td><td class="now">0,96</td><td class="delta"><code>/speckit-clarify</code> antes de codificar</td></tr>
+        <tr><td>Dependencia de una sola persona</td><td class="was">3,84</td><td class="now">0,96</td><td class="delta">17 specs versionadas y legibles</td></tr>
+        <tr><td>Regresión en lo ya entregado</td><td class="was">1,20</td><td class="now">0,24</td><td class="delta">414 pruebas como compuerta de PR</td></tr>
+        <tr><td>Secreto filtrado al repositorio</td><td class="was">1,80</td><td class="now">0,36</td><td class="delta">Push protection + GitGuardian</td></tr>
+        <tr><td>Colisión de trabajo paralelo</td><td class="was">0,84</td><td class="now">0,24</td><td class="delta">Orden de merge pactado 013→014→016→017</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td>Exposición esperada anual</td><td class="was">10,56</td><td class="now">2,76</td><td class="delta">−74 % · $7,8 M / año</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="col" style="margin-top:26px">
+    <p>El caso más caro se detectó en la primera historia: el <code class="mono">logout</code> borraba la cookie pero <strong>no revocaba la sesión en base de datos</strong>. Habría dejado tokens vivos en el servidor, en silencio. No lo encontró una prueba de humo — lo encontró un criterio de aceptación escrito en la spec.</p>
+    <p>Sumando este capítulo al flujo, con el mismo factor de atribución, el <strong>VPN ampliado llega a COP 44,3 M (USD 11.078)</strong>.</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Por qué creerle</p>
+  <h2>El método puede incumplir dos tercios de su promesa y la decisión sigue sin destruir valor.</h2>
+  <p class="sub">Todo caso de negocio se apoya en un supuesto discutible. Aquí es el <strong>factor de atribución</strong>: cuánto del ahorro observado es del método y cuánto de usar IA en general. Le acreditamos el 70 %.</p>
+
+  <div class="ev" style="grid-template-columns:repeat(auto-fit,minmax(155px,1fr))">
+    <div><span class="n acc">35,4 %</span><span class="t">Punto de equilibrio</span><span class="d">Atribución mínima para VPN = 0. Supusimos el doble.</span></div>
+    <div><span class="n">$40,9 M</span><span class="t">VPN @ 12 %</span><span class="d">Tasa optimista</span></div>
+    <div><span class="n">$34,3 M</span><span class="t">VPN @ 18 %</span><span class="d">Caso base</span></div>
+    <div><span class="n">$27,9 M</span><span class="t">VPN @ 25 %</span><span class="d">Tasa exigente</span></div>
+  </div>
+
+  <div class="col" style="margin-top:28px">
+    <p><strong>La inversión no está maquillada.</strong> De los COP 22,6 M de adopción, el 77 % es curva de aprendizaje: dos meses a un 30 % de sobrecosto mientras el equipo aprende. Es la objeción real de cualquier equipo y está dentro del modelo, no fuera.</p>
+    <p><strong>Y hay dos casillas en blanco a propósito.</strong> El tiempo real de trabajo y el costo en tokens por historia los llena cada persona desde su panel de uso. El agente no tiene acceso a su propio consumo; cualquier cifra que reportara sería inventada, y un caso de negocio con un número inventado no vale nada.</p>
+  </div>
+</section>
+
+<section style="border-bottom:0;padding-bottom:0">
+  <div class="closer">
+    <p class="eyebrow" style="color:inherit;opacity:.6">La decisión</p>
+    <h2>La spec no es documentación. Es el activo que produce el retorno.</h2>
+    <p>El código de LeagueFlow se deprecia; las 17 specs son lo que permite que otra persona retome una historia en horas, que un cambio de alcance se negocie editando un archivo, y que 73 defectos se hayan pagado a precio de desarrollo y no a precio de producción.</p>
+    <p class="ask">Adoptar SDD en un equipo de 3 · Inversión COP 22,6 M · VPN COP 34,3 M · TIR 89 % · recuperación en 14 meses.</p>
+  </div>
+
+  <p class="foot">
+    Modelo completo, flujos y tabla de supuestos: <code>docs/caso-de-negocio.md</code>. Métricas por historia: <code>docs/metricas/</code>.<br>
+    Caso sintético con supuestos explícitos. Medido: tareas, ciclos de corrección, pruebas, commits, LOC. Supuesto: tarifa COP 60.000/h, TRM 4.000, esfuerzo 135 h-persona (triangulado), contrafactuales de 30 y 18 h por historia, tasa de descuento 18 % E.A.
+  </p>
+</section>
+
+</div>
