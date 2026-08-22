@@ -1,11 +1,19 @@
 """crear tabla login_attempts
 
 Revision ID: c0bd195efdda
-Revises: 919f3bd57721
+Revises: a7c8d9e0f1a2
 Create Date: 2026-08-22 09:15:52.394606
 
 Única migración de specs/017-bloqueo-login. Tabla nueva y aislada, sin claves
 foráneas (deliberado: hay que contar identificadores inexistentes — FR-001).
+
+Re-punteada al mergear: se generó contra `919f3bd57721`, pero para cuando se
+abrió el PR ya estaban mezcladas la 013 (`8f42179847a1`) y la 014
+(`a7c8d9e0f1a2`), que colgaban de la misma revisión. Dos migraciones con el
+mismo `down_revision` dejan dos cabezas y rompen `alembic upgrade head`, así que
+esta cuelga ahora de la cabeza ya mezclada (`AGENTS.md`, nota de migraciones en
+paralelo). El contenido de la migración no cambia: `login_attempts` es una tabla
+nueva y aislada, sin claves foráneas, que no colisiona con grupos ni tarjetas.
 
 `--autogenerate` propuso además recrear `ix_leagues_unique_name_season` y
 `ix_teams_unique_league_name`: es el falso positivo de índices funcionales que
@@ -21,7 +29,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "c0bd195efdda"
-down_revision: Union[str, Sequence[str], None] = "919f3bd57721"
+down_revision: Union[str, Sequence[str], None] = "a7c8d9e0f1a2"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
