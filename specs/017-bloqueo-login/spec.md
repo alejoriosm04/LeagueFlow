@@ -8,6 +8,12 @@
 
 **Input**: User description: "El sistema necesita protegerse de ataques de fuerza bruta contra el inicio de sesión: si alguien falla varias veces seguidas al iniciar sesión con el mismo identificador de usuario, ese identificador debe quedar bloqueado temporalmente antes de poder intentarlo de nuevo, incluso si luego usa la contraseña correcta. El bloqueo es específico por identificador de usuario: no debe afectar el inicio de sesión de nadie más, y no debe revelar si ese identificador existe o no en el sistema. Pasado el tiempo de bloqueo, el inicio de sesión vuelve a funcionar normalmente."
 
+## Clarifications
+
+### Session 2026-08-21
+
+- Q: ¿El conteo de intentos fallidos debe usar el identificador normalizado (sin distinguir mayúsculas), o la cadena exacta tal como se envió? → A: Identificador normalizado, sin distinguir mayúsculas (el mismo criterio con que el login busca al usuario), para que el bloqueo no sea esquivables alternando mayúsculas.
+
 ## Dependencies
 
 Historia de **seguridad del inicio de sesión**. Es la única del bloque paralelo que
@@ -79,6 +85,8 @@ y verificar que el inicio de sesión vuelve a funcionar.
 - ¿Qué ocurre si el identificador no existe? Se cuenta igual el intento fallido
   (para no revelar su inexistencia) y, al superar el umbral, se bloquea ese
   identificador igualmente.
+- ¿Qué ocurre si se alternan mayúsculas y minúsculas en el identificador? Cuentan
+  como el mismo identificador (el conteo se hace normalizado).
 - ¿Qué ocurre si se reintenta con la contraseña correcta durante el bloqueo? Se
   rechaza igualmente hasta que expire.
 - ¿Qué ocurre si el conteo se pierde al reiniciar el sistema? El conteo persiste,
@@ -93,7 +101,8 @@ y verificar que el inicio de sesión vuelve a funcionar.
 ### Functional Requirements
 
 - **FR-001**: El sistema MUST contar los intentos fallidos de inicio de sesión
-  por identificador de usuario, tal como se envió (exista o no ese usuario).
+  por identificador de usuario normalizado (sin distinguir mayúsculas), el mismo
+  criterio con que el login busca al usuario, exista o no ese usuario.
 - **FR-002**: El sistema MUST bloquear temporalmente un identificador al superar
   un umbral de intentos fallidos consecutivos, y MUST rechazar los intentos
   posteriores con un error de bloqueo que indique cuánto falta para reintentar.
@@ -111,9 +120,10 @@ y verificar que el inicio de sesión vuelve a funcionar.
 
 ### Key Entities
 
-- **Intento de inicio de sesión**: registro por identificador de usuario con el
-  conteo de fallos consecutivos, el momento hasta el que está bloqueado (si
-  aplica) y su última actualización. No expone si el identificador existe.
+- **Intento de inicio de sesión**: registro por identificador normalizado de
+  usuario (sin mayúsculas) con el conteo de fallos consecutivos, el momento hasta
+  el que está bloqueado (si aplica) y su última actualización. No expone si el
+  identificador existe.
 
 ## Success Criteria *(mandatory)*
 
