@@ -8,6 +8,12 @@
 
 **Input**: User description: "El equipo necesita poder ver un historial de qué operación administrativa se hizo, quién la hizo y cuándo (crear una liga, registrar un resultado, etc.), para poder investigar un dato incorrecto o un incidente sin tener que revisar la base de datos manualmente. Solo un organizador autenticado puede consultar ese historial; las consultas públicas (lecturas) no se registran, solo las operaciones que modifican datos."
 
+## Clarifications
+
+### Session 2026-08-21
+
+- Q: ¿El registro de auditoría debe incluir también las operaciones de escritura que fallan (por validación o permisos insuficientes), o solo las que terminan con éxito? → A: Solo escrituras exitosas; los fallos por validación o permisos no se registran.
+
 ## Dependencies
 
 Historia **transversal de observabilidad**. No introduce reglas de negocio ni
@@ -77,8 +83,7 @@ organizador y verificar que aparece la entrada en orden cronológico.
 ### Edge Cases
 
 - ¿Qué ocurre con una operación de escritura que falla (por ejemplo, validación o
-  permisos)? No queda registrada como exitosa (solo se registran escrituras
-  exitosas).
+  permisos)? No queda registrada (solo se registran escrituras exitosas).
 - ¿Qué ocurre si la operación se hace sin sesión? No puede ser una escritura
   exitosa (las escrituras requieren sesión), por lo que no aplica.
 - ¿Qué ocurre si el historial está vacío? La consulta devuelve una lista vacía,
