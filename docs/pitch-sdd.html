@@ -250,6 +250,7 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
 }
 .src li b.sup{color:var(--risk)}
 /* worked example under the risk table */
+.srcline{font-size:14.5px;line-height:1.55;color:var(--ink-2);max-width:62ch;margin:22px 0 0;border-left:2px solid var(--line-strong);padding-left:16px}
 .example{
   margin-top:18px;font-size:15px;line-height:1.55;color:var(--ink-2);max-width:60ch;
   background:var(--surface);border:1px solid var(--line);border-radius:2px;padding:15px 18px;
@@ -280,10 +281,10 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
 
   <div class="npv">
     <div class="npv-figure">
-      <span class="label">Lo que gana un equipo al adoptarlo</span>
+      <span class="label">Lo que gana un equipo en tres años</span>
       <span class="big">$34,3<span class="unit"> M COP</span></span>
       <span class="sub">USD 8.573 · TRM 4.000</span>
-      <p class="gloss">Es el ahorro de tres años traído a plata de hoy, ya restado lo que cuesta arrancar <em>(Valor Presente Neto, al 18 % anual)</em>.</p>
+      <p class="gloss">Es el total de los tres años sumado, traído a plata de hoy y ya restado lo que cuesta arrancar <em>(Valor Presente Neto)</em>. No es una cifra anual.</p>
       <div class="rule"></div>
       <div class="trio">
         <div><span class="v">$2,52</span><span class="k">Vuelven por cada $1</span></div>
@@ -306,25 +307,28 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
         </g>
         <text x="162" y="60" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">14,3</text>
         <text x="162" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 1</text>
+        <text x="162" y="131" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="var(--ink-3)">aprendiendo</text>
         <rect x="238" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
         <g class="grow" style="animation-delay:.31s;transform-origin:0 104px">
           <rect x="238" y="44" width="72" height="60" fill="var(--accent)" rx="1"/>
         </g>
         <text x="274" y="21" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">23,0</text>
         <text x="274" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 2</text>
+        <text x="274" y="131" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="var(--ink-3)">ritmo pleno</text>
         <rect x="350" y="21" width="72" height="83" fill="none" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="3 3" rx="1"/>
         <g class="grow" style="animation-delay:.44s;transform-origin:0 104px">
           <rect x="350" y="53" width="72" height="51" fill="var(--accent)" rx="1"/>
         </g>
         <text x="386" y="21" text-anchor="middle" dy="-6" font-family="IBM Plex Mono,monospace" font-size="11" font-weight="600" fill="var(--accent)">19,5</text>
         <text x="386" y="118" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="10" fill="var(--ink-3)">año 3</text>
+        <text x="386" y="131" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9" fill="var(--ink-3)">ritmo pleno</text>
       </svg>
       <div class="cap">
-        <span><i class="sw neg"></i>Lo que cuesta arrancar</span>
-        <span><i class="sw ghost"></i>Ahorro del año</span>
-        <span><i class="sw solid"></i>Cuánto vale hoy</span>
+        <span><i class="sw neg"></i>Cuesta arrancar</span>
+        <span><i class="sw ghost"></i>Ahorra ese año</span>
+        <span><i class="sw solid"></i>Vale hoy</span>
       </div>
-      <p class="gloss" style="max-width:46ch;margin-top:10px">La barra punteada es el ahorro de ese año. La llena es cuánto vale hoy: plata que llega en tres años vale menos que la misma plata hoy, y la cuenta lo descuenta.</p>
+      <p class="gloss" style="max-width:48ch;margin-top:10px">El año 1 ahorra menos porque el equipo apenas está aprendiendo; del año 2 en adelante va a ritmo pleno. Y cada barra llena queda por debajo de su punteada porque plata que llega en tres años vale menos que la misma plata hoy.</p>
     </div>
   </div>
 </header>
@@ -358,7 +362,7 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
   </div>
 
   <div class="pull">
-    <strong>73 errores y 0 en producción</strong> es una sola frase, no dos. SDD no evita equivocarse: obliga a que la equivocación aparezca temprano, cuando arreglarla es barata.
+    Los 73 errores se encontraron y se arreglaron <strong>antes de que el producto saliera</strong>. Ningún usuario vio uno. El equipo sí se equivoca — se equivoca temprano, que es cuando corregir sale barato.
   </div>
 </section>
 
@@ -403,21 +407,13 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
     <p><strong>Pedirle código a la IA sin spec es la opción peligrosa, no la barata.</strong> Construye rápido —13 M contra 21,6 M— y devuelve casi todo ese ahorro en la barra de al lado. Sale código que parece correcto y no queda rastro de qué se pidió, así que la falla la encuentra un usuario, no el equipo.</p>
   </div>
 
-  <div class="src">
-    <span class="hd">De dónde sale cada número</span>
-    <ul>
-      <li><b>Medido</b>La barra verde-azul de SDD: 12 historias en <code>specs/</code>, 342 tareas y 73 correcciones registradas en <code>docs/metricas/</code>, 5 días de <code>git log</code>.</li>
-      <li><b>Medido</b>Esfuerzo de 135 horas-persona, contrastado por dos vías: capacidad de calendario (6 personas × 5 días × 4 h ≈ 120 h) y suma de tareas (342 × 0,4 h ≈ 137 h).</li>
-      <li><b class="sup">Supuesto</b>Las otras dos barras. Nadie construyó LeagueFlow tres veces: son escenarios de comparación a 30 h y 18 h por historia, contra las 11,25 h que sí se midieron.</li>
-      <li><b class="sup">Supuesto</b>Tarifa cargada de COP 60.000 la hora (USD 15) y COP 480.000 por cada falla que llega a producción — 8 horas entre diagnosticar, corregir, desplegar y avisar.</li>
-    </ul>
-  </div>
+  <p class="srcline"><strong>De dónde salen:</strong> la barra de abajo es real — 12 historias en <code>specs/</code>, 342 tareas y 73 correcciones registradas, 5 días de <code>git log</code>. Las otras dos son escenarios de comparación: nadie construyó LeagueFlow tres veces.</p>
 </section>
 
 <section>
   <p class="eyebrow">El riesgo</p>
   <h2>Cuánta plata se espera perder al año, antes y después.</h2>
-  <p class="sub">Cada cifra es una pérdida esperada: qué tan seguido pasa el problema, por lo que cuesta cada vez que pasa. En millones de pesos al año.</p>
+  <p class="sub">Cada cifra son millones de pesos al año: qué tan seguido pasa el problema, por lo que cuesta arreglarlo. Si algo pasa 6 de cada 10 años y cuesta $4,8 M, la línea dice 2,88.</p>
 
   <div class="tbl-wrap">
     <table>
@@ -437,11 +433,6 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
     </table>
   </div>
 
-  <p class="example">
-    <strong>Cómo leer el 2,88:</strong> construir algo que nadie pidió así pasa unas 6 de cada 10 veces, y rehacerlo cuesta COP 4,8 M. Con spec pasa 2 de cada 10.
-    <span class="eq">60 % × $4,8 M = <strong>$2,88 M al año</strong>  →  20 % × $4,8 M = <strong>$0,96 M</strong></span>
-  </p>
-
   <div class="col" style="margin-top:26px">
     <p>El caso más caro se detectó en la primera historia: el <code>logout</code> borraba la cookie pero <strong>no revocaba la sesión en base de datos</strong>. Habría dejado tokens vivos en el servidor, en silencio. No lo encontró una prueba de humo — lo encontró un criterio de aceptación escrito en la spec.</p>
     <p>Estos $7,8 M al año <strong>no están contados</strong> en la cifra de arriba. Si se cuentan, los $34,3 M pasan a <strong>$44,3 M</strong>.</p>
@@ -449,31 +440,20 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
 </section>
 
 <section>
-  <p class="eyebrow">La objeción</p>
-  <h2>«Ese ahorro no es del método, es de usar IA.»</h2>
-  <p class="sub">Es la crítica justa, y la respuesta no es discutirla: es calcular cuánto tendría que ser cierta para tumbar el caso.</p>
+  <p class="eyebrow">La letra pequeña</p>
+  <h2>Dos cosas que un evaluador va a buscar. Ya están adentro.</h2>
 
-  <div class="ev" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr))">
+  <div class="ev" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
     <div>
-      <span class="n">70 %</span>
-      <span class="t">Lo que le acreditamos</span>
-      <span class="d">Del ahorro medido, solo el 70 % se le atribuye al método. El otro 30 % se le regala a la IA.</span>
+      <span class="n">77 %</span>
+      <span class="t">De la inversión es aprender</span>
+      <span class="d">De los $22,6 M que cuesta arrancar, casi todo es el equipo trabajando más lento los dos primeros meses. Está contado, no escondido.</span>
     </div>
     <div>
-      <span class="n acc">35,4 %</span>
-      <span class="t">El piso</span>
-      <span class="d">Si el método solo explicara el 35,4 % del ahorro, la inversión apenas se pagaría sola. Por debajo, no convendría.</span>
+      <span class="n acc">70 %</span>
+      <span class="t">Del ahorro, no el 100 %</span>
+      <span class="d">Parte del ahorro es de usar IA, no del método. Al método se le acredita solo el 70 % — y aun así la cuenta cierra con holgura.</span>
     </div>
-    <div>
-      <span class="n">2×</span>
-      <span class="t">El margen</span>
-      <span class="d">Estamos al doble de ese piso. El método puede fallar en dos tercios de lo que promete y aún así conviene.</span>
-    </div>
-  </div>
-
-  <div class="col" style="margin-top:28px">
-    <p><strong>Y la inversión no está maquillada.</strong> De los $22,6 M que cuesta arrancar, el 77 % es curva de aprendizaje: dos meses trabajando un 30 % más lento mientras el equipo se acostumbra. Es la objeción real de cualquier equipo y está dentro de la cuenta, no fuera.</p>
-    <p>El resultado tampoco depende de qué tan exigente sea el evaluador: a una tasa suave da <strong>$40,9 M</strong>, en el caso base <strong>$34,3 M</strong>, y a una tasa dura <strong>$27,9 M</strong>. Nunca se vuelve negativo.</p>
   </div>
 </section>
 
