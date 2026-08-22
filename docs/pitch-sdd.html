@@ -259,6 +259,22 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
   border-left:2px solid var(--accent);padding:2px 0 2px 20px;margin:26px 0;
   font-size:1.1rem;color:var(--ink);max-width:52ch;
 }
+/* risk reduction */
+.risk-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:1px;background:var(--line);border:1px solid var(--line);
+  border-radius:3px;overflow:hidden;
+}
+.risk-card{background:var(--surface);padding:20px;display:flex;flex-direction:column;gap:10px}
+.risk-card .hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.risk-card h3{font-size:1.05rem;line-height:1.2}
+.risk-card .tag{
+  flex:none;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--risk);background:var(--risk-soft);padding:3px 7px;border-radius:2px;
+}
+.risk-card p{font-size:14.5px;line-height:1.5;color:var(--ink-2);margin:0}
+.risk-card .control{border-top:1px solid var(--line);padding-top:10px}
+.risk-card .control b{display:block;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
 /* plain-language gloss under a figure */
 .gloss{
   font-family:"Source Serif 4",Georgia,serif;font-size:14.5px;line-height:1.5;
@@ -461,6 +477,39 @@ tfoot td{font-weight:600;background:var(--surface-2);border-top:1px solid var(--
 
   <div class="col">
     <p><strong>Y hay un dato que debería incomodar a todos.</strong> En el estudio de METR los desarrolladores tardaron 19 % más y salieron convencidos de haber sido 20 % más rápidos. En el de DORA, más del 80 % cree que la IA lo hace más productivo. La percepción siempre apunta al mismo lado — por eso este caso se apoya en <code>git</code> y no en impresiones.</p>
+  </div>
+</section>
+
+<section>
+  <p class="eyebrow">Disminuci&oacute;n de riesgos</p>
+  <h2>La spec no solo ahorra horas: reduce la exposici&oacute;n antes de producir.</h2>
+  <p class="sub">Cada control mueve una incertidumbre desde producci&oacute;n, donde corregir cuesta m&aacute;s, hacia una etapa temprana y verificable.</p>
+
+  <div class="risk-grid">
+    <article class="risk-card">
+      <div class="hd"><h3>Construir lo equivocado</h3><span class="tag">Producto</span></div>
+      <p>Una necesidad ambigua puede convertirse r&aacute;pido en c&oacute;digo correcto para el problema incorrecto.</p>
+      <p class="control"><b>Control SDD</b>Criterios de aceptaci&oacute;n verificables antes de implementar y trazabilidad de cada tarea al requisito.</p>
+    </article>
+    <article class="risk-card">
+      <div class="hd"><h3>Regresiones silenciosas</h3><span class="tag">Calidad</span></div>
+      <p>La velocidad de cambio aumenta la probabilidad de romper comportamiento que ya funcionaba.</p>
+      <p class="control"><b>Control SDD</b>414 pruebas en verde y suite completa como compuerta obligatoria de cada pull request.</p>
+    </article>
+    <article class="risk-card">
+      <div class="hd"><h3>Retrabajo tard&iacute;o</h3><span class="tag">Costo</span></div>
+      <p>Un defecto que escapa a producci&oacute;n exige diagn&oacute;stico, correcci&oacute;n y despliegue bajo mayor presi&oacute;n.</p>
+      <p class="control"><b>Control SDD</b>73 problemas corregidos antes de salir: fallar temprano limita el costo y el impacto operativo.</p>
+    </article>
+    <article class="risk-card">
+      <div class="hd"><h3>Decisiones sin evidencia</h3><span class="tag">Gesti&oacute;n</span></div>
+      <p>La percepci&oacute;n de velocidad puede ocultar m&aacute;s fallos, dependencia de IA o deuda acumulada.</p>
+      <p class="control"><b>Control SDD</b>M&eacute;tricas por historia, historial en <code>git</code> y escenarios de 0 % a 30 % en vez de una promesa &uacute;nica.</p>
+    </article>
+  </div>
+
+  <div class="pull" style="margin-top:30px">
+    La disminuci&oacute;n de riesgos no significa prometer cero errores. Significa hacerlos <strong>visibles, trazables y baratos de corregir</strong> antes de que afecten a usuarios y operaci&oacute;n.
   </div>
 </section>
 
