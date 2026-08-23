@@ -23,6 +23,12 @@ const mensajes: Record<string, string> = {
   insufficient_role: 'Tu rol no permite realizar esta acción.',
   username_already_exists: 'Ese nombre de usuario ya está en uso.',
 
+  // Bloqueo del login por intentos fallidos (specs/017)
+  // Mensaje cualitativo a propósito: el catálogo es estático y nunca renderiza
+  // el `message` del servidor, así que no puede dar el número exacto de
+  // minutos. El dato preciso viaja en la cabecera Retry-After (research.md §10).
+  login_locked: 'Demasiados intentos fallidos. Espera unos minutos antes de volver a intentarlo.',
+
   // Ligas (specs/002)
   league_not_found: 'No encontramos la liga que buscas.',
   league_already_exists: 'Ya existe una liga con ese nombre en esa temporada.',

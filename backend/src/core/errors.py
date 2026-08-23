@@ -30,12 +30,17 @@ class ErrorDeNegocio(Exception):
         message: str,
         status_code: int = status.HTTP_400_BAD_REQUEST,
         field: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> None:
         super().__init__(message)
         self.code = code
         self.message = message
         self.status_code = status_code
         self.field = field
+        # Cabeceras extra de la respuesta (p. ej. `Retry-After` del bloqueo de
+        # login, specs/017). El default `None` deja intacto el comportamiento
+        # de todos los errores ya existentes: es estrictamente aditivo.
+        self.headers = headers
 
 
 def envelope(code: str, message: str, field: str | None = None) -> dict:
@@ -48,6 +53,7 @@ def registrar_manejadores(app: FastAPI) -> None:
         return JSONResponse(
             status_code=exc.status_code,
             content=envelope(exc.code, exc.message, exc.field),
+            headers=exc.headers,
         )
 
     @app.exception_handler(RequestValidationError)

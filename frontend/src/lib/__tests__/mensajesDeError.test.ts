@@ -23,6 +23,17 @@ describe('mensajeDeError', () => {
     );
   });
 
+  it('el bloqueo de login tiene mensaje propio, distinto del de credenciales (specs/017)', () => {
+    // Assumption "Aviso en la interfaz" de specs/017: el usuario legítimo debe
+    // entender por qué su contraseña correcta no funciona, así que el mensaje
+    // no puede ser ni el genérico ni el de credenciales inválidas.
+    const bloqueado = mensajeDeError(errorConCodigo('login_locked'));
+    expect(bloqueado).not.toBe(MENSAJE_GENERICO);
+    expect(bloqueado).not.toBe(mensajeDeError(errorConCodigo('invalid_credentials')));
+    // Cualitativo, sin el número exacto de minutos (research.md §10).
+    expect(bloqueado).not.toMatch(/\d/);
+  });
+
   it('usa el genérico con un código desconocido', () => {
     expect(mensajeDeError(errorConCodigo('codigo_que_no_existe'))).toBe(MENSAJE_GENERICO);
   });
